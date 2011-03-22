@@ -1,0 +1,253 @@
+usb-moded (0.33) unstable; urgency=low
+
+  * More security guesswork. Hopefully the doxygen tags are
+    correct now. Fixes: NB#231818
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Thu, 17 Mar 2011 12:48:49 +0200
+
+usb-moded (0.32) unstable; urgency=low
+
+  * Coverity fixes. Fixes: NB#235405
+  * Make charging fallback timeout shorter. Fixes: NB#234094
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Thu, 10 Mar 2011 16:08:58 +0200
+
+usb-moded (0.31) unstable; urgency=low
+
+  * Fix appearance of drive even if umounting fails.  Fixes: NB#229105
+  * Mode setting and clean-up seperated from module loading.
+  * Fix dev package dependencies. Fixes: NB#232170
+  * Add credential tags to header file. Fixes: NB#231818
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Mon, 28 Feb 2011 14:21:58 +0200
+
+usb-moded (0.30) unstable; urgency=low
+
+  * signal re-mounting error, and mount fallback. Fixes: NB#207408
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Fri, 11 Feb 2011 16:14:24 +0200
+
+usb-moded (0.29) unstable; urgency=low
+
+  * Don't build docs when NODOCS is specified in the Debian build options. Fixes: NB#226245
+    Patch supplied by Yakubenko Sergey
+  * Listen to DSME shutdown signal to disconnect the current mode for ACT_DEAD. Fixes: NB#209842
+  * Updated doxygen config to remove errors.
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Thu, 10 Feb 2011 12:11:04 +0200
+
+usb-moded (0.28) unstable; urgency=low
+
+  * Make sure filesystem is remounted before sending disconnect signal
+  * Send pre-unmount signal. Fixes: NB#187735
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 25 Jan 2011 14:51:33 +0200
+
+usb-moded (0.27) unstable; urgency=low
+
+  * Do not error out in case the filesystem is still unmounted. Fixes: NB#218025
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Wed, 12 Jan 2011 13:57:44 +0200
+
+usb-moded (0.26) unstable; urgency=low
+
+  * Improve robustness of appsync file parsing. Fixes: NB#209600
+  * Make sure we do not exit when session dbus dies. Fixes: NB#210575
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Fri, 10 Dec 2010 16:05:16 +0200
+
+usb-moded (0.25) unstable; urgency=low
+
+  * Silence output of system() calls when not in debug mode
+  * Improve program killer to avoid unnecessary work
+  * Increase debouncing timeout. Fixes: NB#193301
+  
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Mon, 29 Nov 2010 16:34:23 +0200
+
+usb-moded (0.24) unstable; urgency=low
+
+  * Send error signals when something goes wrong. Fixes: NB#197206
+  * Delay module unloading. To avoid unload/reload on fast disconnect/reconnect. Fixes: NB#193301
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 16 Nov 2010 12:31:20 +0200
+
+usb-moded (0.23) unstable; urgency=low
+
+  * Correct nsu mode detection by not using /proc/bootreason. Fixes: NB#193559
+  
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Thu, 11 Nov 2010 17:16:07 +0200 
+
+usb-moded (0.22) unstable; urgency=low
+
+  * Check for nsu mode and then do nothing until cable gets unplugged/replugged
+  * Update connect mode for g_nokia
+  * Sync after mtp mode disconnection as suggested by Bityutskiy Artem.
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Mon, 18 Oct 2010 15:42:15 +0300
+
+usb-moded (0.21) unstable; urgency=low
+
+  * Do not unload mass_storage when going into charging mode. Avoids USB cert issues
+    when the devicelock is not functioning or replying. Fixes: NB#196588 
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Fri, 08 Oct 2010 12:55:27 +0300
+
+usb-moded (0.20) unstable; urgency=low
+
+  * Do not try to mount fs if it is not unmounted
+  * Clean up dirty devicelock fix
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Wed, 29 Sep 2010 12:14:55 +0300
+
+usb-moded (0.19) unstable; urgency=low
+  
+  * Implement CR for app sync.
+  * Log everything with logging functions and remove fprintf
+  * Fix logic error in mount/umount. Fixes: NB#178489
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Mon, 20 Sep 2010 16:32:07 +0300
+
+usb-moded (0.18) unstable; urgency=low
+
+  * Add fua handling. Fixes: NB#187000
+  * Remove static options for g_file_storage that belong in /etc/modprobe.d
+  * Add a check in connection routine to only select a mode if the connection status is false
+  * Remove non necessary and non standard desktop ready signals and fix the mode broadcasting signals
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 07 Sep 2010 13:30:41 +0300
+
+usb-moded (0.17) unstable; urgency=low
+
+  * Improve charger detection to avoid showing connection dialog when
+    using wall charger. Fixes: NB#169825
+  * Get rid of HAL completely to increase MeeGo support while at it
+  * Include autotools in build-dependencies. Fixes: NB#187685
+
+ -- Tuomo Tanskanen <ext-tuomo.1.tanskanen@nokia.com>  Mon, 30 Aug 2010 10:26:44 +0300
+
+usb-moded (0.16) unstable; urgency=low
+
+  * Add aegis manifest. Fixes: NB#182124
+  * Add g_ether/windows_network mode for mad development
+  * Fix most superfluous linking
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 10 Aug 2010 11:01:11 +0300
+
+usb-moded (0.15) unstable; urgency=low
+  
+  * If mode change is requested, do not change mode if requested mode is already active. Fixes: NB#181153 
+  * Check if devicelock is unlocked and initiate connection if the cable has been inserted previously
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Thu, 22 Jul 2010 17:29:57 +0300
+
+usb-moded (0.14) unstable; urgency=low
+
+  * Route -n does not always return default... Fixes: NB#175249
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Mon, 21 Jun 2010 14:21:14 +0300
+
+usb-moded (0.13) unstable; urgency=low
+
+  * Only activate usb network if no other network is up.
+  * use GConf schema instead of gconftool-2 in postinst. Fixes: NB#174536
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Mon, 14 Jun 2010 16:13:17 +0300
+
+usb-moded (0.12) unstable; urgency=low
+ 
+  * Improved killer. Does not ignore mtp and gc interfaces and tries to be
+    less agressive with sigterm before sigkill.
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Mon, 07 Jun 2010 11:28:33 +0300
+
+usb-moded (0.11) unstable; urgency=low
+
+  * Add removable=1 flag to the mass-storage profile. Fixes: NB#159847
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 01 Jun 2010 14:40:21 +0300
+
+usb-moded (0.10) unstable; urgency=low
+
+  * Make devicelock and act_dead stuff Nokia specific.
+  * Add lsof dependency
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Fri, 28 May 2010 16:36:17 +0300
+
+usb-moded (0.9) unstable; urgency=low
+  
+  * Add devicelock support. Implemented: SWP#MaSSW-1743
+  * Send data in use signal when mass storage is chosen.
+  * Do not export anything in act_dead mode.
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 25 May 2010 15:37:32 +0300
+
+usb-moded (0.8-1) unstable; urgency=low
+  
+  * Added use_mtp=1 parameter to loading of g_nokia as TEMPORARY workaround
+    (Fixes: NB#170537)
+
+ -- Pekka Lundstrom <pekka.lundstrom@nokia.com>  Wed, 26 May 2010 13:26:45 +0300
+
+usb-moded (0.8) unstable; urgency=low
+
+  * Tweak dbus security policy to let users invoke the query and set_mode methods
+    Fixes: NB#169901
+  * clean-up some lintian warnings.
+  * add preparations for devicelock support
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Mon, 24 May 2010 11:52:51 +0300
+
+usb-moded (0.7) unstable; urgency=low
+
+  * Introduce killer for unstable programs that block module unloading.
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 11 May 2010 12:50:19 +0300
+
+usb-moded (0.6) unstable; urgency=low
+
+  * Make usb mass storage work
+  * Bring up usb network interface
+  * Charging mode loads g_file_storage without exporting fs
+  * Switching modes works if nobody claims the interfaces so modules can be unloaded
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Sat, 08 May 2010 14:24:47 +0300
+
+usb-moded (0.5) unstable; urgency=low
+
+  * Make sure that the charging fallback does not override the chosen mode.
+  * Fix some lintian warnings.
+  * Improve g_file_storage loading and add mount point config file.
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Fri, 30 Apr 2010 15:58:50 +0300
+
+usb-moded (0.4) unstable; urgency=low
+
+  * Split the logging functions to their own files
+  * Add documentation with doxygen
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Wed, 28 Apr 2010 20:56:34 +0300
+
+usb-moded (0.3) unstable; urgency=low
+
+  * Usb-moded start before HAL d-bus interface is ready. Thanks to Simo Piiroinen. Fixes: NB#165616
+  * Add postinstall script so gconf is set up correctly
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 27 Apr 2010 13:14:44 +0300
+
+usb-moded (0.2) unstable; urgency=low
+
+  * Add introspective dbus support for QDBusInterface (thanks to David Kedves)
+  * Make dbus conf a bit more permissive
+  * pre-eliminary module loading/unloading
+  * add ability to set gconf key (new method call).
+  * fix wrong path in .pc file. Fixes: NB#165780
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Mon, 26 Apr 2010 19:12:58 +0300
+
+usb-moded (0.1-1) unstable; urgency=low
+
+  * Initial release
+    Fixes: NB#156765, NB#159816
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 09 Mar 2010 11:28:10 +0200
+

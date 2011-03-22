@@ -1,0 +1,90 @@
+AC_INIT([usb_moded], [0.33])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+
+AM_CONFIG_HEADER([config.h])
+
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_LIBTOOL
+
+AC_C_CONST
+AC_HEADER_STDC
+
+test_gcc_flag() {
+    AC_LANG_CONFTEST([int main() {}])
+    $CC -c conftest.c $CFLAGS $@ > /dev/null 2> /dev/null
+    ret=$?
+    rm -f conftest.o
+    return $ret
+}
+
+# If using GCC specify some additional parameters
+if test "x$GCC" = "xyes" ; then
+    # We use gnu99 instead of c99 because many have interpreted the standard
+    # in a way that int64_t isn't defined on non-64 bit platforms.
+    DESIRED_FLAGS="-std=gnu99 -Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wmissing-noreturn -Wendif-labels -Wpointer-arith -Wcast-align -Wwrite-strings -Winline -Wno-unused-parameter"
+
+    for flag in $DESIRED_FLAGS ; do
+        AC_MSG_CHECKING([whether $CC accepts $flag])
+        if test_gcc_flag $flag ; then 
+           CFLAGS="$CFLAGS $flag"
+           AC_MSG_RESULT([yes])
+        else
+           AC_MSG_RESULT([no])
+        fi
+    done 
+fi
+
+AC_ARG_ENABLE([debug], AS_HELP_STRING([--enable-debug],[Enable debug @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) debug=true ; CFLAGS="-ggdb -O0 -DDEBUG -DOSSOLOG_STDERR $CFLAGS" ;;
+   no)  debug=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+   esac],[debug=false])
+AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
+
+AC_ARG_ENABLE([nokia], AS_HELP_STRING([--enable-nokia], [Enable Nokia extra's @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) nokia=true ; CFLAGS="-DNOKIA $CFLAGS" ;;
+   no)  nokia=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-nokia]) ;;
+   esac],[nokia=false])
+AM_CONDITIONAL([NOKIA], [test x$nokia = xtrue])
+
+AC_ARG_ENABLE([app_sync], AS_HELP_STRING([--enable-app-sync], [Enable application syncing @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) app_sync=true ; CFLAGS="-DAPP_SYNC $CFLAGS" ;;
+   no)  app_sync=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-app_sync]) ;;
+   esac],[app_sync=false])
+AM_CONDITIONAL([APP_SYNC], [test x$app_sync = xtrue])
+
+PKG_CHECK_MODULES([USB_MODED], [
+ glib-2.0 >= 2.2.0
+ dbus-1 >= 1.2.1
+ dbus-glib-1 >= 0.78
+ gobject-2.0 >= 2.16.6
+ gconf-2.0 >= 2.16.0
+ gio-2.0
+])
+
+AC_SUBST(USB_MODED_LIBS)
+AC_SUBST(USB_MODED_CFLAGS)
+
+AC_CONFIG_FILES([
+	Makefile
+	src/Makefile
+	usb_moded.pc
+	docs/usb_moded-doxygen.conf
+	docs/Makefile
+])
+
+echo "
+ == $PACKAGE_NAME $VERSION ==
+
+    Compiler:               ${CC}
+    CFLAGS:                 ${CFLAGS}
+
+    Debug enabled:          ${debug}
+"
+AC_OUTPUT

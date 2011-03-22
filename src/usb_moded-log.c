@@ -1,0 +1,129 @@
+/**
+  @file usb_moded-log.c
+
+  Copyright (C) 2010 Nokia Corporation. All rights reserved.
+
+  @author: Philippe De Swert <philippe.de-swert@nokia.com>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the Lesser GNU General Public License 
+  version 2 as published by the Free Software Foundation. 
+
+  This program is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+ 
+  You should have received a copy of the Lesser GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  02110-1301 USA
+*/
+
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/time.h>
+
+#include "usb_moded-log.h"
+
+const char *log_name = "<unset>";
+int log_level = LOG_WARNING;
+int log_type  = LOG_TO_STDERR;
+
+/**
+ * Print the logged messages to the selected output
+ *
+ * @param lev The wanted log level
+ * @param fmt The message to be logged
+ * @param va The stdarg variable list
+ */
+void log_emit_va(int lev, const char *fmt, va_list va)
+{
+        if( log_level >= lev )
+        {
+                switch( log_type )
+                {
+                case LOG_TO_SYSLOG:
+
+                        vsyslog(lev, fmt, va);
+                        break;
+
+                case LOG_TO_STDERR:
+
+                        fprintf(stderr, "%s: ", log_name);
+
+#if LOG_ENABLE_TIMESTAMPS
+                        {
+                                struct timeval tv;
+                                gettimeofday(&tv, 0);
+                                fprintf(stderr, "%ld.%06ld ",
+                                        (long)tv.tv_sec,
+                                        (long)tv.tv_usec);
+                        }
+#endif
+
+#if LOG_ENABLE_LEVELTAGS
+                        {
+                                static const char *tag = "U:";
+                                switch( lev )
+                                {
+                                case 2: tag = "C:"; break;
+                                case 3: tag = "E:"; break;
+                                case 4: tag = "W:"; break;
+                                case 5: tag = "N:"; break;
+                                case 6: tag = "I:"; break;
+                                case 7: tag = "D:"; break;
+                                }
+                                fprintf(stderr, "%s ", tag);
+                        }
+#endif
+                        vfprintf(stderr, fmt, va);
+                        break;
+
+                default:
+                        // no logging
+                        break;
+                }
+        }
+}
+
+void log_emit(int lev, const char *fmt, ...)
+{
+        va_list va;
+        va_start(va, fmt);
+        log_emit_va(lev, fmt, va);
+        va_end(va);
+}
+
+void log_debugf(const char *fmt, ...)
+{
+        /* This goes always to stderr */
+        if( log_type == LOG_TO_STDERR && log_level >= LOG_DEBUG )
+        {
+                va_list va;
+                va_start(va, fmt);
+                vfprintf(stderr, fmt, va);
+                va_end(va);
+        }
+}
+/**
+ * returns the currently set log level
+ *
+ * @return The current log level
+ */
+int log_get_level(void)
+{
+        return log_level;
+}
+
+/* Set the log level
+ *
+ * @param The wanted log level
+ */
+void log_set_level(int lev)
+{
+        log_level = lev;
+}
+

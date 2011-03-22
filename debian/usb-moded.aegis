@@ -1,0 +1,36 @@
+<aegis>
+        <provide>
+                <credential name="usb-moded-dbus-bind" />
+                <credential name="USBControl" />
+
+                <dbus name="com.meego.usb_moded" own="usb-moded-dbus-bind" bus="system">
+                        <node name="/">
+                                <interface name="com.meego.usb_moded">
+                                        <method name="mode_request">
+                                                <annotation name="com.maemo.Aegis" value=""/>
+                                        </method>
+                                </interface>
+                                <interface name="com.meego.usb_moded">
+                                        <method name="set_mode">
+                                                <annotation name="com.maemo.Aegis" value="USBControl"/>
+                                        </method>
+                                </interface>
+                                <interface name="com.meego.usb_moded">
+                                        <method name="set_config">
+                                                <annotation name="com.maemo.Aegis" value="USBControl"/>
+                                        </method>
+                                </interface>
+                        </node>
+                </dbus>
+        </provide>
+        <request>
+                <credential name="usb-moded-dbus-bind" />
+	        <credential name="CAP::sys_admin" />
+	        <credential name="CAP::sys_module" />
+	        <credential name="CAP::net_admin" />
+	        <credential name="CAP::sys_ptrace" />
+	        <credential name="CAP::kill" />
+                <for path="/usr/sbin/usb_moded" />
+        </request>
+</aegis>
+

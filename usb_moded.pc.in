@@ -1,0 +1,10 @@
+prefix=/usr
+includedir=${prefix}/include/usb-moded
+libdir=${prefix}/lib
+
+Name: usb_moded
+Description: usb_moded defines for dbus and mode names
+Version: @VERSION@
+Requires:
+Libs: 
+Cflags: -I${includedir}
