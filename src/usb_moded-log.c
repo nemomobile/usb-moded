@@ -4,6 +4,7 @@
   Copyright (C) 2010 Nokia Corporation. All rights reserved.
 
   @author: Philippe De Swert <philippe.de-swert@nokia.com>
+  @author: Simo Piiroinen <simo.piiroinen@nokia.com>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the Lesser GNU General Public License 
