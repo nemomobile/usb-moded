@@ -13,7 +13,6 @@ usb_moded_SOURCES = \
         usb_moded.c \
 	usb_moded.h \
 	usb_moded-modes.h \
-	usb_moded-chargerdetection.c \
 	usb_moded-dbus.c \
 	usb_moded-dbus.h \
 	usb_moded-dbus-private.h \
@@ -29,6 +28,14 @@ usb_moded_SOURCES = \
 	usb_moded-config.h \
 	usb_moded-modesetting.c \
 	usb_moded-modesetting.h
+if HAL
+usb_moded_SOURCES += \
+	usb_moded-hal.c
+else
+usb_moded_SOURCES += \
+	usb_moded-chargerdetection.c 
+endif
+
 if NOKIA	
 usb_moded_SOURCES += \
 	usb_moded-devicelock.h \

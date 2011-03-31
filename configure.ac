@@ -59,6 +59,14 @@ AC_ARG_ENABLE([app_sync], AS_HELP_STRING([--enable-app-sync], [Enable applicatio
    esac],[app_sync=false])
 AM_CONDITIONAL([APP_SYNC], [test x$app_sync = xtrue])
 
+AC_ARG_ENABLE([hal], AS_HELP_STRING([--enable-hal], [Enable deprecated hal interface @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) hal=true ; CFLAGS="-DHAL -I/usr/include/hal -lhal $CFLAGS" ;;
+   no)  hal=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-hal]) ;;
+   esac],[hal=false])
+AM_CONDITIONAL([HAL], [test x$hal = xtrue])
+
 PKG_CHECK_MODULES([USB_MODED], [
  glib-2.0 >= 2.2.0
  dbus-1 >= 1.2.1
