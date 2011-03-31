@@ -132,14 +132,14 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
 		
 	        /* activate mounts */
                 for(i=0 ; mounts[i] != NULL; i++)
-                {
+                {       
+			sprintf(command2, "echo %i  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/nofua", fua, i);
+                        log_debug("usb lun = %s active\n", command2);
+                        system(command2);
                 	sprintf(command2, "echo %s  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", mounts[i], i);
                         log_debug("usb lun = %s active\n", command2);
                         system(command2);
-                        sprintf(command2, "echo %i  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/nofua", fua, i);
-                        log_debug("usb lun = %s active\n", command2);
-                        system(command2);
-               }
+                                       }
                g_strfreev(mounts);
 	}
 
