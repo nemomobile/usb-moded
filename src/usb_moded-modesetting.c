@@ -130,7 +130,8 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
                                 ret = 0;
               	}
 		
-	        /* activate mounts */
+	        /* activate mounts after sleeping 1s to be sure enumeration happened and autoplay will work */
+		sleep(1);
                 for(i=0 ; mounts[i] != NULL; i++)
                 {       
 			sprintf(command2, "echo %i  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/nofua", fua, i);
@@ -151,25 +152,46 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
 
 }
 
+#ifdef NOKIA
 int set_ovi_suite_mode(GList *applist)
 {
    int net = 0;
 
-#ifdef NOKIA
   /* do not go through the appsync routine if there is no applist */
   if(applist)
   	activate_sync(applist);
   else
         enumerate_usb(NULL);
-#endif /* NOKIA */
   /* bring network interface up in case no other network is up */
-  net = system("route | grep default");
+  net = system("route -n | grep default");
   if(net)
 	  net = system("ifdown usb0 ; ifup usb0");
 
   return(0);
 }
 
+gboolean export_cdrom(gpointer data)
+{
+  const char *path = NULL, *command = NULL;
+
+  path = find_cdrom_path();
+
+  if(path == NULL)
+  {
+	log_debug("No cdrom path specified => not exporting.\n");
+  }
+  if(access(path, F_OK) == 0)
+  {
+  	command = g_strconcat("echo ", path, " > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", NULL);
+	system(command);
+  }
+  else
+	log_debug("Cdrom image file does not exist => no export.\n");
+
+  return(FALSE);
+}
+
+#endif /* NOKIA */
 
 
 /** clean up mode changes or extra actions to perform after a mode change 

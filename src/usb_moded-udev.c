@@ -7,65 +7,91 @@
 
 #include <libudev.h>
 
-#include "usb_moded-loh.h"
+#include <glib.h>
+
+#include "usb_moded-log.h"
+#include "usb_moded-hw-ab.h"
+#include "usb_moded.h"
 
 /* global variables */
 struct udev *udev;
 struct udev_monitor *mon;
 struct udev_device *dev;
 
-int hwal_init(void)
+/* static function definitions */
+gpointer monitor_udev(gpointer data) __attribute__ ((noreturn));
+
+gboolean hwal_init(void)
 {
-  struct udev_list_entry *devices, *dev_list_entry;
-  struct pollfd *fds;
-  int poll_ret = 0;
+  GThread * thread;
 	
   /* Create the udev object */
   udev = udev_new();
   if (!udev) 
   {
     log_err("Can't create udev\n");
-    return 1;
+    return 0;
   }
-
-  /* Set up a monitor to monitor devices */
-  mon = udev_monitor_new_from_netlink(udev, "udev");
-  udev_monitor_filter_add_match_subsystem_devtype(mon, "usb", NULL);
-  udev_monitor_enable_receiving(mon);
-  /* Get the file descriptor (fd) for the monitor.
-  This fd will get passed to select() */
-  fd = udev_monitor_get_fd(mon);
-
-  /* loop waiting for events */
-  while(1)
+  dev = udev_device_new_from_syspath(udev, "/sys/class/power_supply/usb");
+  if (!dev) 
   {
-    /* set a poll on the fd so we do not block trying to read data */
-    fds = malloc(sizeof(struct pollfd));
-    fds->fd = fd;
-    fds->events = POLLPRI;
-    poll_ret = poll(fds, 1, -1);
-    if(poll_ret)
-    { 
-      dev = udev_monitor_receive_device(mon);
-      if(dev) 
-      {
-	log_debug("Got Device\n");
-	log_debug("   Node: %s\n", udev_device_get_devnode(dev));
-	log_debug("   Subsystem: %s\n", udev_device_get_subsystem(dev));
-	log_debug("   Devtype: %s\n", udev_device_get_devtype(dev));
-	log_debug("   Action: %s\n", udev_device_get_action(dev));
-        udev_device_unref(dev);
-      }
+    log_err("Unable to find /sys/class/power_supply/usb device.");
+    return 0;
+  }
+  mon = udev_monitor_new_from_netlink (udev, "udev");
+  if (!mon) 
+  {
+    log_err("Unable to monitor the 'present' value\n");
+    return 0;
+  }
+  udev_monitor_filter_add_match_subsystem_devtype(mon, "power_supply", NULL);
+  udev_monitor_enable_receiving (mon);
+  
+  thread = g_thread_create(monitor_udev, NULL, FALSE, NULL);
 
-    }
- 
+  if(thread)
+  	return 1;
+  else
+  {
+	log_debug("thread not created succesfully\n");
+	return 0;
+  }
 }
 
-int hwal_cleanup(void)
+gpointer monitor_udev(gpointer data)
 {
-  udev_enumerate_unref(enumerate);
+  while(1)
+  {
+    dev = udev_monitor_receive_device (mon);
+    if (dev) 
+    {
+      if(!strcmp(udev_device_get_action(dev), "change"))
+      {
+        if(!strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT"), "1"))
+        {
+	  log_debug("UDEV:power supply present\n");
+	  /* POWER_SUPPLY_TYPE is USB if usb cable is connected, or USB_DCP for charger */
+	  if(!strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE"), "USB"))
+          {
+	    log_debug("UDEV:USB cable connected\n");
+	    set_usb_connected(TRUE);
+	  }
+        }
+        else
+	{
+	  log_debug("UDEV:USB cable disconnected\n");
+	  set_usb_connected(FALSE);
+        }
+      }
+      udev_device_unref(dev);
+    }
+  }
+}
+
+void hwal_cleanup(void)
+{
+  udev_monitor_unref(mon);
   udev_unref(udev);
-  return 0;       
 }
 
 

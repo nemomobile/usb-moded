@@ -26,4 +26,7 @@ int find_number_of_mounts(void);
 int set_mass_storage_mode(void);
 int set_ovi_suite_mode(GList *applist);
 int usb_moded_mode_cleanup(const char *module);
+#ifdef NOKIA
+gboolean export_cdrom (gpointer data);
+#endif
 

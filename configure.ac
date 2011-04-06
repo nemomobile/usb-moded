@@ -1,4 +1,4 @@
-AC_INIT([usb_moded], [0.33])
+AC_INIT([usb_moded], [0.34])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AM_CONFIG_HEADER([config.h])
@@ -66,6 +66,16 @@ AC_ARG_ENABLE([hal], AS_HELP_STRING([--enable-hal], [Enable deprecated hal inter
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-hal]) ;;
    esac],[hal=false])
 AM_CONDITIONAL([HAL], [test x$hal = xtrue])
+
+AC_ARG_ENABLE([udev], AS_HELP_STRING([--enable-udev], [Enable udev interface @<:@default=true@:>@]),
+  [case "${enableval}" in
+   yes) hal=true ; CFLAGS="-DUDEV -ludev $CFLAGS" ;;
+   no)  hal=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-udev]) ;;
+   esac],[hal=false])
+AM_CONDITIONAL([UDEV], [test x$udev = xtrue])
+
+
 
 PKG_CHECK_MODULES([USB_MODED], [
  glib-2.0 >= 2.2.0

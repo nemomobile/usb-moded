@@ -29,7 +29,12 @@
 #define FS_SYNC_KEY			"nofua"
 #define ALT_MOUNT_ENTRY			"altmount"
 #define ALT_MOUNT_KEY			"mount"
+#define CDROM_PATH_ENTRY		"cdrom"
+#define CDROM_PATH_KEY			"path"
 
 const char * find_mounts(void);
 int find_sync(void);
 const char * find_alt_mount(void);
+#ifdef NOKIA
+const char * find_cdrom_path(void);
+#endif

@@ -546,6 +546,7 @@ int main(int argc, char* argv[])
 		freopen("/dev/null", "a", stderr);
 	}
         g_type_init();
+	g_thread_init(NULL);
 	mainloop = g_main_loop_new(NULL, FALSE);
 	log_debug("usb_moded starting\n");
 

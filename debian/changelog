@@ -1,3 +1,10 @@
+usb-moded (0.34) unstable; urgency=low
+
+  * Delay unloading a bit more (5s instead of 3). Fixes: NB#225492
+  * Fixes for USB autoplay. Fixes: NB#220474
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Fri, 01 Apr 2011 13:22:51 +0300
+
 usb-moded (0.33) unstable; urgency=low
 
   * More security guesswork. Hopefully the doxygen tags are

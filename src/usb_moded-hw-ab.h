@@ -26,6 +26,8 @@
 
 /*============================================================================= */
 
+#include <glib.h>
+
 /* set up the hw abstraction layer 
  *
  * @return Returns true when succesful

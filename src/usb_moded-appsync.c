@@ -1,5 +1,5 @@
 /**
-  @file usb_moded-config.c
+  @file usb_moded-appsync.c
  
   Copyright (C) 2010 Nokia Corporation. All rights reserved.
 
@@ -32,6 +32,9 @@
 #include "usb_moded-appsync-dbus.h"
 #include "usb_moded-appsync-dbus-private.h"
 #include "usb_moded-log.h"
+#ifdef NOKIA
+#include "usb_moded-modesetting.h"
+#endif
 
 static struct list_elem *read_file(const gchar *filename);
 
@@ -192,12 +195,19 @@ gboolean enumerate_usb(gpointer data)
   
   /* activate usb connection/enumeration */
   system("echo 1 > /sys/devices/platform/musb_hdrc/gadget/softconnect");
+  log_debug("Softconnect enumeration done\n");
 
   /* no need to remove timer */
 
   /* remove dbus filter */
   if(data != NULL)
 	  usb_moded_appsync_cleanup((GList *)data);
+
+#ifdef NOKIA
+  /* timeout for exporting CDROM image */
+  g_timeout_add_seconds(1, export_cdrom, data);
+
+#endif /* NOKIA */
 
   /* return false to stop the timer from repeating */
   return(FALSE);
