@@ -25,7 +25,7 @@ gpointer monitor_udev(gpointer data) __attribute__ ((noreturn));
 gboolean hwal_init(void)
 {
   GThread * thread;
-  const gchar *udev_path;
+  const gchar *udev_path = NULL;
 	
   /* Create the udev object */
   udev = udev_new();
@@ -42,7 +42,7 @@ gboolean hwal_init(void)
   	dev = udev_device_new_from_syspath(udev, "/sys/class/power_supply/usb");
   if (!dev) 
   {
-    log_err("Unable to find /sys/class/power_supply/usb device.");
+    log_err("Unable to find $power_supply device.");
     return 0;
   }
   mon = udev_monitor_new_from_netlink (udev, "udev");
@@ -74,7 +74,8 @@ gpointer monitor_udev(gpointer data)
     {
       if(!strcmp(udev_device_get_action(dev), "change"))
       {
-        if(!strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT"), "1"))
+        if(!strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT"), "1") ||
+           !strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE"), "1"))
         {
 	  log_debug("UDEV:power supply present\n");
 	  /* POWER_SUPPLY_TYPE is USB if usb cable is connected, or USB_DCP for charger */

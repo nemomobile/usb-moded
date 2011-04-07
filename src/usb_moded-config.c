@@ -139,7 +139,7 @@ const char * find_udev_path(void)
   test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
   if(!test)
   {
-      log_debug("No cdrom path.\n");
+      log_debug("No udev path.\n");
       g_key_file_free(settingsfile);
       return(ret);
   }
@@ -151,7 +151,7 @@ const char * find_udev_path(void)
 		tmp_char = g_key_file_get_string(settingsfile, UDEV_PATH_ENTRY, *keys, NULL);
 		if(tmp_char)
 		{
-			log_debug("cdrom key value  = %s\n", tmp_char);
+			log_debug("udev path value  = %s\n", tmp_char);
 			ret = g_strdup(tmp_char);
 		}
 	}
