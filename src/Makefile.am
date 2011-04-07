@@ -31,10 +31,14 @@ usb_moded_SOURCES = \
 if HAL
 usb_moded_SOURCES += \
 	usb_moded-hal.c
-else if NOKIA
+endif
+
+if BME
 usb_moded_SOURCES += \
 	usb_moded-chargerdetection.c 
-else 
+endif
+
+if UDEV
 usb_moded_SOURCES += \
 	usb_moded-udev.c 
 endif

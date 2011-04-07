@@ -10,6 +10,7 @@
 #include <glib.h>
 
 #include "usb_moded-log.h"
+#include "usb_moded-config.h"
 #include "usb_moded-hw-ab.h"
 #include "usb_moded.h"
 
@@ -24,6 +25,7 @@ gpointer monitor_udev(gpointer data) __attribute__ ((noreturn));
 gboolean hwal_init(void)
 {
   GThread * thread;
+  const gchar *udev_path;
 	
   /* Create the udev object */
   udev = udev_new();
@@ -32,7 +34,12 @@ gboolean hwal_init(void)
     log_err("Can't create udev\n");
     return 0;
   }
-  dev = udev_device_new_from_syspath(udev, "/sys/class/power_supply/usb");
+  
+  udev_path = find_udev_path();
+  if(udev_path)
+	dev = udev_device_new_from_syspath(udev, udev_path);
+  else
+  	dev = udev_device_new_from_syspath(udev, "/sys/class/power_supply/usb");
   if (!dev) 
   {
     log_err("Unable to find /sys/class/power_supply/usb device.");

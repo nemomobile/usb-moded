@@ -127,6 +127,41 @@ const char * find_alt_mount(void)
   return(ret);
 }
 
+#ifdef UDEV
+const char * find_udev_path(void)
+{
+  GKeyFile *settingsfile;
+  gboolean test = FALSE;
+  gchar **keys;
+  const char *ret = NULL, *tmp_char;
+
+  settingsfile = g_key_file_new();
+  test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
+  if(!test)
+  {
+      log_debug("No cdrom path.\n");
+      g_key_file_free(settingsfile);
+      return(ret);
+  }
+  keys = g_key_file_get_keys (settingsfile, UDEV_PATH_ENTRY, NULL, NULL);
+  while (*keys != NULL)
+  {
+  	if(!strcmp(*keys, UDEV_PATH_KEY))
+	{
+		tmp_char = g_key_file_get_string(settingsfile, UDEV_PATH_ENTRY, *keys, NULL);
+		if(tmp_char)
+		{
+			log_debug("cdrom key value  = %s\n", tmp_char);
+			ret = g_strdup(tmp_char);
+		}
+	}
+	keys++;
+  }
+  g_key_file_free(settingsfile);
+  return(ret);
+}
+#endif /* UDEV */
+
 #ifdef NOKIA
 const char * find_cdrom_path(void)
 {

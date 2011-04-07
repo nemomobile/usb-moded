@@ -116,7 +116,7 @@ void set_usb_connected(gboolean connected)
 	usb_moded_mode_cleanup(get_usb_module());
 	usb_moded_send_signal(USB_DISCONNECTED);
 #ifdef NOKIA
-	timeout_source = g_timeout_add_seconds(5, usb_module_timeout_cleanup, NULL);
+	timeout_source = g_timeout_add_seconds(8, usb_module_timeout_cleanup, NULL);
 #else
 	/* unload modules and general cleanup */
 	usb_moded_module_cleanup(get_usb_module());

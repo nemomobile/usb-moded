@@ -51,6 +51,14 @@ AC_ARG_ENABLE([nokia], AS_HELP_STRING([--enable-nokia], [Enable Nokia extra's @<
    esac],[nokia=false])
 AM_CONDITIONAL([NOKIA], [test x$nokia = xtrue])
 
+AC_ARG_ENABLE([bme], AS_HELP_STRING([--enable-bme], [Enable Nokia bme cable connection interface @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) bme=true ; CFLAGS="-DBME $CFLAGS" ;;
+   no)  bme=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-bme]) ;;
+   esac],[bme=false])
+AM_CONDITIONAL([BME], [test x$bme = xtrue])
+
 AC_ARG_ENABLE([app_sync], AS_HELP_STRING([--enable-app-sync], [Enable application syncing @<:@default=false@:>@]),
   [case "${enableval}" in
    yes) app_sync=true ; CFLAGS="-DAPP_SYNC $CFLAGS" ;;
@@ -69,10 +77,10 @@ AM_CONDITIONAL([HAL], [test x$hal = xtrue])
 
 AC_ARG_ENABLE([udev], AS_HELP_STRING([--enable-udev], [Enable udev interface @<:@default=true@:>@]),
   [case "${enableval}" in
-   yes) hal=true ; CFLAGS="-DUDEV -ludev $CFLAGS" ;;
-   no)  hal=false ;;
+   yes) udev=true ; CFLAGS="-DUDEV -ludev $CFLAGS" ;;
+   no)  udev=false ;;
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-udev]) ;;
-   esac],[hal=false])
+   esac],[udev=false])
 AM_CONDITIONAL([UDEV], [test x$udev = xtrue])
 
 

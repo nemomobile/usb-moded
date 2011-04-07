@@ -5,6 +5,6 @@ libdir=${prefix}/lib
 Name: usb_moded
 Description: usb_moded defines for dbus and mode names
 Version: @VERSION@
-Requires:
+Requires: dbus-1
 Libs: 
 Cflags: -I${includedir}
