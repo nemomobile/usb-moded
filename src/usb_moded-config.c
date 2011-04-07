@@ -48,6 +48,8 @@ const char *find_mounts(void)
       return(ret);
   }
   keys = g_key_file_get_keys (settingsfile, FS_MOUNT_ENTRY, NULL, NULL);
+  if(keys == NULL)
+	return ret;
   while (*keys != NULL)
   {
   	if(!strcmp(*keys, FS_MOUNT_KEY))
@@ -81,6 +83,8 @@ int find_sync(void)
       return(ret);
   }
   keys = g_key_file_get_keys (settingsfile, FS_SYNC_ENTRY, NULL, NULL);
+  if(keys == NULL)
+	return ret;
   while (*keys != NULL)
   {
   	if(!strcmp(*keys, FS_SYNC_KEY))
@@ -110,6 +114,8 @@ const char * find_alt_mount(void)
       return(ret);
   }
   keys = g_key_file_get_keys (settingsfile, ALT_MOUNT_ENTRY, NULL, NULL);
+  if(keys == NULL)
+	return ret;
   while (*keys != NULL)
   {
         if(!strcmp(*keys, ALT_MOUNT_KEY))
@@ -144,6 +150,8 @@ const char * find_udev_path(void)
       return(ret);
   }
   keys = g_key_file_get_keys (settingsfile, UDEV_PATH_ENTRY, NULL, NULL);
+  if(keys == NULL)
+	return ret;
   while (*keys != NULL)
   {
   	if(!strcmp(*keys, UDEV_PATH_KEY))
@@ -179,6 +187,8 @@ const char * find_cdrom_path(void)
       return(ret);
   }
   keys = g_key_file_get_keys (settingsfile, CDROM_PATH_ENTRY, NULL, NULL);
+  if(keys == NULL)
+	return ret;
   while (*keys != NULL)
   {
   	if(!strcmp(*keys, CDROM_PATH_KEY))

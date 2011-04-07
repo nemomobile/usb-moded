@@ -231,7 +231,7 @@ void usb_moded_dbus_cleanup(void)
  * Send regular usb_moded state signal
  *
  * @return 1 on success, 0 on failure
- * @args the signal name
+ * @param state_ind the signal name
  *
 */
 int usb_moded_send_signal(const char *state_ind)

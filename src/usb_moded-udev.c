@@ -67,6 +67,8 @@ gboolean hwal_init(void)
 
 gpointer monitor_udev(gpointer data)
 {
+  const char *tmp;
+  
   while(1)
   {
     dev = udev_monitor_receive_device (mon);
@@ -74,8 +76,15 @@ gpointer monitor_udev(gpointer data)
     {
       if(!strcmp(udev_device_get_action(dev), "change"))
       {
-        if(!strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT"), "1") ||
-           !strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE"), "1"))
+        tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
+        if(!tmp)
+           tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE");
+	if(!tmp)
+	{
+	   log_err("No usable power supply indicator\n");
+	   exit(1);
+	}
+	if(!strcmp(tmp, "1"))
         {
 	  log_debug("UDEV:power supply present\n");
 	  /* POWER_SUPPLY_TYPE is USB if usb cable is connected, or USB_DCP for charger */
