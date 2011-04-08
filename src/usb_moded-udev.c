@@ -22,6 +22,8 @@ struct udev_device *dev;
 /* static function definitions */
 gpointer monitor_udev(gpointer data) __attribute__ ((noreturn));
 
+/* TODO: write udev property parsing in seperate function to avoid code duplication */
+
 gboolean hwal_init(void)
 {
   GThread * thread;
@@ -66,8 +68,16 @@ gboolean hwal_init(void)
     }
   if(!strcmp(tmp, "1"))
   {
-    if(!strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE"), "USB")||
-       !strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE"), "USB_CDP"))
+    /* power supply type might not exist */
+    tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE");
+    if(!tmp)
+    {
+      /* power supply type might not exist also :( Send connected event but this will not be able
+      to discriminate between charger/cable */
+      log_warning("Fallback since cable detecion cannot be accurate. Will connect on any voltage on usb.\n");
+      set_usb_connected(TRUE);
+    }
+    if(!strcmp(tmp, "USB")||!strcmp(tmp, "USB_CDP"))
     {
       log_debug("UDEV:USB cable connected\n");
       set_usb_connected(TRUE);
@@ -108,12 +118,20 @@ gpointer monitor_udev(gpointer data)
         {
 	  log_debug("UDEV:power supply present\n");
 	  /* POWER_SUPPLY_TYPE is USB if usb cable is connected, USB_CDP for charging hub or USB_DCP for charger */
-	  if(!strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE"), "USB")|| 
-	     !strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE"), "USB_CDP"))
+    	  tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE");
+          if(!tmp)
+	  {
+	    /* power supply type might not exist also :( Send connected event but this will not be able
+            to discriminate between charger/cable */
+	    log_warning("Fallback since cable detecion cannot be accurate. Will connect on any voltage on usb.\n");
+	    set_usb_connected(TRUE);
+	  }
+          if(!strcmp(tmp, "USB")||!strcmp(tmp, "USB_CDP"))
           {
 	    log_debug("UDEV:USB cable connected\n");
 	    set_usb_connected(TRUE);
 	  }
+	
         }
         else
 	{

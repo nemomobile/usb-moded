@@ -1,8 +1,7 @@
 usb-moded (0.34) unstable; urgency=low
 
-  * Delay unloading a bit more (8s instead of 3). Fixes: NB#225492
   * Fixes for USB autoplay. Fixes: NB#220474
-  * Added cdrom emulation support.
+  * Added cdrom emulation support. Fixes: NB#244861
   * Added udev option for cable detection
 
  -- Philippe De Swert <philippe.de-swert@nokia.com>  Fri, 01 Apr 2011 13:22:51 +0300
