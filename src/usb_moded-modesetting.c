@@ -157,15 +157,22 @@ int set_ovi_suite_mode(GList *applist)
 {
    int net = 0;
 
+#ifdef APP_SYNC
   /* do not go through the appsync routine if there is no applist */
   if(applist)
   	activate_sync(applist);
   else
         enumerate_usb(NULL);
+#else
+  system("echo 1 > /sys/devices/platform/musb_hdrc/gadget/softconnect");
+#endif /* APP_SYNC */
   /* bring network interface up in case no other network is up */
   net = system("route -n | grep default");
   if(net)
 	  net = system("ifdown usb0 ; ifup usb0");
+
+  /* timeout for exporting CDROM image */
+  g_timeout_add_seconds(1, export_cdrom, NULL);
 
   return(0);
 }

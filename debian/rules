@@ -23,7 +23,7 @@ configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 	if [ ! -x configure ]; then ./autogen.sh; fi	
-	./configure --prefix=/usr --enable-nokia --enable-app-sync --enable-bme
+	./configure --prefix=/usr --enable-nokia --enable-app-sync --enable-udev
 
 	touch configure-stamp
 

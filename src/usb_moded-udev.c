@@ -26,6 +26,7 @@ gboolean hwal_init(void)
 {
   GThread * thread;
   const gchar *udev_path = NULL;
+  const char *tmp;
 	
   /* Create the udev object */
   udev = udev_new();
@@ -53,6 +54,25 @@ gboolean hwal_init(void)
   }
   udev_monitor_filter_add_match_subsystem_devtype(mon, "power_supply", NULL);
   udev_monitor_enable_receiving (mon);
+
+  /* check if we are already connected */
+  tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
+  if(!tmp)
+    tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE");
+  if(!tmp)
+    {
+      log_err("No usable power supply indicator\n");
+      return 0;
+    }
+  if(!strcmp(tmp, "1"))
+  {
+    if(!strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE"), "USB")||
+       !strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE"), "USB_CDP"))
+    {
+      log_debug("UDEV:USB cable connected\n");
+      set_usb_connected(TRUE);
+    }
+  }
   
   thread = g_thread_create(monitor_udev, NULL, FALSE, NULL);
 
@@ -76,9 +96,9 @@ gpointer monitor_udev(gpointer data)
     {
       if(!strcmp(udev_device_get_action(dev), "change"))
       {
-        tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
+        tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE");
         if(!tmp)
-           tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE");
+          tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
 	if(!tmp)
 	{
 	   log_err("No usable power supply indicator\n");
@@ -87,8 +107,9 @@ gpointer monitor_udev(gpointer data)
 	if(!strcmp(tmp, "1"))
         {
 	  log_debug("UDEV:power supply present\n");
-	  /* POWER_SUPPLY_TYPE is USB if usb cable is connected, or USB_DCP for charger */
-	  if(!strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE"), "USB"))
+	  /* POWER_SUPPLY_TYPE is USB if usb cable is connected, USB_CDP for charging hub or USB_DCP for charger */
+	  if(!strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE"), "USB")|| 
+	     !strcmp(udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE"), "USB_CDP"))
           {
 	    log_debug("UDEV:USB cable connected\n");
 	    set_usb_connected(TRUE);

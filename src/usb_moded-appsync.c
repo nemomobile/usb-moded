@@ -203,12 +203,6 @@ gboolean enumerate_usb(gpointer data)
   if(data != NULL)
 	  usb_moded_appsync_cleanup((GList *)data);
 
-#ifdef NOKIA
-  /* timeout for exporting CDROM image */
-  g_timeout_add_seconds(1, export_cdrom, data);
-
-#endif /* NOKIA */
-
   /* return false to stop the timer from repeating */
   return(FALSE);
 }
