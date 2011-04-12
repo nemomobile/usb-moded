@@ -167,7 +167,7 @@ int set_ovi_suite_mode(GList *applist)
   system("echo 1 > /sys/devices/platform/musb_hdrc/gadget/softconnect");
 #endif /* APP_SYNC */
   /* bring network interface up in case no other network is up */
-  net = system("route -n | grep default");
+  net = system("route | grep default");
   if(net)
 	  net = system("ifdown usb0 ; ifup usb0");
 

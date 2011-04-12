@@ -21,14 +21,12 @@ struct udev_device *dev;
 
 /* static function definitions */
 gpointer monitor_udev(gpointer data) __attribute__ ((noreturn));
-
-/* TODO: write udev property parsing in seperate function to avoid code duplication */
+static void udev_parse(struct udev_device *dev);
 
 gboolean hwal_init(void)
 {
   GThread * thread;
   const gchar *udev_path = NULL;
-  const char *tmp;
 	
   /* Create the udev object */
   udev = udev_new();
@@ -58,31 +56,7 @@ gboolean hwal_init(void)
   udev_monitor_enable_receiving (mon);
 
   /* check if we are already connected */
-  tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
-  if(!tmp)
-    tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE");
-  if(!tmp)
-    {
-      log_err("No usable power supply indicator\n");
-      return 0;
-    }
-  if(!strcmp(tmp, "1"))
-  {
-    /* power supply type might not exist */
-    tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE");
-    if(!tmp)
-    {
-      /* power supply type might not exist also :( Send connected event but this will not be able
-      to discriminate between charger/cable */
-      log_warning("Fallback since cable detecion cannot be accurate. Will connect on any voltage on usb.\n");
-      set_usb_connected(TRUE);
-    }
-    if(!strcmp(tmp, "USB")||!strcmp(tmp, "USB_CDP"))
-    {
-      log_debug("UDEV:USB cable connected\n");
-      set_usb_connected(TRUE);
-    }
-  }
+  udev_parse(dev);
   
   thread = g_thread_create(monitor_udev, NULL, FALSE, NULL);
 
@@ -97,8 +71,6 @@ gboolean hwal_init(void)
 
 gpointer monitor_udev(gpointer data)
 {
-  const char *tmp;
-  
   while(1)
   {
     dev = udev_monitor_receive_device (mon);
@@ -106,40 +78,8 @@ gpointer monitor_udev(gpointer data)
     {
       if(!strcmp(udev_device_get_action(dev), "change"))
       {
-        tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE");
-        if(!tmp)
-          tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
-	if(!tmp)
-	{
-	   log_err("No usable power supply indicator\n");
-	   exit(1);
-	}
-	if(!strcmp(tmp, "1"))
-        {
-	  log_debug("UDEV:power supply present\n");
-	  /* POWER_SUPPLY_TYPE is USB if usb cable is connected, USB_CDP for charging hub or USB_DCP for charger */
-    	  tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE");
-          if(!tmp)
-	  {
-	    /* power supply type might not exist also :( Send connected event but this will not be able
-            to discriminate between charger/cable */
-	    log_warning("Fallback since cable detecion cannot be accurate. Will connect on any voltage on usb.\n");
-	    set_usb_connected(TRUE);
-	  }
-          if(!strcmp(tmp, "USB")||!strcmp(tmp, "USB_CDP"))
-          {
-	    log_debug("UDEV:USB cable connected\n");
-	    set_usb_connected(TRUE);
-	  }
-	
-        }
-        else
-	{
-	  log_debug("UDEV:USB cable disconnected\n");
-	  set_usb_connected(FALSE);
-        }
+	udev_parse(dev);
       }
-      udev_device_unref(dev);
     }
   }
 }
@@ -150,4 +90,42 @@ void hwal_cleanup(void)
   udev_unref(udev);
 }
 
+static void udev_parse(struct udev_device *dev)
+{
+  const char *tmp;
 
+  tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE");
+  if(!tmp)
+    tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
+  if(!tmp)
+    {
+      log_err("No usable power supply indicator\n");
+      exit(1);
+    }
+  if(!strcmp(tmp, "1"))
+  {
+    log_debug("UDEV:power supply present\n");
+    /* power supply type might not exist */
+    tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE");
+    if(!tmp)
+    {
+      /* power supply type might not exist also :( Send connected event but this will not be able
+      to discriminate between charger/cable */
+      log_warning("Fallback since cable detecion cannot be accurate. Will connect on any voltage on usb.\n");
+      set_usb_connected(TRUE);
+      goto END;
+    }
+    if(!strcmp(tmp, "USB")||!strcmp(tmp, "USB_CDP"))
+    {
+      log_debug("UDEV:USB cable connected\n");
+      set_usb_connected(TRUE);
+    }
+  }
+  else
+  {
+    log_debug("UDEV:USB cable disconnected\n");
+    set_usb_connected(FALSE);
+  }
+END:
+  udev_device_unref(dev);
+}
