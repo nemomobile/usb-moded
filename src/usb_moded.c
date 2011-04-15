@@ -207,7 +207,7 @@ void set_usb_mode(const char *mode)
 	goto end;
   }
 
-#ifdef NOKIA
+#ifdef N900 
   if(!strcmp(mode, MODE_OVI_SUITE))
   {
 	check_module_state(MODULE_NETWORK);
@@ -216,7 +216,7 @@ void set_usb_mode(const char *mode)
 	if(!ret)
 		ret = set_ovi_suite_mode(applist);
   } 
-#endif /* NOKIA */
+#endif /* N900 */
 
   if(!strcmp(mode, MODE_WINDOWS_NET))
   {	

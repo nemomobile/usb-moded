@@ -1,4 +1,4 @@
-AC_INIT([usb_moded], [0.34])
+AC_INIT([usb_moded], [0.35])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AM_CONFIG_HEADER([config.h])
@@ -45,11 +45,20 @@ AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
 
 AC_ARG_ENABLE([nokia], AS_HELP_STRING([--enable-nokia], [Enable Nokia extra's @<:@default=false@:>@]),
   [case "${enableval}" in
-   yes) nokia=true ; CFLAGS="-DNOKIA $CFLAGS" ;;
+   yes) nokia=true ; CFLAGS="-DNOKIA -DN900 $CFLAGS" ;;
    no)  nokia=false ;;
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-nokia]) ;;
    esac],[nokia=false])
 AM_CONDITIONAL([NOKIA], [test x$nokia = xtrue])
+
+AC_ARG_ENABLE([n900], AS_HELP_STRING([--enable-n900], [Enable N900 extra's @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) n900=true ; CFLAGS="-DN900 $CFLAGS" ;;
+   no)  n900=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-n900]) ;;
+   esac],[n900=false])
+AM_CONDITIONAL([N900], [test x$n900 = xtrue])
+
 
 AC_ARG_ENABLE([bme], AS_HELP_STRING([--enable-bme], [Enable Nokia bme cable connection interface @<:@default=false@:>@]),
   [case "${enableval}" in

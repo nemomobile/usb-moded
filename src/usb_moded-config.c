@@ -186,19 +186,50 @@ const char * find_cdrom_path(void)
       g_key_file_free(settingsfile);
       return(ret);
   }
-  keys = g_key_file_get_keys (settingsfile, CDROM_PATH_ENTRY, NULL, NULL);
+  keys = g_key_file_get_keys (settingsfile, CDROM_ENTRY, NULL, NULL);
   if(keys == NULL)
 	return ret;
   while (*keys != NULL)
   {
   	if(!strcmp(*keys, CDROM_PATH_KEY))
 	{
-		tmp_char = g_key_file_get_string(settingsfile, CDROM_PATH_ENTRY, *keys, NULL);
+		tmp_char = g_key_file_get_string(settingsfile, CDROM_ENTRY, *keys, NULL);
 		if(tmp_char)
 		{
 			log_debug("cdrom key value  = %s\n", tmp_char);
 			ret = g_strdup(tmp_char);
 		}
+	}
+	keys++;
+  }
+  g_key_file_free(settingsfile);
+  return(ret);
+}
+
+int find_cdrom_timeout(void)
+{
+  GKeyFile *settingsfile;
+  gboolean test = FALSE;
+  gchar **keys;
+  int ret = 0;
+
+  settingsfile = g_key_file_new();
+  test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
+  if(!test)
+  {
+      log_debug("no conffile\n");
+      g_key_file_free(settingsfile);
+      return(ret);
+  }
+  keys = g_key_file_get_keys (settingsfile, CDROM_ENTRY, NULL, NULL);
+  if(keys == NULL)
+	return ret;
+  while (*keys != NULL)
+  {
+  	if(!strcmp(*keys, CDROM_TIMEOUT_KEY))
+	{
+		ret = g_key_file_get_integer(settingsfile, CDROM_ENTRY, *keys, NULL);
+		log_debug("key value  = %d\n", ret);
 	}
 	keys++;
   }

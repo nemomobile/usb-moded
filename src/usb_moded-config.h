@@ -31,8 +31,9 @@
 #define ALT_MOUNT_KEY			"mount"
 #define UDEV_PATH_ENTRY			"udev"
 #define UDEV_PATH_KEY			"path"
-#define CDROM_PATH_ENTRY		"cdrom"
+#define CDROM_ENTRY			"cdrom"
 #define CDROM_PATH_KEY			"path"
+#define CDROM_TIMEOUT_KEY		"timeout"
 
 const char * find_mounts(void);
 int find_sync(void);
@@ -43,4 +44,5 @@ const char * find_udev_path(void);
 
 #ifdef NOKIA
 const char * find_cdrom_path(void);
+int find_cdrom_timeout(void);
 #endif

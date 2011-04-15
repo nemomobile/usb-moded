@@ -156,6 +156,7 @@ kill:
 				system("for i in `lsof -t /dev/mtp*`; do kill -9 $i ; done");
 				/* try again since there seem to be hard to kill processes there */
 				system("killall -9 obexd");
+				system("killall -9 msycnd");
 				success = usb_moded_unload_module(module);
 			}
 

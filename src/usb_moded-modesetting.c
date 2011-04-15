@@ -130,8 +130,8 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
                                 ret = 0;
               	}
 		
-	        /* activate mounts after sleeping 1s to be sure enumeration happened and autoplay will work */
-		sleep(1);
+	        /* activate mounts after sleeping 1s to be sure enumeration happened and autoplay will work in windows*/
+		usleep(1800);
                 for(i=0 ; mounts[i] != NULL; i++)
                 {       
 			sprintf(command2, "echo %i  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/nofua", fua, i);
@@ -152,10 +152,14 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
 
 }
 
-#ifdef NOKIA
+#ifdef N900
 int set_ovi_suite_mode(GList *applist)
 {
    int net = 0;
+#ifdef NOKIA
+   int timeout = 1;
+#endif /* NOKIA */
+
 
 #ifdef APP_SYNC
   /* do not go through the appsync routine if there is no applist */
@@ -171,12 +175,18 @@ int set_ovi_suite_mode(GList *applist)
   if(net)
 	  net = system("ifdown usb0 ; ifup usb0");
 
+#ifdef NOKIA
   /* timeout for exporting CDROM image */
+  timeout = find_cdrom_timeout();
   g_timeout_add_seconds(1, export_cdrom, NULL);
+#endif /* NOKIA */
 
   return(0);
 }
+#endif /* N900 */
 
+
+#ifdef NOKIA
 gboolean export_cdrom(gpointer data)
 {
   const char *path = NULL, *command = NULL;
@@ -262,7 +272,7 @@ int usb_moded_mode_cleanup(const char *module)
                 }
 
         }
-#ifdef NOKIA
+#ifdef N900
         if(!strcmp(module, MODULE_NETWORK))
         {
                 /* preventive sync in case of bad quality mtp clients */
@@ -274,7 +284,7 @@ int usb_moded_mode_cleanup(const char *module)
 		/* DIRTY WORKAROUND: acm/phonet does not work as it should, remove when it does */
 		system("killall -SIGTERM acm");
         }
-#endif /* NOKIA */
+#endif /* N900 */
 
 
         return(ret);
