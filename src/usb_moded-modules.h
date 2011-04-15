@@ -23,7 +23,7 @@
 #ifdef NOKIA
 #define MODULE_NETWORK_MTP      "g_nokia use_mtp=1 connect=0" 
 #else
-#define MODULE_NETWORK_MTP      "g_nokia use_mtp=1" 
+#define MODULE_NETWORK_MTP      "g_nokia" 
 #endif /* NOKIA */
 #define MODULE_MASS_STORAGE     "g_file_storage"
 #define MODULE_CHARGING		"g_file_storage luns=1 stall=0 removable=1"
