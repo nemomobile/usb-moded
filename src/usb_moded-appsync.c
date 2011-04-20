@@ -52,7 +52,7 @@ GList *readlist(void)
 		if(list_item)
 			applist = g_list_append(applist, list_item);
 	}
-
+    g_dir_close(confdir);
   }
   else
 	  log_debug("confdir open failed.\n");
@@ -91,7 +91,7 @@ static struct list_elem *read_file(const gchar *filename)
   			log_debug("Appname = %s\n", name_char);
 		}
 	}
-  	if(!strcmp(*keys, APP_INFO_LAUNCH_KEY))
+  	else if(!strcmp(*keys, APP_INFO_LAUNCH_KEY))
 	{
 		launch_char = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, *keys, NULL);
 		if(launch_char)
@@ -115,13 +115,17 @@ static struct list_elem *read_file(const gchar *filename)
 
 int activate_sync(GList *list)
 {
+  GList *list_iter;
+
+ list_iter = list;
  /* set list to inactive */
   do
     {
-	struct list_elem *data = list->data;
+	struct list_elem *data = list_iter->data;
 	data->active = 0;
+	list_iter = g_list_next(list_iter);
     }
-  while(g_list_next(list) != NULL);
+  while(list_iter != NULL);
 
   /* add dbus filter. Use session bus for ready method call? */
   if(!usb_moded_app_sync_init(list))
@@ -132,13 +136,15 @@ int activate_sync(GList *list)
    }
 
   /* go through list and launch apps */
+ list_iter = list;
   do
     {
-      struct list_elem *data = list->data;
+      struct list_elem *data = list_iter->data;
       log_debug("launching app %s\n", data->launch);
       usb_moded_dbus_app_launch(data->launch);
+	list_iter = g_list_next(list_iter);
     }
-  while(g_list_next(list) != NULL);
+  while(list_iter != NULL);
 
   /* start timer */
   log_debug("Starting timer\n");
@@ -152,14 +158,16 @@ int mark_active(GList *list, const gchar *name)
   int ret = 0;
   static int list_length=0;
   int counter=0;
+  GList *list_iter;
 
   log_debug("app %s notified it is ready\n", name);
   if(list_length == 0)
 	  list_length = g_list_length(list);
   
+  list_iter = list;
   do
     {
-      struct list_elem *data = list->data;
+      struct list_elem *data = list_iter->data;
       if(!strcmp(data->name, name))
       {
 	if(!data->active)
@@ -181,8 +189,9 @@ int mark_active(GList *list, const gchar *name)
 		ret = 1;
 	}
       }
+      list_iter = g_list_next(list_iter);
     }
-  while(g_list_next(list) != NULL);
+  while(list_iter != NULL);
 
   return(ret); 
 }

@@ -78,17 +78,36 @@ int usb_moded_unload_module(const char *module)
  */
 const char * usb_moded_find_module(void)
 {
-
-	if(system("lsmod | grep g_nokia") == 0)
-		return(MODULE_NETWORK);
-
-	if(system("lsmod | grep g_file_storage") == 0)
-		return(MODULE_MASS_STORAGE);
-
-	if(system("lsmod | grep g_ether") == 0)
-		return(MODULE_WINDOWS_NET);
-	
-	return(NULL);
+  FILE *stream = 0;
+  const char *result = 0;
+  
+  if( (stream = popen("lsmod", "r")) )
+  {
+    char *text = 0;
+    size_t size = 0;
+    
+    while( getline(&text, &size, stream) >= 0 )
+    {
+      if( strstr(text, "g_nokia") )
+      {
+	result = MODULE_NETWORK;
+	break;
+      }
+      if( strstr(text, "g_file_storage") )
+      {
+	result = MODULE_MASS_STORAGE;
+	break;
+      }
+      if( strstr(text, "g_ether") )
+      {
+	result = MODULE_WINDOWS_NET;
+	break;
+      }
+    }
+    pclose(stream);
+  }
+  
+  return result;
 }
 
 /** clean up for modules when usb gets disconnected
@@ -111,6 +130,7 @@ int usb_moded_module_cleanup(const char *module)
 	*/
 	
 	success = usb_moded_unload_module(module);
+        // SP: variable 'success' holds error value?
 	while(success)
 	{
 		/* module did not get unloaded. We will wait a bit and try again */
@@ -124,6 +144,7 @@ int usb_moded_module_cleanup(const char *module)
 		retry++;
 		if(retry == 2)
 			break;
+	  // SP: up to 2 second sleep -> worth a warning log?
 	}
 	if(!strcmp(module, MODULE_NETWORK))
 	{
@@ -142,12 +163,18 @@ kill:
 			system("for i in `lsof -t /dev/ttyGS*`; do kill -s SIGTERM $i ; done");
 			system("for i in `lsof -t /dev/gc*`; do kill -s SIGTERM $i ; done");
 			system("for i in `lsof -t /dev/mtp*`; do kill -s SIGTERM $i ; done");
+		        // SP: three passes and for loops in sh?
+		        // SP: system("kill -s SIGTERM $(lsof -t /dev/ttyGS* /dev/gc* /dev/mtp*") ?
+			// SP: or popen + kill loop?
 			/* try to unload again and give up if it did not work yet */
 			success = usb_moded_unload_module(module);
 			if(success && retry < 10)
 			{
 				retry++;
+			  // SP: NOTE: we have a root process in busyloop sending kill signals to
+			  // user processes? should we give them a chance to react?
 				goto kill;
+			  // SP: IMHO backwards goto is bad - a loop perhaps?
 			}
 			if(success && retry == 10)
 			{

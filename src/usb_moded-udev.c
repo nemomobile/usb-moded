@@ -29,13 +29,14 @@ gboolean hwal_init(void)
 {
   const gchar *udev_path = NULL;
   struct udev_device *dev;
+  int ret = 0;
 	
   /* Create the udev object */
   udev = udev_new();
   if (!udev) 
   {
     log_err("Can't create udev\n");
-    return 0;
+    return FALSE;
   }
   
   udev_path = find_udev_path();
@@ -46,28 +47,38 @@ gboolean hwal_init(void)
   if (!dev) 
   {
     log_err("Unable to find $power_supply device.");
-    return 0;
+    /* communicate failure, mainloop will exit and call appropriate clean-up */
+    return FALSE;
   }
   mon = udev_monitor_new_from_netlink (udev, "udev");
   if (!mon) 
   {
     log_err("Unable to monitor the 'present' value\n");
-    return 0;
+    /* communicate failure, mainloop will exit and call appropriate clean-up */
+    return FALSE;
   }
   udev_monitor_filter_add_match_subsystem_devtype(mon, "power_supply", NULL);
+  // SP: this can fail - in theory at least
+
   udev_monitor_enable_receiving (mon);
+  // SP: this can fail - in theory at least
 
   /* check if we are already connected */
   udev_parse(dev);
   
   iochannel = g_io_channel_unix_new(udev_monitor_get_fd(mon));
+  // SP: this can fail - in theory at least
+  
   /* default is UTF-8, set it to binary */
   g_io_channel_set_encoding(iochannel, NULL, NULL);
   /* set it to unbuffered, since we will be bypassing the GIOChannel for reads */
   g_io_channel_set_buffered(iochannel, FALSE);
+  // SP: do these matter, we're not using g_io for reading?
 
   watch_id = g_io_add_watch(iochannel, G_IO_IN, monitor_udev, NULL);
+  // SP: this can fail - in theory at least
 
+  /* everything went well */
   return TRUE;
 }
 
@@ -78,7 +89,6 @@ static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition c
 
   if(cond & G_IO_IN)
   {
-
     /* This normally blocks but G_IO_IN indicates that we can read */
     dev = udev_monitor_receive_device (mon);
     if (dev) 
@@ -88,7 +98,11 @@ static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition c
 	udev_parse(dev);
       }
     }
+    /* if we get something else something bad happened stop watching to avoid busylooping */  
+    else
+	exit(1);
   }
+  
   /* keep watching */
   return TRUE;
 }
@@ -114,6 +128,7 @@ static void udev_parse(struct udev_device *dev)
     {
       log_err("No usable power supply indicator\n");
       exit(1);
+      // SP: exit? really?
     }
   if(!strcmp(tmp, "1"))
   {
@@ -141,4 +156,5 @@ static void udev_parse(struct udev_device *dev)
   }
 END:
   udev_device_unref(dev);
+  // SP: IMHO: either move the unref to caller or rename the function
 }
