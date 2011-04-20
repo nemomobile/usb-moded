@@ -32,9 +32,6 @@
 #include "usb_moded-appsync-dbus.h"
 #include "usb_moded-appsync-dbus-private.h"
 #include "usb_moded-log.h"
-#ifdef NOKIA
-#include "usb_moded-modesetting.h"
-#endif
 
 static struct list_elem *read_file(const gchar *filename);
 

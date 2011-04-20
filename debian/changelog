@@ -1,10 +1,21 @@
+usb-moded (0.36) unstable; urgency=low
+
+  * Do not check for default gateway anymore. Network config
+    has been fixed. Fixes: NB#246401
+  * Echo "" to the lun to disable  mass-storage exports instead of 0
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 19 Apr 2011 15:04:43 +0300
+
 usb-moded (0.35) unstable; urgency=low
 
+  * Some code clean-up
+  * Stop using a thread for udev to avoid thread-locking in dbus.
+    Patch by Simon McVittie. Fixes: NB#247014 
   * Have g_nokia support for N900 on Meego
   * Increase mass-storage file export timeout to make sure autoplay keeps working 
     on Windows(tm)
 
- -- Philippe De Swert <philippe.de-swert@nokia.com>  Fri, 15 Apr 2011 16:30:08 +0300
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 19 Apr 2011 12:29:58 +0300
 
 usb-moded (0.34) unstable; urgency=low
 

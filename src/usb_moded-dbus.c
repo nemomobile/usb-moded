@@ -201,6 +201,8 @@ gboolean usb_moded_dbus_init(void)
   dbus_bus_add_match(dbus_connection_sys, USB_MODE_INTERFACE, &error);
   */
 
+  dbus_threads_init_default();
+
   /* Connect D-Bus to the mainloop */
   dbus_connection_setup_with_g_main(dbus_connection_sys, NULL);
 

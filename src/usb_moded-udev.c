@@ -15,18 +15,20 @@
 #include "usb_moded.h"
 
 /* global variables */
-struct udev *udev;
-struct udev_monitor *mon;
-struct udev_device *dev;
+static struct udev *udev;
+static struct udev_monitor *mon;
+static GIOChannel *iochannel;
+static guint watch_id; 
 
 /* static function definitions */
-gpointer monitor_udev(gpointer data) __attribute__ ((noreturn));
+static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition cond,
+                             gpointer data G_GNUC_UNUSED);
 static void udev_parse(struct udev_device *dev);
 
 gboolean hwal_init(void)
 {
-  GThread * thread;
   const gchar *udev_path = NULL;
+  struct udev_device *dev;
 	
   /* Create the udev object */
   udev = udev_new();
@@ -58,21 +60,26 @@ gboolean hwal_init(void)
   /* check if we are already connected */
   udev_parse(dev);
   
-  thread = g_thread_create(monitor_udev, NULL, FALSE, NULL);
+  iochannel = g_io_channel_unix_new(udev_monitor_get_fd(mon));
+  /* default is UTF-8, set it to binary */
+  g_io_channel_set_encoding(iochannel, NULL, NULL);
+  /* set it to unbuffered, since we will be bypassing the GIOChannel for reads */
+  g_io_channel_set_buffered(iochannel, FALSE);
 
-  if(thread)
-  	return 1;
-  else
-  {
-	log_debug("thread not created succesfully\n");
-	return 0;
-  }
+  watch_id = g_io_add_watch(iochannel, G_IO_IN, monitor_udev, NULL);
+
+  return TRUE;
 }
 
-gpointer monitor_udev(gpointer data)
+static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition cond,
+                             gpointer data G_GNUC_UNUSED)
 {
-  while(1)
+  struct udev_device *dev;
+
+  if(cond & G_IO_IN)
   {
+
+    /* This normally blocks but G_IO_IN indicates that we can read */
     dev = udev_monitor_receive_device (mon);
     if (dev) 
     {
@@ -82,10 +89,16 @@ gpointer monitor_udev(gpointer data)
       }
     }
   }
+  /* keep watching */
+  return TRUE;
 }
 
 void hwal_cleanup(void)
 {
+  g_source_remove(watch_id);
+  watch_id = 0;
+  g_io_channel_unref(iochannel);
+  iochannel = NULL;
   udev_monitor_unref(mon);
   udev_unref(udev);
 }

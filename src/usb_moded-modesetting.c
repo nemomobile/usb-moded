@@ -155,7 +155,6 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
 #ifdef N900
 int set_ovi_suite_mode(GList *applist)
 {
-   int net = 0;
 #ifdef NOKIA
    int timeout = 1;
 #endif /* NOKIA */
@@ -171,9 +170,7 @@ int set_ovi_suite_mode(GList *applist)
   system("echo 1 > /sys/devices/platform/musb_hdrc/gadget/softconnect");
 #endif /* APP_SYNC */
   /* bring network interface up in case no other network is up */
-  net = system("route | grep default");
-  if(net)
-	  net = system("ifdown usb0 ; ifup usb0");
+  system("ifdown usb0 ; ifup usb0");
 
 #ifdef NOKIA
   /* timeout for exporting CDROM image */
@@ -199,7 +196,7 @@ gboolean export_cdrom(gpointer data)
   }
   if(access(path, F_OK) == 0)
   {
-  	command = g_strconcat("echo ", path, " > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", NULL);
+  	command = g_strconcat("echo ", path, " > /sys/devices/platform/musb_hdrc/gadget/gadget-lun0/file", NULL);
 	system(command);
   }
   else
@@ -264,7 +261,7 @@ int usb_moded_mode_cleanup(const char *module)
                                         }
                                 }
 
-				sprintf(command2, "echo 0  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", i);
+				sprintf(command2, "echo ""  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", i);
                 		log_debug("usb lun = %s inactive\n", command2);
                 		system(command2);
                         }
