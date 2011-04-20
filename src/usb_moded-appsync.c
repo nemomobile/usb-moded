@@ -64,7 +64,6 @@ static struct list_elem *read_file(const gchar *filename)
   GKeyFile *settingsfile;
   gboolean test = FALSE;
   gchar **keys;
-  const char *name_char, *launch_char;
   struct list_elem *list_item = NULL;
   gchar *full_filename = NULL;
 
@@ -84,26 +83,19 @@ static struct list_elem *read_file(const gchar *filename)
   {
   	if(!strcmp(*keys, APP_INFO_NAME_KEY))
 	{
-		name_char = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, *keys, NULL);
-		if(name_char)
-		{
-			list_item->name = g_strdup(name_char);
-  			log_debug("Appname = %s\n", name_char);
-		}
+		list_item->name = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, *keys, NULL);
+  		log_debug("Appname = %s\n", list_item->name);
 	}
   	else if(!strcmp(*keys, APP_INFO_LAUNCH_KEY))
 	{
-		launch_char = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, *keys, NULL);
-		if(launch_char)
-		{
-			list_item->launch = g_strdup(launch_char);
-  			log_debug("launch path = %s\n", launch_char);
-		}
+		list_item->launch = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, *keys, NULL);
+  		log_debug("launch path = %s\n", list_item->launch);
 	}
 	keys++;
   }
+  g_strfreev(keys);
   g_key_file_free(settingsfile);
-  if(launch_char == NULL || name_char == NULL)
+  if(list_item->launch == NULL || list_item->name == NULL)
   {
 	/* free list_item as it will not be used */
 	free(list_item);
@@ -142,7 +134,7 @@ int activate_sync(GList *list)
       struct list_elem *data = list_iter->data;
       log_debug("launching app %s\n", data->launch);
       usb_moded_dbus_app_launch(data->launch);
-	list_iter = g_list_next(list_iter);
+      list_iter = g_list_next(list_iter);
     }
   while(list_iter != NULL);
 

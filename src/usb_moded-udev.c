@@ -57,26 +57,19 @@ gboolean hwal_init(void)
     /* communicate failure, mainloop will exit and call appropriate clean-up */
     return FALSE;
   }
-  udev_monitor_filter_add_match_subsystem_devtype(mon, "power_supply", NULL);
-  // SP: this can fail - in theory at least
+  ret = udev_monitor_filter_add_match_subsystem_devtype(mon, "power_supply", NULL);
+  if(ret =! 0)
+	return FALSE;
 
-  udev_monitor_enable_receiving (mon);
-  // SP: this can fail - in theory at least
+  ret = udev_monitor_enable_receiving (mon);
+  if(ret =! 0)
+	return FALSE;
 
   /* check if we are already connected */
   udev_parse(dev);
   
   iochannel = g_io_channel_unix_new(udev_monitor_get_fd(mon));
-  // SP: this can fail - in theory at least
-  
-  /* default is UTF-8, set it to binary */
-  g_io_channel_set_encoding(iochannel, NULL, NULL);
-  /* set it to unbuffered, since we will be bypassing the GIOChannel for reads */
-  g_io_channel_set_buffered(iochannel, FALSE);
-  // SP: do these matter, we're not using g_io for reading?
-
   watch_id = g_io_add_watch(iochannel, G_IO_IN, monitor_udev, NULL);
-  // SP: this can fail - in theory at least
 
   /* everything went well */
   return TRUE;

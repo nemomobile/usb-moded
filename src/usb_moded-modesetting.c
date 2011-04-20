@@ -261,7 +261,7 @@ int usb_moded_mode_cleanup(const char *module)
                                         }
                                 }
 
-				sprintf(command2, "echo ""  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", i);
+				sprintf(command2, "echo \"\"  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", i);
                 		log_debug("usb lun = %s inactive\n", command2);
                 		system(command2);
                         }
