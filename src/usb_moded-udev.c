@@ -59,11 +59,16 @@ gboolean hwal_init(void)
   }
   ret = udev_monitor_filter_add_match_subsystem_devtype(mon, "power_supply", NULL);
   if(ret =! 0)
-	return FALSE;
-
+  {
+    log_err("Udev match failed.\n");
+    return FALSE;
+  }
   ret = udev_monitor_enable_receiving (mon);
   if(ret =! 0)
-	return FALSE;
+  { 
+     log_err("Failed to enable monitor recieving.\n");
+     return FALSE;
+  }
 
   /* check if we are already connected */
   udev_parse(dev);
