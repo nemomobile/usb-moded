@@ -117,13 +117,14 @@ static void udev_parse(struct udev_device *dev)
 
   tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE");
   if(!tmp)
+    {
     tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
     log_warning("Using present property\n");
+    }
   if(!tmp)
     {
       log_err("No usable power supply indicator\n");
       exit(1);
-      // SP: exit? really?
     }
   if(!strcmp(tmp, "1"))
   {
@@ -136,7 +137,7 @@ static void udev_parse(struct udev_device *dev)
       to discriminate between charger/cable */
       log_warning("Fallback since cable detection cannot be accurate. Will connect on any voltage on usb.\n");
       set_usb_connected(TRUE);
-      goto END;
+      return;
     }
     if(!strcmp(tmp, "USB")||!strcmp(tmp, "USB_CDP"))
     {
@@ -149,5 +150,4 @@ static void udev_parse(struct udev_device *dev)
     log_debug("UDEV:USB cable disconnected\n");
     set_usb_connected(FALSE);
   }
-END:
 }
