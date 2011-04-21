@@ -19,6 +19,7 @@ static struct udev *udev;
 static struct udev_monitor *mon;
 static GIOChannel *iochannel;
 static guint watch_id; 
+static const char *dev_name;
 
 /* static function definitions */
 static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition cond,
@@ -50,10 +51,15 @@ gboolean hwal_init(void)
     /* communicate failure, mainloop will exit and call appropriate clean-up */
     return FALSE;
   }
+  else
+  {
+    dev_name = udev_device_get_sysname(dev);
+     udev_device_unref(dev);
+  } 
   mon = udev_monitor_new_from_netlink (udev, "udev");
   if (!mon) 
   {
-    log_err("Unable to monitor the 'present' value\n");
+    log_err("Unable to monitor the netlink\n");
     /* communicate failure, mainloop will exit and call appropriate clean-up */
     return FALSE;
   }
@@ -91,17 +97,21 @@ static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition c
     dev = udev_monitor_receive_device (mon);
     if (dev) 
     {
+      /* check if it is the actual device we want to check */
+      if(strcmp(dev_name, udev_device_get_sysname(dev)))
+	return TRUE;
+       
       if(!strcmp(udev_device_get_action(dev), "change"))
       {
 	udev_parse(dev);
       }
+      udev_device_unref(dev);
     }
     /* if we get something else something bad happened stop watching to avoid busylooping */  
     else
 	exit(1);
   }
   
-  udev_device_unref(dev);
   /* keep watching */
   return TRUE;
 }
@@ -124,7 +134,7 @@ static void udev_parse(struct udev_device *dev)
   if(!tmp)
     {
     tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
-    log_warning("Using present property\n");
+    /* log_warning("Using present property\n"); */
     }
   if(!tmp)
     {
