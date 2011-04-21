@@ -6,14 +6,14 @@
   @author: Philippe De Swert <philippe.de-swert@nokia.com>
 
   This program is free software; you can redistribute it and/or
-  modify it under the terms of the Lesser GNU General Public License 
-  version 2 as published by the Free Software Foundation. 
+  modify it under the terms of the Lesser GNU General Public License
+  version 2 as published by the Free Software Foundation.
 
   This program is distributed in the hope that it will be useful, but
   WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   General Public License for more details.
- 
+
   You should have received a copy of the Lesser GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -37,75 +37,172 @@
 #include "usb_moded-appsync-dbus.h"
 #include "usb_moded-appsync-dbus-private.h"
 
-static DBusConnection *dbus_connection_ses = NULL;
+static DBusConnection *dbus_connection_ses  = NULL;  // connection
+static gboolean        dbus_connection_name = FALSE; // have name
+static gboolean        dbus_connection_disc = FALSE; // got disconnected
+
+static void usb_moded_app_sync_cleanup_connection(void);
+
+static DBusHandlerResult handle_disconnect(DBusConnection *conn, DBusMessage *msg, void *user_data);
+static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessage *const msg, gpointer const user_data);
+
+/**
+ * Handle USB_MODE_INTERFACE method calls
+ */
 
 static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessage *const msg, gpointer const user_data)
 {
   DBusHandlerResult   status    = DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-  DBusMessage        *reply     = 0;
+  int                 type      = dbus_message_get_type(msg);
   const char         *interface = dbus_message_get_interface(msg);
   const char         *member    = dbus_message_get_member(msg);
   const char         *object    = dbus_message_get_path(msg);
-  int                 type      = dbus_message_get_type(msg);
 
- 
-  if(!interface || !member || !object) goto EXIT;
+  if(!interface || !member || !object) goto IGNORE;
 
-  if( type == DBUS_MESSAGE_TYPE_METHOD_CALL && !strcmp(interface, USB_MODE_INTERFACE) && !strcmp(object, USB_MODE_OBJECT))
+  if( type == DBUS_MESSAGE_TYPE_METHOD_CALL &&
+      !strcmp(interface, USB_MODE_INTERFACE) &&
+      !strcmp(object, USB_MODE_OBJECT) )
+
   {
-  	status = DBUS_HANDLER_RESULT_HANDLED;
-  	
-    	if(!strcmp(member, USB_MODE_APP_STATE))
-    	{
-      		char *use = 0;
-      		DBusError   err = DBUS_ERROR_INIT;
+    DBusMessage *reply = 0;
 
-      		if(!dbus_message_get_args(msg, &err, DBUS_TYPE_STRING, &use, DBUS_TYPE_INVALID))
-        		reply = dbus_message_new_error(msg, DBUS_ERROR_INVALID_ARGS, member);
-		else
-		{
+    status = DBUS_HANDLER_RESULT_HANDLED;
 
-			if(mark_active((GList *)user_data, use))
-				goto error_reply;
-			else
-			{
-				if((reply = dbus_message_new_method_return(msg)))
-				{
-		        		dbus_message_append_args (reply, DBUS_TYPE_STRING, &use, DBUS_TYPE_INVALID);
-				}
-				else
-error_reply:
-       				reply = dbus_message_new_error(msg, DBUS_ERROR_INVALID_ARGS, member);
-			}
-			dbus_error_free(&err);
-        	}
-  	}
+    if(!strcmp(member, USB_MODE_APP_STATE))
+    {
+      char      *use = 0;
+      DBusError  err = DBUS_ERROR_INIT;
+
+      if(!dbus_message_get_args(msg, &err, DBUS_TYPE_STRING, &use, DBUS_TYPE_INVALID))
+      {
+	// could not parse method call args
+	reply = dbus_message_new_error(msg, DBUS_ERROR_INVALID_ARGS, member);
+      }
+      else if( mark_active(use) < 0 )
+      {
+	// name could not be marked active
+	reply = dbus_message_new_error(msg, DBUS_ERROR_INVALID_ARGS, member);
+      }
+      else if((reply = dbus_message_new_method_return(msg)))
+      {
+	// generate normal reply
+	dbus_message_append_args (reply, DBUS_TYPE_STRING, &use, DBUS_TYPE_INVALID);
+      }
+      dbus_error_free(&err);
+    }
+    else
+    {
+      /*unknown methods are handled here */
+      reply = dbus_message_new_error(msg, DBUS_ERROR_UNKNOWN_METHOD, member);
+    }
+
+    if( !dbus_message_get_no_reply(msg) )
+    {
+      if( !reply )
+      {
+	// we failed to generate reply above -> generate one
+	reply = dbus_message_new_error(msg, DBUS_ERROR_FAILED, member);
+      }
+      if( !reply || !dbus_connection_send(connection, reply, 0) )
+      {
+	log_debug("Failed sending reply. Out Of Memory!\n");
+      }
+    }
+
+    if( reply ) dbus_message_unref(reply);
   }
-  else
-  { 
-       	/*unknown methods are handled here */
-  	reply = dbus_message_new_error(msg, DBUS_ERROR_UNKNOWN_METHOD, member);
-  }
 
-  if( !reply )
-  {
-  	reply = dbus_message_new_error(msg, DBUS_ERROR_FAILED, member);
-  }
-
-
-EXIT:
-
-  if(reply)
-  {
-  	if( !dbus_message_get_no_reply(msg) )
-    	{	
-      		if( !dbus_connection_send(connection, reply, 0) )
-        		log_debug("Failed sending reply. Out Of Memory!\n");
-      	}
-    	dbus_message_unref(reply);
-  }
+IGNORE:
 
   return status;
+}
+
+/**
+ * Handle disconnect signals
+ */
+static DBusHandlerResult handle_disconnect(DBusConnection *conn, DBusMessage *msg, void *user_data)
+{
+  if( dbus_message_is_signal(msg, DBUS_INTERFACE_LOCAL, "Disconnected") )
+  {
+    log_warning("disconnected from session bus - expecting restart/stop soon\n");
+    dbus_connection_disc = TRUE;
+    usb_moded_app_sync_cleanup_connection();
+  }
+  return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+}
+
+/**
+ * Detach from session bus
+ */
+static void usb_moded_app_sync_cleanup_connection(void)
+{
+  if( dbus_connection_ses != 0 )
+  {
+    /* Remove message filters */
+    dbus_connection_remove_filter(dbus_connection_ses, msg_handler, 0);
+    dbus_connection_remove_filter(dbus_connection_ses, handle_disconnect, 0);
+
+    /* Release name, if we can still talk to dbus daemon */
+    if( !dbus_connection_disc )
+    {
+      DBusError error = DBUS_ERROR_INIT;
+      dbus_bus_release_name(dbus_connection_ses, USB_MODE_SERVICE, &error);
+      dbus_error_free(&error);
+    }
+
+    dbus_connection_unref(dbus_connection_ses);
+    dbus_connection_ses = NULL;
+    //dbus_connection_disc = FALSE;
+  }
+  log_debug("succesfully cleaned up appsync dbus\n");
+}
+
+/**
+ * Attach to session bus
+ */
+gboolean usb_moded_app_sync_init_connection(void)
+{
+  gboolean  result = FALSE;
+  DBusError error  = DBUS_ERROR_INIT;
+
+  if( dbus_connection_ses != 0 )
+  {
+    result = TRUE;
+    goto EXIT;
+  }
+
+  if( dbus_connection_disc )
+  {
+    // we've already observed death of session
+    goto EXIT;
+  }
+
+  /* Connect to session bus */
+  if ((dbus_connection_ses = dbus_bus_get(DBUS_BUS_SESSION, &error)) == NULL)
+  {
+    log_err("Failed to open connection to session message bus; %s\n",  error.message);
+    goto EXIT;
+  }
+
+  /* Add disconnect handler */
+  dbus_connection_add_filter(dbus_connection_ses, handle_disconnect, 0, 0);
+
+  /* Add method call handler */
+  dbus_connection_add_filter(dbus_connection_ses, msg_handler, 0, 0);
+
+  /* Make sure we do not get forced to exit if dbus session dies or stops */
+  dbus_connection_set_exit_on_disconnect(dbus_connection_ses, FALSE);
+
+  /* Connect D-Bus to the mainloop */
+  dbus_connection_setup_with_g_main(dbus_connection_ses, NULL);
+
+  /* everything went fine */
+  result = TRUE;
+
+EXIT:
+  dbus_error_free(&error);
+  return result;
 }
 
 /**
@@ -113,71 +210,84 @@ EXIT:
  *
  * @return TRUE when everything went ok
  */
-gboolean usb_moded_app_sync_init(GList *list)
+gboolean usb_moded_app_sync_init(void)
 {
   gboolean status = FALSE;
-  DBusError error;
+  DBusError error = DBUS_ERROR_INIT;
   int ret;
 
-  dbus_error_init(&error);
-
-  /* connect to session bus */
-  if ((dbus_connection_ses = dbus_bus_get_private(DBUS_BUS_SESSION, &error)) == NULL) 
+  if( !usb_moded_app_sync_init_connection() )
   {
-   	log_err("Failed to open connection to session message bus; %s\n",  error.message);
-        goto EXIT;
+    goto EXIT;
   }
 
-  /* make sure we do not get forced to exit if dbus session dies or stops */
-  dbus_connection_set_exit_on_disconnect(dbus_connection_ses, FALSE);
+  /* Acquire D-Bus service name */
+  ret = dbus_bus_request_name(dbus_connection_ses, USB_MODE_SERVICE, DBUS_NAME_FLAG_DO_NOT_QUEUE , &error);
 
-  /* Initialise message handlers */
-  if (!dbus_connection_add_filter(dbus_connection_ses, msg_handler, list, NULL)) 
+  switch( ret )
   {
-	log_err("failed to add filter\n");
-   	goto EXIT;
-  }
-  /* Acquire D-Bus service */
-  ret = dbus_bus_request_name(dbus_connection_ses, USB_MODE_SERVICE, DBUS_NAME_FLAG_REPLACE_EXISTING | DBUS_NAME_FLAG_ALLOW_REPLACEMENT , &error); 
-  if (ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) 
-  {
-	log_err("failed claiming dbus name\n");
-	if( dbus_error_is_set(&error) )
-		log_debug("DBUS ERROR: %s, %s \n", error.name, error.message);
-        goto EXIT; 
+  case DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER:
+    // expected result
+    break;
+
+  case DBUS_REQUEST_NAME_REPLY_ALREADY_OWNER:
+    // functionally ok, but we do have a logic error somewhere
+    log_warning("already owning '%s'", USB_MODE_SERVICE);
+    break;
+
+  default:
+    // something odd
+    log_err("failed claiming dbus name\n");
+    if( dbus_error_is_set(&error) )
+        log_debug("DBUS ERROR: %s, %s \n", error.name, error.message);
+    goto EXIT;
   }
 
-  /* Connect D-Bus to the mainloop */
-  dbus_connection_setup_with_g_main(dbus_connection_ses, NULL);
+  dbus_connection_name = TRUE;
 
   /* everything went fine */
   status = TRUE;
 
-EXIT:		
+EXIT:
   dbus_error_free(&error);
   return status;
 }
 
 /**
- * Clean up the dbus connections for the application 
+ * Clean up the dbus connections for the application
  * synchronisation after sync is done
  */
-void usb_moded_appsync_cleanup(GList *list)
+void usb_moded_appsync_cleanup(void)
 {
-  DBusError error;
-
-  dbus_error_init(&error);
-  /* clean up system bus connection */
-  if (dbus_connection_ses != NULL) 
+  /* Drop the service name - if we have it */
+  if (dbus_connection_ses != NULL )
   {
-	  dbus_bus_release_name(dbus_connection_ses, USB_MODE_SERVICE, &error);
-	  dbus_connection_remove_filter(dbus_connection_ses, msg_handler, list);
-	  dbus_connection_close(dbus_connection_ses);
-	  dbus_connection_unref(dbus_connection_ses);
-          dbus_connection_ses = NULL;
-	  log_debug("succesfully cleaned up appsync dbus\n");
+    if( dbus_connection_name )
+    {
+      DBusError error = DBUS_ERROR_INIT;
+      int ret = dbus_bus_release_name(dbus_connection_ses, USB_MODE_SERVICE, &error);
+
+      switch( ret )
+      {
+      case DBUS_RELEASE_NAME_REPLY_RELEASED:
+	// as expected
+	break;
+      case DBUS_RELEASE_NAME_REPLY_NON_EXISTENT:
+	// weird, but since nobody owns the name ...
+	break;
+      case DBUS_RELEASE_NAME_REPLY_NOT_OWNER:
+	log_warning("somebody else owns '%s'", USB_MODE_SERVICE);
+      }
+
+      dbus_connection_name = FALSE;
+
+      if( dbus_error_is_set(&error) )
+      {
+	log_debug("DBUS ERROR: %s, %s \n", error.name, error.message);
+	dbus_error_free(&error);
+      }
+    }
   }
-  dbus_error_free(&error);
 }
 
 /**
@@ -185,20 +295,24 @@ void usb_moded_appsync_cleanup(GList *list)
  */
 int usb_moded_dbus_app_launch(const char *launch)
 {
-  DBusConnection *dbus_conn = NULL;
-  DBusError error;
-  int ret = 0;
+  int ret = -1; // assume failure
 
-  dbus_error_init(&error);
-
-  if( (dbus_conn = dbus_bus_get(DBUS_BUS_SESSION, &error)) == 0 )
+  if( dbus_connection_ses == 0 )
   {
-         log_err("Could not connect to dbus session\n");
+    log_err("could not start '%s': no session bus connection", launch);
   }
-
-  dbus_bus_start_service_by_name(dbus_conn, launch, 0, NULL, &error);
-
-  dbus_connection_unref(dbus_conn);
-
-  return(ret);
+  else
+  {
+    DBusError error = DBUS_ERROR_INIT;
+    if( !dbus_bus_start_service_by_name(dbus_connection_ses, launch, 0, NULL, &error) )
+    {
+      log_err("could not start '%s': %s: %s", launch, error.name, error.message);
+      dbus_error_free(&error);
+    }
+    else
+    {
+      ret = 0; // success
+    }
+  }
+  return ret;
 }

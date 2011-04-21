@@ -54,7 +54,7 @@ gboolean hwal_init(void)
   else
   {
     dev_name = udev_device_get_sysname(dev);
-     udev_device_unref(dev);
+    log_debug("device name = %s\n", dev_name);
   } 
   mon = udev_monitor_new_from_netlink (udev, "udev");
   if (!mon) 

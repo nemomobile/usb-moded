@@ -57,10 +57,6 @@ gboolean special_mode = FALSE;
 guint timeout_source = 0;
 #endif /* NOKIA */
 
-/*#ifdef APP_SYNC */
-GList *applist = NULL;
-/*#endif  APP_SYNC */
-
 /* static helper functions */
 static void usb_moded_init(void);
 static gboolean charging_fallback(gpointer data);
@@ -214,7 +210,7 @@ void set_usb_mode(const char *mode)
  	set_usb_module(MODULE_NETWORK);
 	ret = usb_moded_load_module(MODULE_NETWORK_MTP);
 	if(!ret)
-		ret = set_ovi_suite_mode(applist);
+		ret = set_ovi_suite_mode();
   } 
 #endif /* N900 */
 
@@ -309,7 +305,7 @@ static void usb_moded_init(void)
 	
 #endif /* NOKIA */
 #ifdef APP_SYNC
-  applist = readlist();
+  readlist();
 #endif /* APP_SYNC */
   /* TODO: add more start-up clean-up and init here if needed */
 

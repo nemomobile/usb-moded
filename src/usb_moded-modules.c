@@ -118,8 +118,8 @@ const char * usb_moded_find_module(void)
  */
 int usb_moded_module_cleanup(const char *module)
 {
-  	int retry = 0, success;
-	
+  	int retry = 0, failure;
+
 	if(!strcmp(module, MODULE_NONE))
 		goto END;
 	/* wait a bit for all components listening on dbus to clean up their act 
@@ -129,22 +129,21 @@ int usb_moded_module_cleanup(const char *module)
 		return(0);
 	*/
 	
-	success = usb_moded_unload_module(module);
-        // SP: variable 'success' holds error value?
-	while(success)
+	failure = usb_moded_unload_module(module);
+	while(failure)
 	{
+		// SP: up to 2 second sleep -> worth a warning log?
 		/* module did not get unloaded. We will wait a bit and try again */
 		sleep(1);
-		success = usb_moded_unload_module(module);
-		log_debug("unloading success = %d\n", success);
-		if(!success)
+		failure = usb_moded_unload_module(module);
+		log_debug("unloading failure = %d\n", failure);
+		if(!failure)
 			break;
 		if(!usb_moded_find_module())
 			goto END;
 		retry++;
 		if(retry == 2)
 			break;
-	  // SP: up to 2 second sleep -> worth a warning log?
 	}
 	if(!strcmp(module, MODULE_NETWORK))
 	{
@@ -167,8 +166,8 @@ kill:
 		        // SP: system("kill -s SIGTERM $(lsof -t /dev/ttyGS* /dev/gc* /dev/mtp*") ?
 			// SP: or popen + kill loop?
 			/* try to unload again and give up if it did not work yet */
-			success = usb_moded_unload_module(module);
-			if(success && retry < 10)
+			failure = usb_moded_unload_module(module);
+			if(failure && retry < 10)
 			{
 				retry++;
 			  // SP: NOTE: we have a root process in busyloop sending kill signals to
@@ -176,7 +175,7 @@ kill:
 				goto kill;
 			  // SP: IMHO backwards goto is bad - a loop perhaps?
 			}
-			if(success && retry == 10)
+			if(failure && retry == 10)
 			{
 				system("for i in `lsof -t /dev/ttyGS*`; do kill -9 $i ; done");
 				system("for i in `lsof -t /dev/gc*`; do kill -9 $i ; done");
@@ -184,12 +183,12 @@ kill:
 				/* try again since there seem to be hard to kill processes there */
 				system("killall -9 obexd");
 				system("killall -9 msycnd");
-				success = usb_moded_unload_module(module);
+				failure = usb_moded_unload_module(module);
 			}
 
 		}
 	}
-	if(!success)
+	if(!failure)
 		log_info("Module %s unloaded successfully\n", module);
 	else
 	{

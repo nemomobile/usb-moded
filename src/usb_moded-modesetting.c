@@ -20,6 +20,7 @@
   02110-1301 USA
 */
 
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -56,6 +57,43 @@ int find_number_of_mounts(void)
   return(mountpoints);
 }
 #endif /* MAYBE_NEEDED */
+
+int write_to_file(const char *path, const char *text)
+{
+  int err = -1;
+  int fd = -1;
+  size_t todo = strlen(text);
+
+  /* no O_CREAT -> writes only to already existing files */
+  if( (fd = TEMP_FAILURE_RETRY(open(path, O_WRONLY))) == -1 )
+  {
+    /* gcc -pedantic does not like "%m"
+       log_warning("open(%s): %m", path); */
+    log_warning("open(%s): %s", path, strerror(errno));
+    goto cleanup;
+  }
+
+  while( todo > 0 )
+  {
+    ssize_t n = TEMP_FAILURE_RETRY(write(fd, text, todo));
+    if( n < 0 )
+    {
+      log_warning("write(%s): %s", path, strerror(errno));
+      goto cleanup;
+    }
+    todo -= n;
+    text += n;
+  }
+
+  err = 0;
+
+cleanup:
+
+  if( fd != -1 ) TEMP_FAILURE_RETRY(close(fd));
+
+  return err;
+}
+
 
 int set_mass_storage_mode(void)
 {
@@ -137,11 +175,11 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
 			sprintf(command2, "echo %i  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/nofua", fua, i);
                         log_debug("usb lun = %s active\n", command2);
                         system(command2);
-                	sprintf(command2, "echo %s  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", mounts[i], i);
+                	sprintf(command2, "/sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", i);
                         log_debug("usb lun = %s active\n", command2);
-                        system(command2);
-                                       }
-               g_strfreev(mounts);
+ 			write_to_file(command2, mounts[i]);
+                }
+                g_strfreev(mounts);
 	}
 
 	/* only send data in use signal in case we actually succeed */
@@ -153,7 +191,7 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
 }
 
 #ifdef N900
-int set_ovi_suite_mode(GList *applist)
+int set_ovi_suite_mode(void)
 {
 #ifdef NOKIA
    int timeout = 1;
@@ -161,13 +199,10 @@ int set_ovi_suite_mode(GList *applist)
 
 
 #ifdef APP_SYNC
-  /* do not go through the appsync routine if there is no applist */
-  if(applist)
-  	activate_sync(applist);
-  else
-        enumerate_usb(NULL);
+  activate_sync();
 #else
-  system("echo 1 > /sys/devices/platform/musb_hdrc/gadget/softconnect");
+  //system("echo 1 > /sys/devices/platform/musb_hdrc/gadget/softconnect");
+  write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "1");
 #endif /* APP_SYNC */
   /* bring network interface up in case no other network is up */
   system("ifdown usb0 ; ifup usb0");
@@ -186,7 +221,7 @@ int set_ovi_suite_mode(GList *applist)
 #ifdef NOKIA
 gboolean export_cdrom(gpointer data)
 {
-  const char *path = NULL, *command = NULL;
+  const char *path = NULL;
 
   path = find_cdrom_path();
 
@@ -196,8 +231,7 @@ gboolean export_cdrom(gpointer data)
   }
   if(access(path, F_OK) == 0)
   {
-  	command = g_strconcat("echo ", path, " > /sys/devices/platform/musb_hdrc/gadget/gadget-lun0/file", NULL);
-	system(command);
+        write_to_file("/sys/devices/platform/musb_hdrc/gadget/gadget-lun0/file", path);
   }
   else
 	log_debug("Cdrom image file does not exist => no export.\n");
@@ -277,7 +311,7 @@ int usb_moded_mode_cleanup(const char *module)
                 /* bring network down immediately */
                 system("ifdown usb0");
                 /* do soft disconnect */
-                system("echo 0 > /sys/devices/platform/musb_hdrc/gadget/softconnect");
+  		write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "0");
 		/* DIRTY WORKAROUND: acm/phonet does not work as it should, remove when it does */
 		system("killall -SIGTERM acm");
         }

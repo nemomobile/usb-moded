@@ -1,29 +1,33 @@
 /**
   @file usb_moded-appsync.c
- 
+
   Copyright (C) 2010 Nokia Corporation. All rights reserved.
 
   @author: Philippe De Swert <philippe.de-swert@nokia.com>
 
   This program is free software; you can redistribute it and/or
-  modify it under the terms of the Lesser GNU General Public License 
-  version 2 as published by the Free Software Foundation. 
+  modify it under the terms of the Lesser GNU General Public License
+  version 2 as published by the Free Software Foundation.
 
   This program is distributed in the hope that it will be useful, but
   WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   General Public License for more details.
- 
+
   You should have received a copy of the Lesser GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
   02110-1301 USA
 */
 
+#define _GNU_SOURCE
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <fcntl.h>
+#include <errno.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -31,176 +35,191 @@
 #include "usb_moded-appsync.h"
 #include "usb_moded-appsync-dbus.h"
 #include "usb_moded-appsync-dbus-private.h"
+#include "usb_moded-modesetting.h"
 #include "usb_moded-log.h"
 
 static struct list_elem *read_file(const gchar *filename);
 
-GList *readlist(void)
+static GList *sync_list = NULL;
+
+static void free_elem(gpointer aptr)
 {
-  GDir *confdir;
-  GList *applist = NULL;
+  struct list_elem *elem = aptr;
+  free(elem->name);
+  free(elem->launch);
+  free(elem);
+}
+
+static void free_list(void)
+{
+  if( sync_list != 0 )
+  {
+    g_list_free_full(sync_list, free_elem);
+    sync_list = 0;
+  }
+}
+
+void readlist(void)
+{
+  GDir *confdir = 0;
+
   const gchar *dirname;
   struct list_elem *list_item;
 
-  confdir = g_dir_open(CONF_DIR_PATH, 0, NULL);
-  if(confdir)
+  free_list();
+
+  if( !(confdir = g_dir_open(CONF_DIR_PATH, 0, NULL)) )
+    goto cleanup;
+
+  while( (dirname = g_dir_read_name(confdir)) )
   {
-    while((dirname = g_dir_read_name(confdir)) != NULL)
-	{
-		log_debug("Read file %s\n", dirname);
-		list_item = read_file(dirname);
-		if(list_item)
-			applist = g_list_append(applist, list_item);
-	}
-    g_dir_close(confdir);
+    log_debug("Read file %s\n", dirname);
+    if( (list_item = read_file(dirname)) )
+      sync_list = g_list_append(sync_list, list_item);
   }
-  else
-	  log_debug("confdir open failed.\n");
-  return(applist);
+
+cleanup:
+  if( confdir ) g_dir_close(confdir);
+
+  /* set up session bus connection if app sync in use
+   * so we do not need to make the time consuming connect
+   * operation at enumeration time ... */
+
+  if( sync_list )
+  {
+    usb_moded_app_sync_init_connection();
+  }
 }
 
 static struct list_elem *read_file(const gchar *filename)
 {
-  GKeyFile *settingsfile;
-  gboolean test = FALSE;
-  gchar **keys;
-  struct list_elem *list_item = NULL;
   gchar *full_filename = NULL;
+  GKeyFile *settingsfile = NULL;
+  struct list_elem *list_item = NULL;
 
-  full_filename = g_strconcat(CONF_DIR_PATH, "/", filename, NULL);
+  if( !(full_filename = g_strconcat(CONF_DIR_PATH, "/", filename, NULL)) )
+    goto cleanup;
 
-  settingsfile = g_key_file_new();
-  test = g_key_file_load_from_file(settingsfile, full_filename, G_KEY_FILE_NONE, NULL);
-  /* free full_filename immediately as we do not use it anymore */
-  free(full_filename);
-  if(!test)
+  if( !(settingsfile = g_key_file_new()) )
+    goto cleanup;
+
+  if( !g_key_file_load_from_file(settingsfile, full_filename, G_KEY_FILE_NONE, NULL) )
+    goto cleanup;
+
+  if( !(list_item = calloc(1, sizeof *list_item)) )
+    goto cleanup;
+
+  list_item->name = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, APP_INFO_NAME_KEY, NULL);
+  log_debug("Appname = %s\n", list_item->name);
+  list_item->launch = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, APP_INFO_LAUNCH_KEY, NULL);
+  log_debug("Launch = %s\n", list_item->name);
+
+cleanup:
+
+  if(settingsfile) 
+	g_key_file_free(settingsfile);
+  g_free(full_filename);
+
+  /* if not all the elements are filled in we discard the list_item */
+  if( list_item && !(list_item->launch && list_item->name) )
   {
-      return(NULL);
+    free_elem(list_item), list_item = 0;
   }
-  list_item = malloc(sizeof(struct list_elem));
-  keys = g_key_file_get_keys (settingsfile, APP_INFO_ENTRY , NULL, NULL);
-  while (*keys != NULL)
-  {
-  	if(!strcmp(*keys, APP_INFO_NAME_KEY))
-	{
-		list_item->name = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, *keys, NULL);
-  		log_debug("Appname = %s\n", list_item->name);
-	}
-  	else if(!strcmp(*keys, APP_INFO_LAUNCH_KEY))
-	{
-		list_item->launch = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, *keys, NULL);
-  		log_debug("launch path = %s\n", list_item->launch);
-	}
-	keys++;
-  }
-  g_strfreev(keys);
-  g_key_file_free(settingsfile);
-  if(list_item->launch == NULL || list_item->name == NULL)
-  {
-	/* free list_item as it will not be used */
-	free(list_item);
-	return NULL;
-  }
-  else
-  	return(list_item);
+
+  return list_item;
 }
 
-int activate_sync(GList *list)
+int activate_sync(void)
 {
-  GList *list_iter;
+  GList *iter;
 
- list_iter = list;
- /* set list to inactive */
-  do
-    {
-	struct list_elem *data = list_iter->data;
-	data->active = 0;
-	list_iter = g_list_next(list_iter);
-    }
-  while(list_iter != NULL);
+  if( sync_list == 0 )
+  {
+    enumerate_usb(NULL);
+    return 0;
+  }
+
+  /* set list to inactive */
+  for( iter = sync_list; iter; iter = g_list_next(iter) )
+  {
+    struct list_elem *data = iter->data;
+    data->active = 0;
+  }
 
   /* add dbus filter. Use session bus for ready method call? */
-  if(!usb_moded_app_sync_init(list))
-    {
+  if(!usb_moded_app_sync_init())
+  {
       log_debug("dbus setup failed => activate immediately \n");
       enumerate_usb(NULL);
       return(1);
    }
 
   /* go through list and launch apps */
- list_iter = list;
-  do
-    {
-      struct list_elem *data = list_iter->data;
-      log_debug("launching app %s\n", data->launch);
-      usb_moded_dbus_app_launch(data->launch);
-      list_iter = g_list_next(list_iter);
-    }
-  while(list_iter != NULL);
+  for( iter = sync_list; iter; iter = g_list_next(iter) )
+  {
+    struct list_elem *data = iter->data;
+    log_debug("launching app %s\n", data->launch);
+    usb_moded_dbus_app_launch(data->launch);
+  }
 
   /* start timer */
   log_debug("Starting timer\n");
-  g_timeout_add_seconds(2, enumerate_usb, list);
+  g_timeout_add_seconds(2, enumerate_usb, NULL);
 
   return(0);
 }
 
-int mark_active(GList *list, const gchar *name)
+int mark_active(const gchar *name)
 {
-  int ret = 0;
-  static int list_length=0;
-  int counter=0;
-  GList *list_iter;
+  int ret = -1; // assume name not found
+  int missing = 0;
+
+  GList *iter;
 
   log_debug("app %s notified it is ready\n", name);
-  if(list_length == 0)
-	  list_length = g_list_length(list);
-  
-  list_iter = list;
-  do
-    {
-      struct list_elem *data = list_iter->data;
-      if(!strcmp(data->name, name))
-      {
-	if(!data->active)
-	{
-		data->active = 1;
-		counter++;
-		
-  		if(list_length == counter)
-		{
-			counter = 0;
-			log_debug("All apps active. Let's enumerate\n");
-			enumerate_usb(list);
-		}
-  		ret = 0;
-		break;
-	}
-	else	
-	{
-		ret = 1;
-	}
-      }
-      list_iter = g_list_next(list_iter);
-    }
-  while(list_iter != NULL);
 
-  return(ret); 
+  for( iter = sync_list; iter; iter = g_list_next(iter) )
+  {
+    struct list_elem *data = iter->data;
+    if(!strcmp(data->name, name))
+    {
+      /* TODO: do we need to worry about duplicate names in the list? */
+      ret = !data->active;
+      data->active = 1;
+
+      /* updated + missing -> not going to enumerate */
+      if( missing ) break;
+    }
+    else if( data->active == 0 )
+    {
+      missing = 1;
+
+      /* updated + missing -> not going to enumerate */
+      if( ret != -1 ) break;
+    }
+  }
+  if( !missing )
+  {
+    log_debug("All apps active. Let's enumerate\n");
+    enumerate_usb(NULL);
+  }
+  
+  /* -1=not found, 0=already active, 1=activated now */
+  return ret; 
 }
 
 gboolean enumerate_usb(gpointer data)
 {
-  
+  /* We arrive here twice: when app sync is done
+   * and when the app sync timeout gets triggered */
+
   /* activate usb connection/enumeration */
-  system("echo 1 > /sys/devices/platform/musb_hdrc/gadget/softconnect");
+  write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "1");
   log_debug("Softconnect enumeration done\n");
 
-  /* no need to remove timer */
-
-  /* remove dbus filter */
-  if(data != NULL)
-	  usb_moded_appsync_cleanup((GList *)data);
+  /* remove dbus service */
+  usb_moded_appsync_cleanup();
 
   /* return false to stop the timer from repeating */
-  return(FALSE);
+  return FALSE;
 }

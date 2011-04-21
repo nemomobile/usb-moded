@@ -32,7 +32,7 @@ typedef struct list_elem
   int active;
 }list_elem;
 
-GList *readlist(void);
-int activate_sync(GList *list);
-int mark_active(GList *list, const gchar *name);
+void readlist(void);
+int activate_sync(void);
+int mark_active(const gchar *name);
 gboolean enumerate_usb(gpointer data);

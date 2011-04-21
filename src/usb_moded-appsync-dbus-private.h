@@ -18,6 +18,7 @@
   02110-1301 USA
 */
 
-gboolean usb_moded_app_sync_init(GList *list);
-void usb_moded_appsync_cleanup(GList *list);
+gboolean usb_moded_app_sync_init(void);
+void usb_moded_appsync_cleanup(void);
 int usb_moded_dbus_app_launch(const char *launch);
+gboolean usb_moded_app_sync_init_connection(void);
