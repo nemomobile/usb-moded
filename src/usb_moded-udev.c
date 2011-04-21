@@ -96,6 +96,7 @@ static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition c
 	exit(1);
   }
   
+  udev_device_unref(dev);
   /* keep watching */
   return TRUE;
 }
@@ -117,6 +118,7 @@ static void udev_parse(struct udev_device *dev)
   tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE");
   if(!tmp)
     tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
+    log_warning("Using present property\n");
   if(!tmp)
     {
       log_err("No usable power supply indicator\n");
@@ -132,7 +134,7 @@ static void udev_parse(struct udev_device *dev)
     {
       /* power supply type might not exist also :( Send connected event but this will not be able
       to discriminate between charger/cable */
-      log_warning("Fallback since cable detecion cannot be accurate. Will connect on any voltage on usb.\n");
+      log_warning("Fallback since cable detection cannot be accurate. Will connect on any voltage on usb.\n");
       set_usb_connected(TRUE);
       goto END;
     }
@@ -148,6 +150,4 @@ static void udev_parse(struct udev_device *dev)
     set_usb_connected(FALSE);
   }
 END:
-  udev_device_unref(dev);
-  // SP: IMHO: either move the unref to caller or rename the function
 }
