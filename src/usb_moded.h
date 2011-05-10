@@ -38,18 +38,23 @@
 #define USB_MODED_LOCKFILE	"/var/run/usb_moded.pid"
 #define MAX_READ_BUF 512
 
+/** 
+ * a struct containing all the usb_moded info needed 
+ */
 typedef struct usb_mode  
 {
-  gboolean connected;
-  gboolean mounted;
-  char *mode;
-  char *module;
-
+  /*@{*/
+  gboolean connected; 	/* connection status, 1 for connected */
+  gboolean mounted;  	/* mount status, 1 for mounted -UNUSED atm- */
+  char *mode;  		/* the mode name */
+  char *module; 	/* the module name for the specific mode */
+  /*@}*/
 }usb_mode;
 
 void set_usb_connected(gboolean connected);
 void set_usb_connected_state(void);
 void set_usb_mode(const char *mode);
+int valid_mode(const char *mode);
 const char * get_usb_mode(void);
 void set_usb_module(const char *module);
 const char * get_usb_module(void);

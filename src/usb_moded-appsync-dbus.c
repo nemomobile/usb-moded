@@ -46,6 +46,88 @@ static void usb_moded_app_sync_cleanup_connection(void);
 static DBusHandlerResult handle_disconnect(DBusConnection *conn, DBusMessage *msg, void *user_data);
 static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessage *const msg, gpointer const user_data);
 
+static void usb_moded_app_sync_release_name(void)
+{
+  /* Drop the service name - if we have it */
+  if( dbus_connection_ses && dbus_connection_name )
+  {
+    DBusError error = DBUS_ERROR_INIT;
+    int ret = dbus_bus_release_name(dbus_connection_ses, USB_MODE_SERVICE, &error);
+
+    switch( ret )
+    {
+    case DBUS_RELEASE_NAME_REPLY_RELEASED:
+      // as expected
+      log_debug("released name: %s", USB_MODE_SERVICE);
+      break;
+    case DBUS_RELEASE_NAME_REPLY_NON_EXISTENT:
+      // weird, but since nobody owns the name ...
+      log_debug("nonexisting name: %s", USB_MODE_SERVICE);
+      break;
+    case DBUS_RELEASE_NAME_REPLY_NOT_OWNER:
+      log_warning("somebody else owns: %s", USB_MODE_SERVICE);
+    }
+
+    if( dbus_error_is_set(&error) )
+    {
+      log_debug("DBUS ERROR: %s, %s \n", error.name, error.message);
+      dbus_error_free(&error);
+    }
+  }
+
+  dbus_connection_name = FALSE;
+}
+
+static gboolean usb_moded_app_sync_obtain_name(void)
+{
+  DBusError error = DBUS_ERROR_INIT;
+
+  int ret;
+
+  if( dbus_connection_name )
+  {
+    goto EXIT;
+  }
+
+  if( dbus_connection_ses == 0 )
+  {
+    goto EXIT;
+  }
+
+  /* Acquire D-Bus service name */
+  ret = dbus_bus_request_name(dbus_connection_ses, USB_MODE_SERVICE, DBUS_NAME_FLAG_DO_NOT_QUEUE , &error);
+
+  switch( ret )
+  {
+  case DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER:
+    // expected result
+    log_debug("primary owner of: %s", USB_MODE_SERVICE);
+    break;
+
+  case DBUS_REQUEST_NAME_REPLY_ALREADY_OWNER:
+    // functionally ok, but we do have a logic error somewhere
+    log_warning("already owner of: %s", USB_MODE_SERVICE);
+    break;
+
+  default:
+    // something odd
+    log_err("failed to claim: %s", USB_MODE_SERVICE);
+    goto EXIT;
+  }
+
+  dbus_connection_name = TRUE;
+
+EXIT:
+
+  if( dbus_error_is_set(&error) )
+  {
+    log_debug("DBUS ERROR: %s, %s \n", error.name, error.message);
+    dbus_error_free(&error);
+  }
+
+  return dbus_connection_name;
+}
+
 /**
  * Handle USB_MODE_INTERFACE method calls
  */
@@ -143,12 +225,10 @@ static void usb_moded_app_sync_cleanup_connection(void)
     dbus_connection_remove_filter(dbus_connection_ses, msg_handler, 0);
     dbus_connection_remove_filter(dbus_connection_ses, handle_disconnect, 0);
 
-    /* Release name, if we can still talk to dbus daemon */
+    /* Release name, but only if we can still talk to dbus daemon */
     if( !dbus_connection_disc )
     {
-      DBusError error = DBUS_ERROR_INIT;
-      dbus_bus_release_name(dbus_connection_ses, USB_MODE_SERVICE, &error);
-      dbus_error_free(&error);
+      usb_moded_app_sync_release_name();
     }
 
     dbus_connection_unref(dbus_connection_ses);
@@ -197,6 +277,12 @@ gboolean usb_moded_app_sync_init_connection(void)
   /* Connect D-Bus to the mainloop */
   dbus_connection_setup_with_g_main(dbus_connection_ses, NULL);
 
+  /* Request service name */
+  if( !usb_moded_app_sync_obtain_name() )
+  {
+    goto EXIT;
+  }
+
   /* everything went fine */
   result = TRUE;
 
@@ -213,43 +299,16 @@ EXIT:
 gboolean usb_moded_app_sync_init(void)
 {
   gboolean status = FALSE;
-  DBusError error = DBUS_ERROR_INIT;
-  int ret;
 
   if( !usb_moded_app_sync_init_connection() )
   {
     goto EXIT;
   }
 
-  /* Acquire D-Bus service name */
-  ret = dbus_bus_request_name(dbus_connection_ses, USB_MODE_SERVICE, DBUS_NAME_FLAG_DO_NOT_QUEUE , &error);
-
-  switch( ret )
-  {
-  case DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER:
-    // expected result
-    break;
-
-  case DBUS_REQUEST_NAME_REPLY_ALREADY_OWNER:
-    // functionally ok, but we do have a logic error somewhere
-    log_warning("already owning '%s'", USB_MODE_SERVICE);
-    break;
-
-  default:
-    // something odd
-    log_err("failed claiming dbus name\n");
-    if( dbus_error_is_set(&error) )
-        log_debug("DBUS ERROR: %s, %s \n", error.name, error.message);
-    goto EXIT;
-  }
-
-  dbus_connection_name = TRUE;
-
   /* everything went fine */
   status = TRUE;
 
 EXIT:
-  dbus_error_free(&error);
   return status;
 }
 
@@ -259,36 +318,106 @@ EXIT:
  */
 void usb_moded_appsync_cleanup(void)
 {
-  /* Drop the service name - if we have it */
-  if (dbus_connection_ses != NULL )
-  {
-    if( dbus_connection_name )
-    {
-      DBusError error = DBUS_ERROR_INIT;
-      int ret = dbus_bus_release_name(dbus_connection_ses, USB_MODE_SERVICE, &error);
-
-      switch( ret )
-      {
-      case DBUS_RELEASE_NAME_REPLY_RELEASED:
-	// as expected
-	break;
-      case DBUS_RELEASE_NAME_REPLY_NON_EXISTENT:
-	// weird, but since nobody owns the name ...
-	break;
-      case DBUS_RELEASE_NAME_REPLY_NOT_OWNER:
-	log_warning("somebody else owns '%s'", USB_MODE_SERVICE);
-      }
-
-      dbus_connection_name = FALSE;
-
-      if( dbus_error_is_set(&error) )
-      {
-	log_debug("DBUS ERROR: %s, %s \n", error.name, error.message);
-	dbus_error_free(&error);
-      }
-    }
-  }
+  // NOP
 }
+
+#if 0
+static void startservicebyname_cb(DBusPendingCall *pc, void *data)
+{
+  const char  *name = data;
+  DBusMessage *rsp  = dbus_pending_call_steal_reply(pc);
+  int          res  = -1;
+  DBusError    err  = DBUS_ERROR_INIT;
+  const char  *tag  = "FAILED";
+
+  if( rsp != 0 )
+  {
+    dbus_uint32_t dta = 0;
+    if( dbus_message_get_args(rsp, &err,
+			      DBUS_TYPE_UINT32, &dta,
+			      DBUS_TYPE_INVALID) )
+    {
+      res = (int)dta;
+    }
+    dbus_message_unref(rsp);
+  }
+
+  if( dbus_error_is_set(&err) )
+  {
+    log_err("ERR: %s: %s @ %s()\n", err.name, err.message, __FUNCTION__);
+    dbus_error_free(&err);
+  }
+
+  switch( res )
+  {
+  case DBUS_START_REPLY_SUCCESS: tag = "STARTED"; break;
+  case DBUS_START_REPLY_ALREADY_RUNNING: tag = "RUNNING"; break;
+  }
+
+  log_debug("%s: app=%s, res=%s (%d)", __FUNCTION__, name, tag, res);
+}
+
+static gboolean startservicebyname(const char *name)
+{
+  gboolean         res = FALSE;
+  dbus_uint32_t    flg = 0;
+  DBusMessage     *req = 0;
+  DBusPendingCall *pc = 0;
+
+  if( !dbus_connection_ses )
+  {
+    log_warning("%s: %s", __FUNCTION__, "no session bus connection");
+    goto cleanup;
+  }
+
+  if( !(req = dbus_message_new_method_call(DBUS_SERVICE_DBUS,
+					   DBUS_PATH_DBUS,
+					   DBUS_INTERFACE_DBUS,
+					   "StartServiceByName")) )
+  {
+    log_warning("%s: %s", __FUNCTION__, "method call alloc failed");
+    goto cleanup;
+  }
+
+  if( !dbus_message_append_args(req,
+				DBUS_TYPE_STRING, &name,
+				DBUS_TYPE_UINT32, &flg,
+				DBUS_TYPE_INVALID) )
+  {
+    log_warning("%s: %s", __FUNCTION__, "method call add args failed");
+    goto cleanup;
+  }
+
+  if( !dbus_connection_send_with_reply(dbus_connection_ses, req, &pc, -1) )
+  {
+    log_warning("%s: %s", __FUNCTION__, "send with reply failed");
+    goto cleanup;
+  }
+
+  if( pc == 0 )
+  {
+    log_warning("%s: %s", __FUNCTION__, "no pending call handle");
+    goto cleanup;
+  }
+
+  if( !dbus_pending_call_set_notify(pc, startservicebyname_cb,
+				    strdup(name), free) )
+  {
+    log_warning("%s: %s", __FUNCTION__, "pending call notify failed");
+    goto cleanup;
+  }
+
+  /* we have succesfully started the asynchronous request */
+  res = TRUE;
+
+cleanup:
+
+  if( pc ) dbus_pending_call_unref(pc);
+  if( req ) dbus_message_unref(req);
+
+  return res;
+}
+#endif
 
 /**
  * Launch applications over dbus that need to be synchronized
@@ -303,6 +432,13 @@ int usb_moded_dbus_app_launch(const char *launch)
   }
   else
   {
+#if 0
+    if( startservicebyname(launch) )
+    {
+      // started request, actual results from startservicebyname_cb()
+      ret = 0;
+    }
+#else
     DBusError error = DBUS_ERROR_INIT;
     if( !dbus_bus_start_service_by_name(dbus_connection_ses, launch, 0, NULL, &error) )
     {
@@ -313,6 +449,8 @@ int usb_moded_dbus_app_launch(const char *launch)
     {
       ret = 0; // success
     }
+#endif
   }
   return ret;
 }
+

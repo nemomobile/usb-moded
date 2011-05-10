@@ -1,4 +1,4 @@
-AC_INIT([usb_moded], [0.36])
+AC_INIT([usb_moded], [0.38])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AM_CONFIG_HEADER([config.h])
@@ -95,7 +95,7 @@ AM_CONDITIONAL([UDEV], [test x$udev = xtrue])
 
 
 PKG_CHECK_MODULES([USB_MODED], [
- glib-2.0 >= 2.2.0
+ glib-2.0 >= 2.28.0
  dbus-1 >= 1.2.1
  dbus-glib-1 >= 0.78
  gobject-2.0 >= 2.16.6

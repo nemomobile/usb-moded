@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <sys/time.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -39,8 +40,13 @@
 #include "usb_moded-log.h"
 
 static struct list_elem *read_file(const gchar *filename);
+static gboolean enumerate_usb(gpointer data);
 
 static GList *sync_list = NULL;
+
+static unsigned sync_tag = 0;
+static unsigned enum_tag = 0;
+static struct timeval sync_tv;
 
 static void free_elem(gpointer aptr)
 {
@@ -112,7 +118,9 @@ static struct list_elem *read_file(const gchar *filename)
   list_item->name = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, APP_INFO_NAME_KEY, NULL);
   log_debug("Appname = %s\n", list_item->name);
   list_item->launch = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, APP_INFO_LAUNCH_KEY, NULL);
-  log_debug("Launch = %s\n", list_item->name);
+  log_debug("Launch = %s\n", list_item->launch);
+  list_item->mode = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, APP_INFO_MODE_KEY, NULL);
+  log_debug("Launch mode = %s\n", list_item->mode);
 
 cleanup:
 
@@ -121,7 +129,7 @@ cleanup:
   g_free(full_filename);
 
   /* if not all the elements are filled in we discard the list_item */
-  if( list_item && !(list_item->launch && list_item->name) )
+  if( list_item && !(list_item->launch && list_item->name && list_item->mode) )
   {
     free_elem(list_item), list_item = 0;
   }
@@ -129,9 +137,14 @@ cleanup:
   return list_item;
 }
 
-int activate_sync(void)
+int activate_sync(const char *mode)
 {
   GList *iter;
+
+  log_debug("activate sync");
+
+  /* Bump tag, see enumerate_usb() */
+  ++sync_tag; gettimeofday(&sync_tv, 0);
 
   if( sync_list == 0 )
   {
@@ -139,11 +152,14 @@ int activate_sync(void)
     return 0;
   }
 
-  /* set list to inactive */
+  /* set list to inactive, mark other modes as active already */
   for( iter = sync_list; iter; iter = g_list_next(iter) )
   {
     struct list_elem *data = iter->data;
-    data->active = 0;
+    if(!strcmp(data->mode, mode))
+    	data->active = 0;
+    else
+	data->active = 1;
   }
 
   /* add dbus filter. Use session bus for ready method call? */
@@ -154,17 +170,20 @@ int activate_sync(void)
       return(1);
    }
 
+  /* start timer */
+  log_debug("Starting timer\n");
+  g_timeout_add_seconds(2, enumerate_usb, NULL);
+
   /* go through list and launch apps */
   for( iter = sync_list; iter; iter = g_list_next(iter) )
   {
     struct list_elem *data = iter->data;
-    log_debug("launching app %s\n", data->launch);
-    usb_moded_dbus_app_launch(data->launch);
+    if(!strcmp(mode, data->mode))
+    {
+      log_debug("launching app %s\n", data->launch);
+      usb_moded_dbus_app_launch(data->launch);
+    }
   }
-
-  /* start timer */
-  log_debug("Starting timer\n");
-  g_timeout_add_seconds(2, enumerate_usb, NULL);
 
   return(0);
 }
@@ -176,7 +195,7 @@ int mark_active(const gchar *name)
 
   GList *iter;
 
-  log_debug("app %s notified it is ready\n", name);
+  log_debug("App %s notified it is ready\n", name);
 
   for( iter = sync_list; iter; iter = g_list_next(iter) )
   {
@@ -208,18 +227,35 @@ int mark_active(const gchar *name)
   return ret; 
 }
 
-gboolean enumerate_usb(gpointer data)
+static gboolean enumerate_usb(gpointer data)
 {
+  struct timeval tv;
+
   /* We arrive here twice: when app sync is done
-   * and when the app sync timeout gets triggered */
+   * and when the app sync timeout gets triggered.
+   * The tags are used to filter out these repeats.
+   */
 
-  /* activate usb connection/enumeration */
-  write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "1");
-  log_debug("Softconnect enumeration done\n");
+  if( enum_tag == sync_tag )
+  {
+    log_debug("ignoring enumeration trigger");
+  }
+  else
+  {
+    /* activate usb connection/enumeration */
+    write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "1");
+    log_debug("Softconnect enumeration done\n");
 
-  /* remove dbus service */
-  usb_moded_appsync_cleanup();
+    enum_tag = sync_tag;
 
+    /* Debug: how long it took from sync start to get here */
+    gettimeofday(&tv, 0);
+    timersub(&tv, &sync_tv, &tv);
+    log_debug("sync to enum: %.3f seconds", tv.tv_sec + tv.tv_usec * 1e-6);
+
+    /* remove dbus service */
+    usb_moded_appsync_cleanup();
+  }
   /* return false to stop the timer from repeating */
   return FALSE;
 }

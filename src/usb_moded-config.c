@@ -78,6 +78,18 @@ int find_cdrom_timeout(void)
 }
 #endif /* NOKIA */
 
+#ifdef APP_SYNC
+const char * check_trigger(void)
+{
+  return(get_conf_string(TRIGGER_ENTRY, TRIGGER_PATH_KEY));
+}
+
+const char * check_trigger_mode(void)
+{
+  return(get_conf_string(TRIGGER_ENTRY, TRIGGER_MODE_KEY));
+}
+#endif /* APP_SYNC */
+
 static int get_conf_int(const gchar *entry, const gchar *key)
 {
   GKeyFile *settingsfile;

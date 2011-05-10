@@ -20,6 +20,9 @@
                                                 <annotation name="com.maemo.Aegis" value="USBControl"/>
                                         </method>
                                 </interface>
+                                <interface name="org.freedesktop.DBus.Introspectable">
+                                        	<annotation name="com.maemo.Aegis" value=""/>
+                                </interface>
                         </node>
                 </dbus>
         </provide>

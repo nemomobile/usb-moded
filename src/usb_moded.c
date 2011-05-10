@@ -56,6 +56,9 @@ struct usb_mode current_mode;
 gboolean special_mode = FALSE;
 guint timeout_source = 0;
 #endif /* NOKIA */
+#ifdef APP_SYNC
+static GList *modelist;
+#endif /* APP_SYNC */
 
 /* static helper functions */
 static void usb_moded_init(void);
@@ -193,7 +196,7 @@ void set_usb_mode(const char *mode)
         	ret = set_mass_storage_mode();
 	goto end;
   }
-  if(!strcmp(mode, MODE_CHARGING))
+  else if(!strcmp(mode, MODE_CHARGING))
   {
 	check_module_state(MODULE_MASS_STORAGE);
 	/* for charging we use a fake file_storage (blame USB certification for this insanity */
@@ -204,7 +207,7 @@ void set_usb_mode(const char *mode)
   }
 
 #ifdef N900 
-  if(!strcmp(mode, MODE_OVI_SUITE))
+  else if(!strcmp(mode, MODE_OVI_SUITE))
   {
 	check_module_state(MODULE_NETWORK);
  	set_usb_module(MODULE_NETWORK);
@@ -214,13 +217,33 @@ void set_usb_mode(const char *mode)
   } 
 #endif /* N900 */
 
-  if(!strcmp(mode, MODE_WINDOWS_NET))
+  else if(!strcmp(mode, MODE_WINDOWS_NET))
   {	
 	check_module_state(MODULE_WINDOWS_NET);
 	set_usb_module(MODULE_WINDOWS_NET);
 	ret = usb_moded_load_module(MODULE_WINDOWS_NET);
 	net = system("ifdown usb0 ; ifup usb0");
   }
+
+#ifdef APP_SYNC  
+  /* go through all the dynamic modes if the modelist exists*/
+  if(modelist)
+  {
+    GList *iter;
+
+    for( iter = modelist; iter; iter = g_list_next(iter) )
+    {
+      struct mode_list_elem *data = iter->data;
+      if(!strcmp(mode, data->mode_name))
+      {
+  	check_module_state(data->mode_module);
+	set_usb_module(data->mode_module);
+	ret = usb_moded_load_module(data->mode_module);
+        ret = set_dynamic_mode(data);
+      }
+    }
+  }
+#endif /* APP_SYNC */
 
 end:
   /* if ret != 0 then usb_module loading failed */
@@ -232,6 +255,37 @@ end:
   free(current_mode.mode);
   current_mode.mode = strdup(mode);
   usb_moded_send_signal(get_usb_mode());
+}
+/** check if a given usb_mode exists
+ *
+ * @param mode The mode to look for
+ * @return 0 if mode exits, 1 if it does not exist
+ *
+ */
+int valid_mode(const char *mode)
+{
+
+  if(!strcmp(MODE_MASS_STORAGE, mode) || !strcmp(MODE_OVI_SUITE, mode) || !strcmp(MODE_CHARGING, mode) || !strcmp(MODE_WINDOWS_NET, mode))
+	return(0);
+  else
+#ifdef APP_SYNC
+  {
+    /* check dynamic modes */
+    if(modelist)
+    {
+      GList *iter;
+
+      for( iter = modelist; iter; iter = g_list_next(iter) )
+      {
+        struct mode_list_elem *data = iter->data;
+	if(!strcmp(mode, data->mode_name))
+		return(0);
+      }
+    }
+  }
+#endif /* APP_SYNC */
+  return(1);
+
 }
 
 /** get the usb mode 
@@ -306,9 +360,9 @@ static void usb_moded_init(void)
 #endif /* NOKIA */
 #ifdef APP_SYNC
   readlist();
+  modelist = read_mode_list();
 #endif /* APP_SYNC */
   /* TODO: add more start-up clean-up and init here if needed */
-
 }	
 
 /* charging fallback handler */

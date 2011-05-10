@@ -30,12 +30,15 @@
 
 #include "usb_moded.h"
 #include "usb_moded-modules.h"
+#include "usb_moded-modes.h"
 #include "usb_moded-log.h"
 #include "usb_moded-dbus.h"
 #include "usb_moded-dbus-private.h"
 #include "usb_moded-appsync.h"
 #include "usb_moded-config.h"
 #include "usb_moded-modesetting.h"
+
+static void report_mass_storage_blocker(const char *mountpoint);
 
 #ifdef MAYBE_NEEDED
 int find_number_of_mounts(void)
@@ -154,6 +157,7 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
 					else
 					{
                                 		log_err("Unmounting %s failed\n", mount);
+						report_mass_storage_blocker(mount);
 #ifdef NOKIA
                                         	usb_moded_send_error_signal("qtn_usb_filessystem_inuse");
 #else
@@ -190,6 +194,39 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
 
 }
 
+static void report_mass_storage_blocker(const char *mountpoint)
+{
+  FILE *stream = 0;
+  gchar *lsof_command = 0;
+  int count = 0;
+
+  lsof_command = g_strconcat("lsof ", mountpoint, NULL);
+
+  if( (stream = popen(lsof_command, "r")) )
+  {
+    char *text = 0;
+    size_t size = 0;
+
+    while( getline(&text, &size, stream) >= 0 )
+    {
+        /* skip the first line as it does not contain process info */
+        if(count != 0)
+        {
+          gchar **split = 0;
+          split = g_strsplit((const gchar*)text, " ", 2);
+          log_debug("Mass storage blocked by process %s\n", split[0]);
+          usb_moded_send_error_signal(split[0]);
+          g_strfreev(split);
+        }
+        count++;
+    }
+    pclose(stream);
+  }
+  g_free(lsof_command);
+
+}
+
+
 #ifdef N900
 int set_ovi_suite_mode(void)
 {
@@ -199,7 +236,7 @@ int set_ovi_suite_mode(void)
 
 
 #ifdef APP_SYNC
-  activate_sync();
+  activate_sync(MODE_OVI_SUITE);
 #else
   //system("echo 1 > /sys/devices/platform/musb_hdrc/gadget/softconnect");
   write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "1");
@@ -217,6 +254,19 @@ int set_ovi_suite_mode(void)
 }
 #endif /* N900 */
 
+#ifdef APP_SYNC
+int set_dynamic_mode(struct mode_list_elem *data)
+{
+  char command[256];
+  if(data->appsync)
+  	activate_sync(data->mode_name);
+  if(data->network)
+	g_snprintf(command, 256, "ifdown %s ; ifup %s", data->network_interface, data->network_interface);
+        system(command);
+
+  return(0);
+}
+#endif /* APP_SYNC */
 
 #ifdef NOKIA
 gboolean export_cdrom(gpointer data)
@@ -228,10 +278,11 @@ gboolean export_cdrom(gpointer data)
   if(path == NULL)
   {
 	log_debug("No cdrom path specified => not exporting.\n");
+	return(FALSE);
   }
   if(access(path, F_OK) == 0)
   {
-        write_to_file("/sys/devices/platform/musb_hdrc/gadget/gadget-lun0/file", path);
+        write_to_file("/sys/devices/platform/musb_hdrc/gadget/lun0/file", path);
   }
   else
 	log_debug("Cdrom image file does not exist => no export.\n");

@@ -27,7 +27,7 @@ usb_moded_SOURCES = \
 	usb_moded-config.c \
 	usb_moded-config.h \
 	usb_moded-modesetting.c \
-	usb_moded-modesetting.h
+	usb_moded-modesetting.h 
 if HAL
 usb_moded_SOURCES += \
 	usb_moded-hal.c
@@ -55,6 +55,8 @@ usb_moded_SOURCES += \
 	usb_moded-appsync.h \
 	usb_moded-appsync-dbus.c \
 	usb_moded-appsync-dbus.h \
-	usb_moded-appsync-dbus-private.h
+	usb_moded-appsync-dbus-private.h \
+	usb_moded-dyn-config.c \
+	usb_moded-dyn-config.h
 endif
 	
