@@ -103,6 +103,12 @@ const char * usb_moded_find_module(void)
 	result = MODULE_WINDOWS_NET;
 	break;
       }
+      /* if switching without disconnect we might have some dynamic module loaded */
+      if(strstr(text, get_usb_module()))
+      {
+	result = get_usb_module();
+	break;
+      }	
     }
     pclose(stream);
   }
@@ -135,6 +141,8 @@ int usb_moded_module_cleanup(const char *module)
 		// SP: up to 2 second sleep -> worth a warning log?
 		/* module did not get unloaded. We will wait a bit and try again */
 		sleep(1);
+		/* send another disconnect message */
+		usb_moded_send_signal(USB_DISCONNECTED);
 		failure = usb_moded_unload_module(module);
 		log_debug("unloading failure = %d\n", failure);
 		if(!failure)

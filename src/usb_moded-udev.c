@@ -143,7 +143,7 @@ static void udev_parse(struct udev_device *dev)
     }
   if(!strcmp(tmp, "1"))
   {
-    log_debug("UDEV:power supply present\n");
+    /* log_debug("UDEV:power supply present\n"); */
     /* power supply type might not exist */
     tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE");
     if(!tmp)

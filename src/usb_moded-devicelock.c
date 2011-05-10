@@ -65,7 +65,6 @@ int usb_moded_get_export_permission(void)
 	{
             dbus_message_get_args(reply, NULL, DBUS_TYPE_INT32, &ret, DBUS_TYPE_INVALID);
             dbus_message_unref(reply);
-	    log_debug("Got reply from devicelock\n"); 
         }
         dbus_message_unref(msg);
   } 

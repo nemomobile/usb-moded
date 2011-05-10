@@ -22,17 +22,23 @@
 #define CONF_DIR_PATH	"/etc/usb-moded/run"
 
 #define APP_INFO_ENTRY		"info"
+#define APP_INFO_MODE_KEY	"mode"
 #define APP_INFO_NAME_KEY	"name"
 #define APP_INFO_LAUNCH_KEY	"launch"
 
+/** 
+ * keep all the needed info together for launching an app 
+ */
 typedef struct list_elem
 {
-  char *name;
-  char *launch;
-  int active;
+  /*@{*/
+  char *name;		/* name of the app to launch */
+  char *mode; 		/* mode in which to launch the app */
+  char *launch;		/* dbus launch command/address */ 
+  int active;		/* marker to check if the app has started sucessfully */
+  /*@}*/
 }list_elem;
 
 void readlist(void);
-int activate_sync(void);
+int activate_sync(const char *mode);
 int mark_active(const gchar *name);
-gboolean enumerate_usb(gpointer data);

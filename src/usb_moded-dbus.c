@@ -89,21 +89,20 @@ static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessa
         		reply = dbus_message_new_error(msg, DBUS_ERROR_INVALID_ARGS, member);
 		else
 		{
-			/* check for valid USB MODES in the request */
-			if(!strcmp(MODE_MASS_STORAGE, use) || !strcmp(MODE_OVI_SUITE, use) || !strcmp(MODE_CHARGING, use) || !strcmp(MODE_WINDOWS_NET, use))
-			{
 				/* check if usb is connected, since it makes no sense to change mode if it isn't */
 				if(!get_usb_connection_state())
+					goto error_reply;
+				/* check if the mode exists */
+				if(valid_mode(use))
 					goto error_reply;
 				/* do not change mode if the mode requested is the one already set */
 				if(strcmp(use, get_usb_mode()) != 0)
 					set_usb_mode(use);
       				if((reply = dbus_message_new_method_return(msg)))
 			        	dbus_message_append_args (reply, DBUS_TYPE_STRING, &use, DBUS_TYPE_INVALID);
-			}
-			else
+				else
 error_reply:
-       				reply = dbus_message_new_error(msg, DBUS_ERROR_INVALID_ARGS, member);
+       					reply = dbus_message_new_error(msg, DBUS_ERROR_INVALID_ARGS, member);
 		}
 		dbus_error_free(&err);
         }

@@ -1,10 +1,28 @@
+usb-moded (0.38) unstable; urgency=low
+  
+  * Fix lintian warning
+  * Fix doxygen warnings and improve documentation
+  * Add dynamic mode support
+  * Add debug printing for finding who keeps the mass-storage device busy
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 03 May 2011 14:57:38 +0300
+
+usb-moded (0.37) unstable; urgency=low
+  
+   * Aegis introspection fix patch by Alexander Schertz. Fixes: NB#248291
+   * Fix sysfs path for cdrom export.
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Thu, 21 Apr 2011 18:38:11 +0300
+
 usb-moded (0.36) unstable; urgency=low
 
   * Do not check for default gateway anymore. Network config
     has been fixed. Fixes: NB#246401
   * Echo "" to the lun to disable  mass-storage exports instead of 0
+  * Improved appsync by Simo Piiroinen 
+  * More robust udev
 
- -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 19 Apr 2011 15:04:43 +0300
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Thu, 21 Apr 2011 18:38:11 +0300
 
 usb-moded (0.35) unstable; urgency=low
 

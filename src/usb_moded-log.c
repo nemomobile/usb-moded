@@ -26,12 +26,32 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
+#include <errno.h>
+#include <ctype.h>
 
 #include "usb_moded-log.h"
 
 const char *log_name = "<unset>";
 int log_level = LOG_WARNING;
 int log_type  = LOG_TO_STDERR;
+
+static char *strip(char *str)
+{
+  unsigned char *src = (unsigned char *)str;
+  unsigned char *dst = (unsigned char *)str;
+
+  while( *src > 0 && *src <= 32 ) ++src;
+
+  for( ;; )
+  {
+    while( *src > 32 ) *dst++ = *src++;
+    while( *src > 0 && *src <= 32 ) ++src;
+    if( *src == 0 ) break;
+    *dst++ = ' ';
+  }
+  *dst = 0;
+  return str;
+}
 
 /**
  * Print the logged messages to the selected output
@@ -42,6 +62,7 @@ int log_type  = LOG_TO_STDERR;
  */
 void log_emit_va(int lev, const char *fmt, va_list va)
 {
+	int saved = errno;
         if( log_level >= lev )
         {
                 switch( log_type )
@@ -80,7 +101,13 @@ void log_emit_va(int lev, const char *fmt, va_list va)
                                 fprintf(stderr, "%s ", tag);
                         }
 #endif
-                        vfprintf(stderr, fmt, va);
+			{
+				// squeeze whitespace like syslog does
+				char buf[1024];
+				errno = saved;
+				vsnprintf(buf, sizeof buf - 1, fmt, va);
+			  	fprintf(stderr, "%s\n", strip(buf));
+			}
                         break;
 
                 default:
@@ -88,6 +115,7 @@ void log_emit_va(int lev, const char *fmt, va_list va)
                         break;
                 }
         }
+	errno = saved;
 }
 
 void log_emit(int lev, const char *fmt, ...)

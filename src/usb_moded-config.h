@@ -34,10 +34,14 @@
 #define CDROM_ENTRY			"cdrom"
 #define CDROM_PATH_KEY			"path"
 #define CDROM_TIMEOUT_KEY		"timeout"
+#define TRIGGER_ENTRY			"trigger"
+#define TRIGGER_PATH_KEY		"path"
+#define TRIGGER_MODE_KEY		"mode"
 
 const char * find_mounts(void);
 int find_sync(void);
 const char * find_alt_mount(void);
+
 #ifdef UDEV
 const char * find_udev_path(void);
 #endif
@@ -46,3 +50,8 @@ const char * find_udev_path(void);
 const char * find_cdrom_path(void);
 int find_cdrom_timeout(void);
 #endif
+
+#ifdef APP_SYNC
+const char * check_trigger(void);
+const char * check_trigger_mode(void);
+#endif /* APP_SYNC */

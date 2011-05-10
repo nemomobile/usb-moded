@@ -20,12 +20,15 @@
   02110-1301 USA
 */
 
+#include "usb_moded-dyn-config.h"
+
 #ifdef MAYBE_NEEDED
 int find_number_of_mounts(void);
 #endif
 int write_to_file(const char *path, const char *text);
 int set_mass_storage_mode(void);
 int set_ovi_suite_mode(void);
+int set_dynamic_mode(struct mode_list_elem *data);
 int usb_moded_mode_cleanup(const char *module);
 #ifdef NOKIA
 gboolean export_cdrom (gpointer data);
