@@ -42,6 +42,8 @@
 #include "usb_moded-modesetting.h"
 #include "usb_moded-modules.h"
 #include "usb_moded-appsync.h"
+#include "usb_moded-trigger.h"
+#include "usb_moded-config.h"
 
 /* global definitions */
 
@@ -236,6 +238,8 @@ void set_usb_mode(const char *mode)
       struct mode_list_elem *data = iter->data;
       if(!strcmp(mode, data->mode_name))
       {
+	/* set state to connected as we might get a disconnect in between */
+  	current_mode.connected = TRUE;
   	check_module_state(data->mode_module);
 	set_usb_module(data->mode_module);
 	ret = usb_moded_load_module(data->mode_module);
@@ -362,6 +366,10 @@ static void usb_moded_init(void)
   readlist();
   modelist = read_mode_list();
 #endif /* APP_SYNC */
+#ifdef UDEV
+  if(check_trigger())
+	trigger_init();
+#endif /* UDEV */
   /* TODO: add more start-up clean-up and init here if needed */
 }	
 

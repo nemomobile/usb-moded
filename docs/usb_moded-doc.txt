@@ -1,0 +1,190 @@
+USB_MODED use and API description/overview.
+==========================================
+
+Usb_moded is a relatively simple daemon which tracks the
+usb cable connection status and activates a certain USB
+profile based on that.
+To do this it has a number of built in common profiles, 
+an optional application launcher (app_sync) and configurable
+dynamic modes.
+
+All the system wide communication goes over the DBus system bus,
+while application launching is handled on the session bus.
+Thus if you need this functionality, usb_moded needs to be started 
+with the session. 
+(functionality not verified yet on multi-user setups. See TODO)
+
+Usb cable detection is supported by several different methods.
+Old deprecated hal, through Nokia's own battery monitoring bme, 
+or the preferred udev option. (This has to be chosen at compile time)
+
+Starting usb_moded
+-------------------
+
+Simply start with usb_moded.
+usb_moded --help will give you more details
+
+*NOTE: daemon mode does not work correctly. See TODO*
+
+
+Status and configuration query/setting
+---------------------------------------
+
+The current status can be queried any time over DBus. From a program
+using a method call or using dbus-send.
+
+dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.mode_request
+
+Similary a mode can be set.
+
+dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.set_mode string:'<mode_name>'
+
+Even the configuration can be set over DBus.
+
+dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.set_config string:'<mode_name>'
+
+However this can also be handled by setting the following GConf key.
+
+/Meego/System/UsbMode (querying and setting can be done as follows:
+
+gconftool-2 -g /Meego/System/UsbMode
+gconftool-2 -s /Meego/System/UsbMode --type=string <mode_name>
+
+Usb_moded will also broadcast changes and errors over the system bus.
+This will happen on the com.meego.usb_moded interface
+
+For regular signals: sig_usb_state_ind
+And errors: sig_usb_state_error_ind
+
+More info and details in usb_moded-dbus.h
+
+There is also a configuration file and some configuration directories under /etc/usb-moded
+It should have some pre-filled fields for the default mass-storage profile
+
+The first one would be mountpoints, this defines which device/filesystem entry should be 
+exported over mass-storage (this ideally also has an entry in /etc/fstab). You can add more 
+filesystems to the mount option, by making it a comma-seperated list in case there are 
+several exports (like internal mmc and sd card for example)
+
+[mountpoints]
+mount = /dev/mmcblk0p1
+
+The following option plays with certain sync options that exist and have to be set per
+fs and thus cannot be handled by setting them in /etc/modprobe.d/....conf
+
+[sync]
+nofua = 1
+
+This mount is the alternative mountpoint for in case something goes wrong. Usb_moded
+will mount a 512 RO tmpfs on that location to mitigate potential disasters on the system,
+and make clear to programs on the device that something is wrong with the fs they want to use.
+
+[altmount]
+mount = /home/user/MyDocs
+
+The other settings and config dirs will be handled later in the appsync and dynamic modes part.
+(This is optional and can be compiled out)
+
+Functional overview
+--------------------
+
+When a usb cable is insertion is detected usb_moded will start to act.
+First it will warn on the system bus that a cable is connected. 
+Then it will check what the configuration setting is. Thus it knows how to act.
+If it is a known configured mode it will load the correct modules (after checking 
+what is loaded and clean up if needed), perform other needed operations and
+make sure the chosen mode works. At this point it will broadcast which mode 
+is set to warn other programs.
+If things fail it will go to undefined state (and also broadcast this).
+
+There is the special case where the config option is called "ask". In this
+case usb_moded will enable a fake mass_storage profile to enable enumeration 
+so charging can be done, and wait until it is instructed which mode needs
+to be selected. Thus this state can be used for an UI that will set the right
+mode on user interaction. For this purpose usb_moded broadcasts it goes in ask
+mode, and also stays in ask mode until a chosen mode is requested or the cable
+is disconnected. This also avoids race conditions in case the  UI starts
+after a cable is inserted and usb_moded has also been started. The UI can then 
+query the state to know if it needs to show a selection dialog or not.
+
+On disconnect usb_moded will broadcast a disconnect signal, so that all programs
+that use the usb interface/mode know that a cable is disconnected and then can act
+(if needed) on the changed situation. It will then do all the necessary to reset
+the system to a clean state.
+
+Appsync feature
+---------------
+
+In case you need some program to be started along some mode the appsync option 
+provides this option.
+Only condition is that it can be activated by dbus and that (preferably) it will
+notify usb_moded that it is ready by ready_method call on the session bus.
+This ready method call is just calling the regular usb_moded interface, but now
+on the session bus, with as argument the program name as defined in the config file.
+
+To achieve this you need to have a config file in /etc/usb-moded/run.
+Best practice would be giving it a descriptive name followed by .ini
+
+For example:
+/etc/usb-moded/run/foo.ini
+
+Where foo.ini would be:
+[info]
+name = foo
+mode = foo_mode
+launch = com.meego.foo
+
+Those files will be read on start and usb_moded will keep a list of apps to launch 
+for a certain mode. This also means that if you change the files or add/remove some
+you need to restart usb_moded. Later when the mode is activated, usb_moded will start 
+each of them after the module has been loaded and keep track if they have been started.
+It will warn you if that failed. This works together with an optional softconnect option
+that will need kernel support. (Nokia only atm)
+
+Dynamic modes
+-------------
+
+Dynamic modes will only work if the appsync feature is enabled, since it is expected
+that this will need some special userspace programs. These will be started
+through the appsync part and thus need their own config files in the normal appsync dir.
+
+Dynamic modes need to be defined with an ini file also but this time in 
+/etc/usb-moded/dyn-modes.
+
+The format would be for example for : /etc/usb-moded/dyn-modes/dyn-mode-1.ini
+
+[mode]
+name = dyn-mode-1
+module = h_dyn-mode
+appsync = 1
+network = 1
+network_interface = usb0
+
+Only the mode name and module are mandatory.
+However if you specify that there has to be network bringup, the
+network interface is mandatory. Atm the network interface
+bring-up will only work on debian based systems, since it uses
+ifup/ifdown as the network configuration has to be handled
+in the regular places to avoid conflicts and keep it easy to
+configure.
+
+If appsync is not defined or explicitly set to 0 it will not be used.
+
+Trigger support
+---------------
+
+This will only work if udev is configured as it is a udev trigger.
+Atm only one trigger is supported.
+This is to support special equipment that will send a trigger event.
+Usually this will be in combination with a dynamic mode.
+
+You need to add the following to usb-moded.ini to get a trigger activated
+
+For example
+
+[trigger]
+path = /sys/devices/platform/musb_hdrc
+udev_subsystem = platform
+mode = mass_storage
+property = TRIGGER_CMD
+

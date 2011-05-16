@@ -1,5 +1,5 @@
 /**
-  @file usb_moded-udev.c
+  @file usb_moded-trigger.c
  
   Copyright (C) 2011 Nokia Corporation. All rights reserved.
 
@@ -32,10 +32,11 @@
 
 #include <glib.h>
 
+#include "usb_moded.h"
 #include "usb_moded-log.h"
 #include "usb_moded-config.h"
 #include "usb_moded-hw-ab.h"
-#include "usb_moded.h"
+#include "usb_moded-trigger.h"
 
 /* global variables */
 static struct udev *udev;
@@ -49,7 +50,7 @@ static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition c
                              gpointer data G_GNUC_UNUSED);
 static void udev_parse(struct udev_device *dev);
 
-gboolean hwal_init(void)
+gboolean trigger_init(void)
 {
   const gchar *udev_path = NULL;
   struct udev_device *dev;
@@ -60,19 +61,21 @@ gboolean hwal_init(void)
   if (!udev) 
   {
     log_err("Can't create udev\n");
-    return FALSE;
+    return 1;
   }
   
-  udev_path = find_udev_path();
+  udev_path = check_trigger();
   if(udev_path)
 	dev = udev_device_new_from_syspath(udev, udev_path);
   else
-  	dev = udev_device_new_from_syspath(udev, "/sys/class/power_supply/usb");
+  {
+    log_err("No trigger path. Not starting trigger.\n");
+    return 1;	
+  }
   if (!dev) 
   {
-    log_err("Unable to find $power_supply device.");
-    /* communicate failure, mainloop will exit and call appropriate clean-up */
-    return FALSE;
+    log_err("Unable to find the trigger device.");
+    return 1;
   }
   else
   {
@@ -84,19 +87,19 @@ gboolean hwal_init(void)
   {
     log_err("Unable to monitor the netlink\n");
     /* communicate failure, mainloop will exit and call appropriate clean-up */
-    return FALSE;
+    return 1;
   }
-  ret = udev_monitor_filter_add_match_subsystem_devtype(mon, "power_supply", NULL);
+  ret = udev_monitor_filter_add_match_subsystem_devtype(mon, get_trigger_subsystem(), NULL);
   if(ret != 0)
   {
     log_err("Udev match failed.\n");
-    return FALSE;
+    return 1;
   }
   ret = udev_monitor_enable_receiving (mon);
   if(ret != 0)
   { 
      log_err("Failed to enable monitor recieving.\n");
-     return FALSE;
+     return 1;
   }
 
   /* check if we are already connected */
@@ -106,7 +109,8 @@ gboolean hwal_init(void)
   watch_id = g_io_add_watch(iochannel, G_IO_IN, monitor_udev, NULL);
 
   /* everything went well */
-  return TRUE;
+  log_debug("Trigger enabled!\n");
+  return 0;
 }
 
 static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition cond,
@@ -122,24 +126,28 @@ static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition c
     {
       /* check if it is the actual device we want to check */
       if(strcmp(dev_name, udev_device_get_sysname(dev)))
-	return TRUE;
+	return 0;
        
       if(!strcmp(udev_device_get_action(dev), "change"))
       {
+        log_debug("Trigger event recieved.\n");
 	udev_parse(dev);
       }
       udev_device_unref(dev);
     }
     /* if we get something else something bad happened stop watching to avoid busylooping */  
     else
-	exit(1);
+    {
+   	log_debug("Bad trigger data. Stopping\n");
+        trigger_stop();
+    }
   }
   
   /* keep watching */
   return TRUE;
 }
 
-void hwal_cleanup(void)
+void trigger_stop(void)
 {
   g_source_remove(watch_id);
   watch_id = 0;
@@ -153,39 +161,23 @@ static void udev_parse(struct udev_device *dev)
 {
   const char *tmp;
 
-  tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE");
+  tmp = udev_device_get_property_value(dev, get_trigger_property());
   if(!tmp)
-    {
-    tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
-    /* log_warning("Using present property\n"); */
-    }
-  if(!tmp)
-    {
-      log_err("No usable power supply indicator\n");
-      exit(1);
-    }
-  if(!strcmp(tmp, "1"))
   {
-    /* log_debug("UDEV:power supply present\n"); */
-    /* power supply type might not exist */
-    tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE");
-    if(!tmp)
-    {
-      /* power supply type might not exist also :( Send connected event but this will not be able
-      to discriminate between charger/cable */
-      log_warning("Fallback since cable detection cannot be accurate. Will connect on any voltage on usb.\n");
-      set_usb_connected(TRUE);
-      return;
-    }
-    if(!strcmp(tmp, "USB")||!strcmp(tmp, "USB_CDP"))
-    {
-      log_debug("UDEV:USB cable connected\n");
-      set_usb_connected(TRUE);
-    }
+    /* do nothing and return */
+    return;
   }
   else
   {
-    log_debug("UDEV:USB cable disconnected\n");
-    set_usb_connected(FALSE);
+    if(get_trigger_value())
+    {
+	if(!strcmp(tmp, get_trigger_value()))
+      	   set_usb_mode(get_trigger_mode());
+	else
+	   return;
+    }
+    else	
+      set_usb_mode(get_trigger_mode());
+    return;
   }
 }

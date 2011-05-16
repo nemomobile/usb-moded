@@ -95,7 +95,7 @@ AM_CONDITIONAL([UDEV], [test x$udev = xtrue])
 
 
 PKG_CHECK_MODULES([USB_MODED], [
- glib-2.0 >= 2.28.0
+ glib-2.0 >= 2.24.0
  dbus-1 >= 1.2.1
  dbus-glib-1 >= 0.78
  gobject-2.0 >= 2.16.6

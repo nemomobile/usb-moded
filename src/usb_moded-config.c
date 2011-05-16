@@ -78,17 +78,32 @@ int find_cdrom_timeout(void)
 }
 #endif /* NOKIA */
 
-#ifdef APP_SYNC
+#ifdef UDEV
 const char * check_trigger(void)
 {
   return(get_conf_string(TRIGGER_ENTRY, TRIGGER_PATH_KEY));
 }
 
-const char * check_trigger_mode(void)
+const char * get_trigger_subsystem(void)
+{
+  return(get_conf_string(TRIGGER_ENTRY, TRIGGER_UDEV_SUBSYSTEM));
+}
+
+const char * get_trigger_mode(void)
 {
   return(get_conf_string(TRIGGER_ENTRY, TRIGGER_MODE_KEY));
 }
-#endif /* APP_SYNC */
+
+const char * get_trigger_property(void)
+{
+  return(get_conf_string(TRIGGER_ENTRY, TRIGGER_PROPERTY_KEY));
+}
+
+const char * get_trigger_value(void)
+{
+  return(get_conf_string(TRIGGER_ENTRY, TRIGGER_PROPERTY_VALUE_KEY));
+}
+#endif /* UDEV */
 
 static int get_conf_int(const gchar *entry, const gchar *key)
 {

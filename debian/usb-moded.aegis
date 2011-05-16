@@ -33,6 +33,7 @@
 	        <credential name="CAP::net_admin" />
 	        <credential name="CAP::sys_ptrace" />
 	        <credential name="CAP::kill" />
+	        <credential name="CAP::dac_override" />
                 <for path="/usr/sbin/usb_moded" />
         </request>
 </aegis>

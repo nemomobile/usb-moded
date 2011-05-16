@@ -40,7 +40,8 @@ endif
 
 if UDEV
 usb_moded_SOURCES += \
-	usb_moded-udev.c 
+	usb_moded-udev.c \
+	usb_moded-trigger.c
 endif
 
 if NOKIA	

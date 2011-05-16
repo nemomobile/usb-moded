@@ -331,12 +331,14 @@ int usb_moded_mode_cleanup(const char *module)
                                                 mount = find_alt_mount();
                                                 if(mount)
                                                 {
+							/* check if it is already mounted, if not mount failure fallback */
                                                         command = g_strconcat("mount | grep ", mount, NULL);
                                                         ret = system(command);
                                                         g_free(command);
                                                         if(ret)
                                                         {
-                                                                command = g_strconcat("mount -t tmpfs tmpfs -o ro -size=512K ", mount, NULL);
+                                                                command = g_strconcat("mount -t tmpfs tmpfs -o ro --size=512K ", mount, NULL);
+								log_debug("Total failure, mount ro tmpfs as fallback\n");
                                                                 ret = system(command);
                                                                 g_free(command);
                                                         }

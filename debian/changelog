@@ -4,8 +4,11 @@ usb-moded (0.38) unstable; urgency=low
   * Fix doxygen warnings and improve documentation
   * Add dynamic mode support
   * Add debug printing for finding who keeps the mass-storage device busy
+  * Add more aegis capabilities.
+  * Remove dependency on glib 2.28.0, glib 2.24.2 is enough now.
+  * Fix fallback mount options. Fixes: NB#255798
 
- -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 03 May 2011 14:57:38 +0300
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Mon May 16 13:06:17 EEST 2011
 
 usb-moded (0.37) unstable; urgency=low
   

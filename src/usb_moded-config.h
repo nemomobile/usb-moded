@@ -36,7 +36,10 @@
 #define CDROM_TIMEOUT_KEY		"timeout"
 #define TRIGGER_ENTRY			"trigger"
 #define TRIGGER_PATH_KEY		"path"
+#define TRIGGER_UDEV_SUBSYSTEM		"udev_subsystem"
 #define TRIGGER_MODE_KEY		"mode"
+#define TRIGGER_PROPERTY_KEY		"property"
+#define TRIGGER_PROPERTY_VALUE_KEY	"value"
 
 const char * find_mounts(void);
 int find_sync(void);
@@ -51,7 +54,10 @@ const char * find_cdrom_path(void);
 int find_cdrom_timeout(void);
 #endif
 
-#ifdef APP_SYNC
+#ifdef UDEV
 const char * check_trigger(void);
-const char * check_trigger_mode(void);
-#endif /* APP_SYNC */
+const char * get_trigger_subsystem(void);
+const char * get_trigger_mode(void);
+const char * get_trigger_property(void);
+const char * get_trigger_value(void);
+#endif /* UDEV */

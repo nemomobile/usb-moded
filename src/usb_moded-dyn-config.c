@@ -53,7 +53,7 @@ GList *read_mode_list(void)
     g_dir_close(confdir);
   }
   else
-	  log_debug("confdir open failed.\n");
+	  log_debug("Dynamic mode confdir open failed.\n");
   return(modelist);
 }
 

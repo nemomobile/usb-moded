@@ -60,7 +60,9 @@ static void free_list(void)
 {
   if( sync_list != 0 )
   {
-    g_list_free_full(sync_list, free_elem);
+    /*g_list_free_full(sync_list, free_elem); */
+    g_list_foreach (sync_list, (GFunc) free_elem, NULL);
+    g_list_free (sync_list);
     sync_list = 0;
   }
 }
@@ -140,6 +142,7 @@ cleanup:
 int activate_sync(const char *mode)
 {
   GList *iter;
+  int count = 0, count2 = 0;
 
   log_debug("activate sync");
 
@@ -156,11 +159,25 @@ int activate_sync(const char *mode)
   for( iter = sync_list; iter; iter = g_list_next(iter) )
   {
     struct list_elem *data = iter->data;
+
+    count++;
     if(!strcmp(data->mode, mode))
     	data->active = 0;
     else
+    {
+	count2++;
 	data->active = 1;
+    }
   }
+
+  /* if the number of active modes is equal to the number of existing modes
+     we enumerate immediately */
+  if(count == count2)
+  {
+      log_debug("Nothing to launch.\n");
+      enumerate_usb(NULL);
+      return(1);
+   }
 
   /* add dbus filter. Use session bus for ready method call? */
   if(!usb_moded_app_sync_init())
@@ -171,7 +188,7 @@ int activate_sync(const char *mode)
    }
 
   /* start timer */
-  log_debug("Starting timer\n");
+  log_debug("Starting appsync timer\n");
   g_timeout_add_seconds(2, enumerate_usb, NULL);
 
   /* go through list and launch apps */
