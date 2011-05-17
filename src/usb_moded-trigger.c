@@ -172,12 +172,16 @@ static void udev_parse(struct udev_device *dev)
     if(get_trigger_value())
     {
 	if(!strcmp(tmp, get_trigger_value()))
+	{
       	   set_usb_mode(get_trigger_mode());
+	}
 	else
 	   return;
     }
     else	
+    {
       set_usb_mode(get_trigger_mode());
+    }
     return;
   }
 }

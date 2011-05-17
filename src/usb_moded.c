@@ -54,6 +54,7 @@ extern int log_type;
 gboolean run_as_daemon = FALSE;
 gboolean runlevel_ignore = FALSE;
 struct usb_mode current_mode;
+guint debounce = 0;
 #ifdef NOKIA
 gboolean special_mode = FALSE;
 guint timeout_source = 0;
@@ -63,6 +64,7 @@ static GList *modelist;
 #endif /* APP_SYNC */
 
 /* static helper functions */
+static gboolean set_disconnected(gpointer data);
 static void usb_moded_init(void);
 static gboolean charging_fallback(gpointer data);
 static void usage(void);
@@ -98,6 +100,12 @@ void set_usb_connected(gboolean connected)
 	*/
 	if(current_mode.connected)
 		return;
+
+	if(debounce)
+	{
+		g_source_remove(debounce);
+		debounce = 0;
+	}
 #ifdef NOKIA
 	if(timeout_source)
 	{
@@ -109,7 +117,14 @@ void set_usb_connected(gboolean connected)
 	set_usb_connected_state();
   }
   else
-  {
+	if(!debounce)
+		debounce = g_timeout_add_seconds(2, set_disconnected, NULL);
+		
+
+}
+
+static gboolean set_disconnected(gpointer data)
+{
   	current_mode.connected = FALSE;
   	/* signal usb disconnected */
 	log_debug("usb disconnected\n");
@@ -124,7 +139,7 @@ void set_usb_connected(gboolean connected)
 #endif /* NOKIA */
 	
 	set_usb_mode(MODE_UNDEFINED);
-  }
+	return FALSE;
 }
 
 /** set the chosen usb state
@@ -238,8 +253,6 @@ void set_usb_mode(const char *mode)
       struct mode_list_elem *data = iter->data;
       if(!strcmp(mode, data->mode_name))
       {
-	/* set state to connected as we might get a disconnect in between */
-  	current_mode.connected = TRUE;
   	check_module_state(data->mode_module);
 	set_usb_module(data->mode_module);
 	ret = usb_moded_load_module(data->mode_module);
@@ -333,6 +346,15 @@ gboolean get_usb_connection_state(void)
 	return current_mode.connected;
 }
 
+/** set connection status for some corner cases
+ *
+ * @param: connection status that needs to be set. Connected (TRUE)
+ *
+ */
+void set_usb_connection_state(gboolean state)
+{
+	current_mode.connected = state;
+}
 
 /*================  Static functions ===================================== */
 
