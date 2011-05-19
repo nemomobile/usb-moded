@@ -37,6 +37,7 @@
 #include "usb_moded-gconf-private.h"
 #include "usb_moded-modes.h"
 #include "usb_moded-log.h"
+#include "usb_moded.h"
 
 /** Get the config option set in gconf for the default action
  *
@@ -71,7 +72,7 @@ int set_mode_setting(const char *mode)
 {
   GConfClient *gclient = NULL;
 
-  if(!strcmp(mode, MODE_MASS_STORAGE) || !strcmp(mode, MODE_OVI_SUITE) || !strcmp(mode, MODE_CHARGING) || !strcmp(mode, MODE_ASK)|| !strcmp(mode, MODE_WINDOWS_NET))
+  if(!valid_mode(mode) || !strcmp(mode, MODE_ASK))
   {
     gclient = gconf_client_get_default();
     	if (gclient == NULL)

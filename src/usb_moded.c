@@ -94,11 +94,6 @@ void set_usb_connected(gboolean connected)
 	
   if(connected)
   {
-	if(debounce)
-	{
-		g_source_remove(debounce);
-		debounce = 0;
-	}
  	/* do not go through the routine if already connected to avoid
            spurious load/unloads due to faulty signalling 
 	   NOKIA: careful with devicelock
@@ -106,6 +101,11 @@ void set_usb_connected(gboolean connected)
 	if(current_mode.connected)
 		return;
 
+	if(debounce)
+	{
+		g_source_remove(debounce);
+		debounce = 0;
+	}
 #ifdef NOKIA
 	if(timeout_source)
 	{
