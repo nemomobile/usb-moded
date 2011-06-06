@@ -83,11 +83,13 @@ int set_mode_setting(const char *mode)
     if (!gconf_client_set_string(gclient, USB_MODE_GCONF, mode, NULL))
     {
      	log_err("Unable to set GConf key");
+  	g_object_unref(gclient);
      	return(1);
     }
   }
   else
   	return(1);
 
+  g_object_unref(gclient);
   return(0);
 }

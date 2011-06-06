@@ -1,3 +1,16 @@
+usb-moded (0.41) unstable; urgency=low
+ 
+  * Fix forgotten case for devicelock/trigger. Fixes: NB#261558
+  * Small memory leak fix for the gconf handler
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Fri, 03 Jun 2011 13:53:58 +0300
+
+usb-moded (0.40) unstable; urgency=low
+
+  * check devicelock export permission in trigger. Fixes: NB#261558
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Tue, 31 May 2011 14:43:00 +0300
+
 usb-moded (0.39) unstable; urgency=low
 
   * Add disconnect unbouncing timeout

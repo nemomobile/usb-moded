@@ -214,7 +214,7 @@ static void report_mass_storage_blocker(const char *mountpoint)
         {
           gchar **split = 0;
           split = g_strsplit((const gchar*)text, " ", 2);
-          log_debug("Mass storage blocked by process %s\n", split[0]);
+          log_err("Mass storage blocked by process %s\n", split[0]);
           usb_moded_send_error_signal(split[0]);
           g_strfreev(split);
         }

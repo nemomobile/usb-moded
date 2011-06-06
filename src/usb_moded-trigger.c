@@ -37,6 +37,9 @@
 #include "usb_moded-config.h"
 #include "usb_moded-hw-ab.h"
 #include "usb_moded-trigger.h"
+#ifdef NOKIA
+#include "usb_moded-devicelock.h"
+#endif /* NOKIA */
 
 /* global variables */
 static struct udev *udev;
@@ -173,14 +176,21 @@ static void udev_parse(struct udev_device *dev)
     {
 	if(!strcmp(tmp, get_trigger_value()))
 	{
+#ifdef NOKIA
+	 if(!usb_moded_get_export_permission())
+#endif /* NOKIA */
       	   set_usb_mode(get_trigger_mode());
+
 	}
 	else
 	   return;
     }
     else	
     {
-      set_usb_mode(get_trigger_mode());
+#ifdef NOKIA
+     if(!usb_moded_get_export_permission())
+#endif /* NOKIA */
+        set_usb_mode(get_trigger_mode());
     }
     return;
   }
