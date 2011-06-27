@@ -103,6 +103,11 @@ const char * usb_moded_find_module(void)
 	result = MODULE_WINDOWS_NET;
 	break;
       }
+      if( strstr(text, "g_ncm") )
+      {
+	result = "g_ncm";
+	break;
+      }
       /* if switching without disconnect we might have some dynamic module loaded */
       if(strstr(text, get_usb_module()))
       {

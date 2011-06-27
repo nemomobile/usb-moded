@@ -179,7 +179,8 @@ static void udev_parse(struct udev_device *dev)
 #ifdef NOKIA
 	 if(!usb_moded_get_export_permission())
 #endif /* NOKIA */
-      	   set_usb_mode(get_trigger_mode());
+	   if(strcmp(get_trigger_mode(), get_usb_mode()) != 0)
+      	   	set_usb_mode(get_trigger_mode());
 
 	}
 	else
@@ -190,7 +191,8 @@ static void udev_parse(struct udev_device *dev)
 #ifdef NOKIA
      if(!usb_moded_get_export_permission())
 #endif /* NOKIA */
-        set_usb_mode(get_trigger_mode());
+       if(strcmp(get_trigger_mode(), get_usb_mode()) != 0)
+       	    set_usb_mode(get_trigger_mode());
     }
     return;
   }

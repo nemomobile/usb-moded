@@ -38,7 +38,7 @@
 #include "usb_moded-config.h"
 #include "usb_moded-modesetting.h"
 
-static void report_mass_storage_blocker(const char *mountpoint);
+static void report_mass_storage_blocker(const char *mountpoint, int try);
 
 #ifdef MAYBE_NEEDED
 int find_number_of_mounts(void)
@@ -147,17 +147,18 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
                                 g_free(command);
                                 if(ret != 0)
                                 {
-					if(try != 1)
+					if(try != 3)
 					{
 						try++;
 						sleep(1);
 						log_err("Umount failed. Retrying\n");
+						report_mass_storage_blocker(mount, 1);
 						goto umount;
 					}
 					else
 					{
                                 		log_err("Unmounting %s failed\n", mount);
-						report_mass_storage_blocker(mount);
+						report_mass_storage_blocker(mount, 2);
 #ifdef NOKIA
                                         	usb_moded_send_error_signal("qtn_usb_filessystem_inuse");
 #else
@@ -194,7 +195,7 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
 
 }
 
-static void report_mass_storage_blocker(const char *mountpoint)
+static void report_mass_storage_blocker(const char *mountpoint, int try)
 {
   FILE *stream = 0;
   gchar *lsof_command = 0;
@@ -223,6 +224,8 @@ static void report_mass_storage_blocker(const char *mountpoint)
     pclose(stream);
   }
   g_free(lsof_command);
+  if(try == 2)
+	log_err("Setting Mass storage blocked. Giving up.\n");
 
 }
 

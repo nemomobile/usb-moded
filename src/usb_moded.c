@@ -101,11 +101,6 @@ void set_usb_connected(gboolean connected)
 	if(current_mode.connected)
 		return;
 
-	if(debounce)
-	{
-		g_source_remove(debounce);
-		debounce = 0;
-	}
 #ifdef NOKIA
 	if(timeout_source)
 	{
@@ -117,29 +112,32 @@ void set_usb_connected(gboolean connected)
 	set_usb_connected_state();
   }
   else
-	if(!debounce)
-		debounce = g_timeout_add_seconds(2, set_disconnected, NULL);
-		
+  {
+	current_mode.connected = FALSE;
+	set_disconnected(NULL);
+  }		
 
 }
 
 static gboolean set_disconnected(gpointer data)
 {
-  	current_mode.connected = FALSE;
-  	/* signal usb disconnected */
-	log_debug("usb disconnected\n");
-	/* clean-up state */
-	usb_moded_mode_cleanup(get_usb_module());
-	usb_moded_send_signal(USB_DISCONNECTED);
+  /* only disconnect for real if we are actually still disconnected */
+  if(!get_usb_connection_state())
+	{
+  		/* signal usb disconnected */
+		log_debug("usb disconnected\n");
+		usb_moded_send_signal(USB_DISCONNECTED);
 #ifdef NOKIA
-	timeout_source = g_timeout_add_seconds(5, usb_module_timeout_cleanup, NULL);
+		/* delayed clean-up of state */
+		timeout_source = g_timeout_add_seconds(5, usb_module_timeout_cleanup, NULL);
 #else
-	/* unload modules and general cleanup */
-	usb_moded_module_cleanup(get_usb_module());
+		/* unload modules and general cleanup */
+		usb_moded_module_cleanup(get_usb_module());
 #endif /* NOKIA */
 	
-	set_usb_mode(MODE_UNDEFINED);
-	return FALSE;
+		set_usb_mode(MODE_UNDEFINED);
+	}
+  return FALSE;
 }
 
 /** set the chosen usb state
@@ -348,7 +346,7 @@ gboolean get_usb_connection_state(void)
 
 /** set connection status for some corner cases
  *
- * @param: connection status that needs to be set. Connected (TRUE)
+ * @param state The connection status that needs to be set. Connected (TRUE)
  *
  */
 void set_usb_connection_state(gboolean state)
