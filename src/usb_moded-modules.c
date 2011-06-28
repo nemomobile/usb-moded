@@ -34,6 +34,9 @@
 #include "usb_moded-dbus.h"
 #include "usb_moded-dbus-private.h"
 #include "usb_moded-config.h"
+#ifdef NOKIA
+#include "usb_moded-modesetting.h"
+#endif
 
 /** load module 
  *
@@ -261,8 +264,9 @@ void check_module_state(const char *module_name)
 
 
 #ifdef NOKIA
-gboolean usb_module_timeout_cleanup(gpointer data)
+gboolean usb_cleanup_timeout(gpointer data)
 {
+	usb_moded_mode_cleanup(get_usb_module());
 	usb_moded_module_cleanup(get_usb_module());
 	return FALSE;
 }

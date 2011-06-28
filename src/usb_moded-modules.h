@@ -53,5 +53,5 @@ void check_module_state(const char *module_name);
 
 #ifdef NOKIA
 /* handler for a cleanup after a timeout */
-gboolean usb_module_timeout_cleanup(gpointer data);
+gboolean usb_cleanup_timeout(gpointer data);
 #endif /* NOKIA */
