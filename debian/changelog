@@ -1,6 +1,8 @@
 usb-moded (0.44) unstable; urgency=low
 
-  * Make disconnect debouncing timeout longer for USB cert Fixes: NB#266884
+  * Delay mode cleanup together with module cleanup for USB cert Fixes: NB#266884
+  * Check if there was a previous cable connection before sending disconnect signal.
+    As otherwise we send spurious disconnects when dedicated charger is disconnected.
 
  -- Philippe De Swert <philippe.de-swert@nokia.com>  Thu, 23 Jun 2011 12:03:58 +0300
 

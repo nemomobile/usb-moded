@@ -152,6 +152,7 @@ void hwal_cleanup(void)
 static void udev_parse(struct udev_device *dev)
 {
   const char *tmp;
+  static int cable = 0; /* track if cable was connected as we cannot distinguish charger and cable disconnects */
 
   tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE");
   if(!tmp)
@@ -180,12 +181,14 @@ static void udev_parse(struct udev_device *dev)
     if(!strcmp(tmp, "USB")||!strcmp(tmp, "USB_CDP"))
     {
       log_debug("UDEV:USB cable connected\n");
+      cable = 1;
       set_usb_connected(TRUE);
     }
   }
-  else
+  else if(cable)
   {
     log_debug("UDEV:USB cable disconnected\n");
     set_usb_connected(FALSE);
+    cable = 0;
   }
 }

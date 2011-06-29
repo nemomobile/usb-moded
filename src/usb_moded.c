@@ -129,7 +129,7 @@ static gboolean set_disconnected(gpointer data)
 		usb_moded_send_signal(USB_DISCONNECTED);
 #ifdef NOKIA
 		/* delayed clean-up of state */
-		timeout_source = g_timeout_add_seconds(5, usb_cleanup_timeout, NULL);
+		timeout_source = g_timeout_add_seconds(3, usb_cleanup_timeout, NULL);
 #else
 		/* unload modules and general cleanup */
 		usb_moded_mode_cleanup(get_usb_module());
