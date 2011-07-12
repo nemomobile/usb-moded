@@ -250,7 +250,9 @@ int set_ovi_suite_mode(void)
 #ifdef NOKIA
   /* timeout for exporting CDROM image */
   timeout = find_cdrom_timeout();
-  g_timeout_add_seconds(1, export_cdrom, NULL);
+  if(timeout == 0)
+	timeout = 1;
+  g_timeout_add_seconds(timeout, export_cdrom, NULL);
 #endif /* NOKIA */
 
   return(0);
