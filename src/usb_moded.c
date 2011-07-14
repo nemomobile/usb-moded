@@ -54,7 +54,7 @@ extern int log_type;
 gboolean run_as_daemon = FALSE;
 gboolean runlevel_ignore = FALSE;
 struct usb_mode current_mode;
-guint debounce = 0;
+guint charging_timeout = 0;
 #ifdef NOKIA
 gboolean special_mode = FALSE;
 guint timeout_source = 0;
@@ -108,6 +108,11 @@ void set_usb_connected(gboolean connected)
 		timeout_source = 0;
 	}
 #endif /* NOKIA */	
+	if(charging_timeout)
+	{
+		g_source_remove(charging_timeout);
+		charging_timeout = 0;
+	}
   	current_mode.connected = TRUE;
 	set_usb_connected_state();
   }
@@ -124,13 +129,13 @@ static gboolean set_disconnected(gpointer data)
   /* only disconnect for real if we are actually still disconnected */
   if(!get_usb_connection_state())
 	{
-  		/* signal usb disconnected */
 		log_debug("usb disconnected\n");
-		usb_moded_send_signal(USB_DISCONNECTED);
 #ifdef NOKIA
 		/* delayed clean-up of state */
 		timeout_source = g_timeout_add_seconds(3, usb_cleanup_timeout, NULL);
 #else
+  		/* signal usb disconnected */
+		usb_moded_send_signal(USB_DISCONNECTED);
 		/* unload modules and general cleanup */
 		usb_moded_mode_cleanup(get_usb_module());
 		usb_moded_module_cleanup(get_usb_module());
@@ -173,7 +178,7 @@ void set_usb_connected_state(void)
 	 	*/
 		usb_moded_send_signal(USB_CONNECTED_DIALOG_SHOW);
 		/* fallback to charging mode after 3 seconds */
-		g_timeout_add_seconds(3, charging_fallback, NULL);
+		charging_timeout = g_timeout_add_seconds(3, charging_fallback, NULL);
 		/* in case there was nobody listening for the UI, they will know 
 		   that the UI is needed by requesting the current mode */
 		set_usb_mode(MODE_ASK);
@@ -408,6 +413,7 @@ static gboolean charging_fallback(gpointer data)
   */
   free(current_mode.mode);
   current_mode.mode = strdup(MODE_ASK);
+  charging_timeout = 0;
   log_info("Falling back on charging mode.\n");
 	
   return(FALSE);

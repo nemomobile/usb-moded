@@ -1,3 +1,10 @@
+usb-moded (0.45) unstable; urgency=low
+
+  * Send disconnect signal only after clean-up has been done.
+  * Actually use cdrom timeout
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Wed, 13 Jul 2011 14:45:42 +0300
+
 usb-moded (0.44) unstable; urgency=low
 
   * Delay mode cleanup together with module cleanup for USB cert Fixes: NB#266884
