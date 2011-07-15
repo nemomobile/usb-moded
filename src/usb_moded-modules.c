@@ -36,6 +36,7 @@
 #include "usb_moded-config.h"
 #ifdef NOKIA
 #include "usb_moded-modesetting.h"
+#include "usb_moded-modes.h"
 #endif
 
 /** load module 
@@ -269,6 +270,7 @@ gboolean usb_cleanup_timeout(gpointer data)
 	usb_moded_send_signal(USB_DISCONNECTED);
 	usb_moded_mode_cleanup(get_usb_module());
 	usb_moded_module_cleanup(get_usb_module());
+	set_usb_mode(MODE_UNDEFINED);
 	return FALSE;
 }
 #endif /* NOKIA */

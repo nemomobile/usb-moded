@@ -139,9 +139,9 @@ static gboolean set_disconnected(gpointer data)
 		/* unload modules and general cleanup */
 		usb_moded_mode_cleanup(get_usb_module());
 		usb_moded_module_cleanup(get_usb_module());
+		set_usb_mode(MODE_UNDEFINED);
 #endif /* NOKIA */
 	
-		set_usb_mode(MODE_UNDEFINED);
 	}
   return FALSE;
 }
