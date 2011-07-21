@@ -267,6 +267,8 @@ void check_module_state(const char *module_name)
 #ifdef NOKIA
 gboolean usb_cleanup_timeout(gpointer data)
 {
+ 	/* signal usb disconnected */
+        usb_moded_send_signal(USB_DISCONNECTED);
 	usb_moded_mode_cleanup(get_usb_module());
 	usb_moded_module_cleanup(get_usb_module());
 	set_usb_mode(MODE_UNDEFINED);

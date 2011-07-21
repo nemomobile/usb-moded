@@ -3,6 +3,7 @@ usb-moded (0.45) unstable; urgency=low
   * Only signal MODE_UNDEFINED when we have actually done all the modesetting handling 
     after disconnect. Fixes: NB#273204
   * Actually use cdrom timeout
+  * Clean-up if we change mode before the clean-up timeout expired. Fixes: NB#273493
 
  -- Philippe De Swert <philippe.de-swert@nokia.com>  Wed, 13 Jul 2011 14:45:42 +0300
 

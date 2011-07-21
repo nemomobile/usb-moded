@@ -130,12 +130,12 @@ static gboolean set_disconnected(gpointer data)
   if(!get_usb_connection_state())
 	{
 		log_debug("usb disconnected\n");
-  		/* signal usb disconnected */
-		usb_moded_send_signal(USB_DISCONNECTED);
 #ifdef NOKIA
 		/* delayed clean-up of state */
 		timeout_source = g_timeout_add_seconds(3, usb_cleanup_timeout, NULL);
 #else
+  		/* signal usb disconnected */
+		usb_moded_send_signal(USB_DISCONNECTED);
 		/* unload modules and general cleanup */
 		usb_moded_mode_cleanup(get_usb_module());
 		usb_moded_module_cleanup(get_usb_module());
@@ -171,6 +171,13 @@ void set_usb_connected_state(void)
   if(mode_to_set)
 #endif /* NOKIA */
   {
+#ifdef NOKIA
+	/* If we switch to another mode than the one that is still set before the 
+	   clean-up timeout expired we need to clean up */
+	if(strcmp(mode_to_set, get_usb_mode()))
+		 usb_moded_mode_cleanup(get_usb_module());
+#endif /* NOKIA */
+
 	if(!strcmp(MODE_ASK, mode_to_set))
 	{
 		/* send signal, mode will be set when the dialog service calls

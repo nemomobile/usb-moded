@@ -175,8 +175,8 @@ static void udev_parse(struct udev_device *dev)
       /* power supply type might not exist also :( Send connected event but this will not be able
       to discriminate between charger/cable */
       log_warning("Fallback since cable detection cannot be accurate. Will connect on any voltage on usb.\n");
-      set_usb_connected(TRUE);
       cable = 1;
+      set_usb_connected(TRUE);
       return;
     }
     if(!strcmp(tmp, "USB")||!strcmp(tmp, "USB_CDP"))
