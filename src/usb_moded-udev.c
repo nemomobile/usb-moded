@@ -176,6 +176,7 @@ static void udev_parse(struct udev_device *dev)
       to discriminate between charger/cable */
       log_warning("Fallback since cable detection cannot be accurate. Will connect on any voltage on usb.\n");
       set_usb_connected(TRUE);
+      cable = 1;
       return;
     }
     if(!strcmp(tmp, "USB")||!strcmp(tmp, "USB_CDP"))
