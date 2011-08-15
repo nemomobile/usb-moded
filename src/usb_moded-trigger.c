@@ -53,6 +53,14 @@ static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition c
                              gpointer data G_GNUC_UNUSED);
 static void udev_parse(struct udev_device *dev);
 
+static void notify_issue (gpointer data)
+{
+        log_debug("trigger watch destroyed\n!");
+	/* restart trigger */
+	trigger_init();
+}
+
+
 gboolean trigger_init(void)
 {
   const gchar *udev_path = NULL;
@@ -109,7 +117,7 @@ gboolean trigger_init(void)
   udev_parse(dev);
   
   iochannel = g_io_channel_unix_new(udev_monitor_get_fd(mon));
-  watch_id = g_io_add_watch(iochannel, G_IO_IN, monitor_udev, NULL);
+  watch_id = g_io_add_watch_full(iochannel, 0, G_IO_IN, monitor_udev, NULL, notify_issue);
 
   /* everything went well */
   log_debug("Trigger enabled!\n");

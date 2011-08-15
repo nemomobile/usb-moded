@@ -1,3 +1,9 @@
+usb-moded (0.46) unstable; urgency=low
+ 
+  * Restart usb trigger if the socket gets destroyed.
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Mon, 15 Aug 2011 15:28:16 +0300
+
 usb-moded (0.45) unstable; urgency=low
 
   * Only signal MODE_UNDEFINED when we have actually done all the modesetting handling 
