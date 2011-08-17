@@ -36,6 +36,7 @@
 #include "usb_moded-log.h"
 #include "usb_moded-config.h"
 #include "usb_moded-hw-ab.h"
+#include "usb_moded-modesetting.h"
 #include "usb_moded-trigger.h"
 #ifdef NOKIA
 #include "usb_moded-devicelock.h"
@@ -56,7 +57,8 @@ static void udev_parse(struct udev_device *dev);
 static void notify_issue (gpointer data)
 {
         log_debug("trigger watch destroyed\n!");
-	/* restart trigger */
+	/* clean up & restart trigger */
+	trigger_stop();
 	trigger_init();
 }
 
@@ -188,8 +190,10 @@ static void udev_parse(struct udev_device *dev)
 	 if(!usb_moded_get_export_permission())
 #endif /* NOKIA */
 	   if(strcmp(get_trigger_mode(), get_usb_mode()) != 0)
+	   {
+		usb_moded_mode_cleanup(get_usb_module());
       	   	set_usb_mode(get_trigger_mode());
-
+	   }
 	}
 	else
 	   return;

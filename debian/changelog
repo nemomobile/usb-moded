@@ -1,6 +1,7 @@
 usb-moded (0.46) unstable; urgency=low
  
-  * Restart usb trigger if the socket gets destroyed.
+  * Restart usb trigger if the socket gets destroyed. Fixes: NB#277395
+  * On usb trigger mode switch, clean up mode first.
 
  -- Philippe De Swert <philippe.de-swert@nokia.com>  Mon, 15 Aug 2011 15:28:16 +0300
 
