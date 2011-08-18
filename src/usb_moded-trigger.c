@@ -198,13 +198,17 @@ static void udev_parse(struct udev_device *dev)
 	else
 	   return;
     }
-    else	
+    else
+    /* for triggers without trigger value */	
     {
 #ifdef NOKIA
      if(!usb_moded_get_export_permission())
 #endif /* NOKIA */
        if(strcmp(get_trigger_mode(), get_usb_mode()) != 0)
+	{
+	    usb_moded_mode_cleanup(get_usb_module());
        	    set_usb_mode(get_trigger_mode());
+	}
     }
     return;
   }
