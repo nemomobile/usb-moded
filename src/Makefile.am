@@ -16,10 +16,8 @@ usb_moded_SOURCES = \
 	usb_moded-dbus.c \
 	usb_moded-dbus.h \
 	usb_moded-dbus-private.h \
-	usb_moded-gconf.c \
-	usb_moded-gconf.h \
-	usb_moded-gconf-private.h \
 	usb_moded-hw-ab.h \
+	usb_moded-config-private.h \
 	usb_moded-modules.c \
 	usb_moded-modules.h \
 	usb_moded-log.h \
@@ -28,6 +26,13 @@ usb_moded_SOURCES = \
 	usb_moded-config.h \
 	usb_moded-modesetting.c \
 	usb_moded-modesetting.h 
+
+if GCONF
+usb_moded_SOURCES += \
+	usb_moded-gconf.c \
+	usb_moded-gconf.h 
+endif
+
 if HAL
 usb_moded_SOURCES += \
 	usb_moded-hal.c

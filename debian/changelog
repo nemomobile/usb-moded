@@ -1,3 +1,10 @@
+usb-moded (0.47) unstable; urgency=low
+  
+  * Make it possible to use the ini file for the mode setting also. This removes
+    the gconf dependency.
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Sat, 10 Sep 2011 23:54:22 +0300
+
 usb-moded (0.46) unstable; urgency=low
  
   * Restart usb trigger if the socket gets destroyed. Fixes: NB#277395

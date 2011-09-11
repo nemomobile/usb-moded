@@ -1,4 +1,4 @@
-AC_INIT([usb_moded], [0.46])
+AC_INIT([usb_moded], [0.47])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AM_CONFIG_HEADER([config.h])
@@ -68,6 +68,14 @@ AC_ARG_ENABLE([bme], AS_HELP_STRING([--enable-bme], [Enable Nokia bme cable conn
    esac],[bme=false])
 AM_CONDITIONAL([BME], [test x$bme = xtrue])
 
+AC_ARG_ENABLE([gconf], AS_HELP_STRING([--enable-gconf], [Use GConf for configuration storage @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) gconf=true ; CFLAGS="-DGCONF -I/usr/include/gconf/2 -I/usr/include/orbit-2.0 -lgconf-2 $CFLAGS" ;;
+   no)  conf=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-gconf]) ;;
+   esac],[gconf=false])
+AM_CONDITIONAL([GCONF], [test x$gconf = xtrue])
+
 AC_ARG_ENABLE([app_sync], AS_HELP_STRING([--enable-app-sync], [Enable application syncing @<:@default=false@:>@]),
   [case "${enableval}" in
    yes) app_sync=true ; CFLAGS="-DAPP_SYNC $CFLAGS" ;;
@@ -93,13 +101,13 @@ AC_ARG_ENABLE([udev], AS_HELP_STRING([--enable-udev], [Enable udev interface @<:
 AM_CONDITIONAL([UDEV], [test x$udev = xtrue])
 
 
-
+#TODO: Figure out how to check for this depending on the gconf flag
+# gconf-2.0 >= 2.16.0
 PKG_CHECK_MODULES([USB_MODED], [
  glib-2.0 >= 2.24.0
  dbus-1 >= 1.2.1
  dbus-glib-1 >= 0.78
  gobject-2.0 >= 2.16.6
- gconf-2.0 >= 2.16.0
  gio-2.0
 ])
 

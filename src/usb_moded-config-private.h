@@ -18,7 +18,7 @@
   02110-1301 USA
 */
 /*
- * Gets information from Gconf for the usb modes
+ * Gets information from Gconf/ini file for the usb modes
 */
 
 /*============================================================================= */

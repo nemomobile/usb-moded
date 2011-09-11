@@ -27,8 +27,10 @@
 
 #include <glib.h>
 #include <glib/gkeyfile.h>
+#include <glib/gstdio.h>
 
 #include "usb_moded-config.h"
+#include "usb_moded-config-private.h"
 #include "usb_moded-log.h"
 
 static int get_conf_int(const gchar *entry, const gchar *key);
@@ -172,4 +174,38 @@ static const char * get_conf_string(const gchar *entry, const gchar *key)
   return(ret);
 
 }
+
+#ifndef GCONF
+const char * get_mode_setting(void)
+{
+  return(get_conf_string(MODE_SETTING_ENTRY, MODE_SETTING_KEY));
+}
+
+int set_mode_setting(const char *mode)
+{
+  GKeyFile *settingsfile;
+  gboolean test = FALSE;
+  int ret = 0; 
+  gchar *keyfile;
+
+  settingsfile = g_key_file_new();
+  test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
+  if(!test)
+  {
+      log_debug("No conffile.\n");
+      g_key_file_free(settingsfile);
+      return(ret);
+  }
+
+  g_key_file_set_string(settingsfile, MODE_SETTING_ENTRY, MODE_SETTING_KEY, mode);
+  keyfile = g_key_file_to_data (settingsfile, NULL, NULL); 
+  /* free the settingsfile before writing things out to be sure 
+     the contents will be correctly written to file afterwards.
+     Just a precaution. */
+  g_key_file_free(settingsfile);
+  ret = g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile, -1, NULL);
+  
+  return(ret);
+}
+#endif
 

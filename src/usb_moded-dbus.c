@@ -31,7 +31,7 @@
 #include "usb_moded-dbus-private.h"
 #include "usb_moded.h"
 #include "usb_moded-modes.h"
-#include "usb_moded-gconf-private.h"
+#include "usb_moded-config-private.h"
 #include "usb_moded-log.h"
 
 #ifdef NOKIA

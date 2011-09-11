@@ -35,7 +35,6 @@
 #include "usb_moded-dbus-private.h"
 #include "usb_moded-hw-ab.h"
 #include "usb_moded-gconf.h"
-#include "usb_moded-gconf-private.h"
 #include "usb_moded-modules.h"
 #include "usb_moded-log.h"
 #include "usb_moded-devicelock.h"
@@ -44,6 +43,7 @@
 #include "usb_moded-appsync.h"
 #include "usb_moded-trigger.h"
 #include "usb_moded-config.h"
+#include "usb_moded-config-private.h"
 
 /* global definitions */
 

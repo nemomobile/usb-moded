@@ -22,6 +22,8 @@
 
 #define FS_MOUNT_CONFIG_FILE		"/etc/usb-moded/usb-moded.ini"
 
+#define MODE_SETTING_ENTRY		"usbmode"
+#define MODE_SETTING_KEY		"mode"
 #define FS_MOUNT_DEFAULT	 	"/dev/mmcblk0p1"
 #define FS_MOUNT_ENTRY			"mountpoints"
 #define FS_MOUNT_KEY			"mount"

@@ -32,7 +32,7 @@
 #include "usb_moded.h"
 #include "usb_moded-log.h"
 #include "usb_moded-modes.h"
-#include "usb_moded-gconf-private.h"
+#include "usb_moded-config-private.h"
 #include "usb_moded-appsync.h"
 #include "usb_moded-appsync-dbus.h"
 #include "usb_moded-appsync-dbus-private.h"
