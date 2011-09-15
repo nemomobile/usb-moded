@@ -194,7 +194,7 @@ int set_mode_setting(const char *mode)
   {
       log_debug("No conffile.\n");
       g_key_file_free(settingsfile);
-      return(ret);
+      return(1);
   }
 
   g_key_file_set_string(settingsfile, MODE_SETTING_ENTRY, MODE_SETTING_KEY, mode);
@@ -205,7 +205,8 @@ int set_mode_setting(const char *mode)
   g_key_file_free(settingsfile);
   ret = g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile, -1, NULL);
   
-  return(ret);
+  /* g_file_set_contents returns 1 on succes, since set_mode_settings returns 0 on succes we return the ! value */
+  return(!ret);
 }
 #endif
 
