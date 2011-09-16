@@ -39,11 +39,11 @@ Similary a mode can be set.
 
 dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.set_mode string:'<mode_name>'
 
-Even the configuration can be set over DBus.
+Even the configuration can be set over DBus (this will set either the gconf key or use the settings file)
 
 dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.set_config string:'<mode_name>'
 
-However this can also be handled by setting the following GConf key.
+However this can also be optionally handled by setting the following GConf key.
 
 /Meego/System/UsbMode (querying and setting can be done as follows:
 
@@ -81,6 +81,11 @@ and make clear to programs on the device that something is wrong with the fs the
 
 [altmount]
 mount = /home/user/MyDocs
+
+Also the default usb mode can be configured there. For example:
+
+[usbmode]
+mode = ask
 
 The other settings and config dirs will be handled later in the appsync and dynamic modes part.
 (This is optional and can be compiled out)
