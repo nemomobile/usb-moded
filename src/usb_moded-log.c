@@ -142,7 +142,7 @@ void log_debugf(const char *fmt, ...)
  *
  * @return The current log level
  */
-int log_get_level(void)
+inline int log_get_level(void)
 {
         return log_level;
 }
@@ -151,7 +151,7 @@ int log_get_level(void)
  *
  * @param The wanted log level
  */
-void log_set_level(int lev)
+inline void log_set_level(int lev)
 {
         log_level = lev;
 }

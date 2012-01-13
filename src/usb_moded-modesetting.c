@@ -37,6 +37,7 @@
 #include "usb_moded-appsync.h"
 #include "usb_moded-config.h"
 #include "usb_moded-modesetting.h"
+#include "usb_moded-network.h"
 
 static void report_mass_storage_blocker(const char *mountpoint, int try);
 
@@ -141,6 +142,7 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
                         g_free(command);
                         if(!ret)
                         {
+				/* no check for / needed as that will fail to umount anyway */
                         	command = g_strconcat("umount ", mounts[i], NULL);
                                 log_debug("unmount command = %s\n", command);
                                 ret = system(command);
@@ -185,6 +187,7 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
  			write_to_file(command2, mounts[i]);
                 }
                 g_strfreev(mounts);
+		g_free((gpointer *)mount);
 	}
 
 	/* only send data in use signal in case we actually succeed */
@@ -245,7 +248,8 @@ int set_ovi_suite_mode(void)
   write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "1");
 #endif /* APP_SYNC */
   /* bring network interface up in case no other network is up */
-  system("ifdown usb0 ; ifup usb0");
+  /* system("ifdown usb0 ; ifup usb0"); */
+  usb_network_up();
 
 #ifdef NOKIA
   /* timeout for exporting CDROM image */
@@ -291,6 +295,7 @@ gboolean export_cdrom(gpointer data)
   }
   else
 	log_debug("Cdrom image file does not exist => no export.\n");
+  g_free((gpointer *)path);
 
   return(FALSE);
 }
@@ -333,6 +338,7 @@ int usb_moded_mode_cleanup(const char *module)
                                         {
                                                 log_err("Mounting %s failed\n", mount);
                                                 usb_moded_send_error_signal(RE_MOUNT_FAILED);
+						g_free((gpointer *)mount);
                                                 mount = find_alt_mount();
                                                 if(mount)
                                                 {
@@ -358,6 +364,7 @@ int usb_moded_mode_cleanup(const char *module)
                 		system(command2);
                         }
                         g_strfreev(mounts);
+			g_free((gpointer *)mount);
                 }
 
         }
@@ -367,8 +374,9 @@ int usb_moded_mode_cleanup(const char *module)
                 /* preventive sync in case of bad quality mtp clients */
                 sync();
                 /* bring network down immediately */
-                system("ifdown usb0");
+                /*system("ifdown usb0"); */
                 /* do soft disconnect */
+		usb_network_down();
   		write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "0");
 		/* DIRTY WORKAROUND: acm/phonet does not work as it should, remove when it does */
 		system("killall -SIGTERM acm");

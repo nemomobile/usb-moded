@@ -179,6 +179,7 @@ kill:
 			system("for i in `lsof -t /dev/ttyGS*`; do kill -s SIGTERM $i ; done");
 			system("for i in `lsof -t /dev/gc*`; do kill -s SIGTERM $i ; done");
 			system("for i in `lsof -t /dev/mtp*`; do kill -s SIGTERM $i ; done");
+			system("kill -s SIGTERM $(lsof -t /dev/usbacm");
 		        // SP: three passes and for loops in sh?
 		        // SP: system("kill -s SIGTERM $(lsof -t /dev/ttyGS* /dev/gc* /dev/mtp*") ?
 			// SP: or popen + kill loop?

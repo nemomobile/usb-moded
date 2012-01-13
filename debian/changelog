@@ -1,3 +1,18 @@
+usb-moded (0.49) unstable; urgency=low
+
+  * small memory usage fixes
+  * split out meego devlock 
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Fri, 13 Jan 2012 16:45:52 +0200
+
+usb-moded (0.48) unstable; urgency=low
+
+  * Switch to g_mass_storage for more recent kernels
+  * Set network through convience functions
+  * Go to undefined if no matching mode is found, so non-existing modes are not set silently
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Fri, 28 Oct 2011 12:21:22 +0300
+
 usb-moded (0.47) unstable; urgency=low
   
   * Make it possible to use the ini file for the mode setting also. This removes

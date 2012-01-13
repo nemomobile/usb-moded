@@ -24,6 +24,8 @@ usb_moded_SOURCES = \
 	usb_moded-log.c \
 	usb_moded-config.c \
 	usb_moded-config.h \
+	usb_moded-network.c \
+	usb_moded-network.h \
 	usb_moded-modesetting.c \
 	usb_moded-modesetting.h 
 
@@ -49,7 +51,7 @@ usb_moded_SOURCES += \
 	usb_moded-trigger.c
 endif
 
-if NOKIA	
+if MLOCK
 usb_moded_SOURCES += \
 	usb_moded-devicelock.h \
 	usb_moded-devicelock.c 

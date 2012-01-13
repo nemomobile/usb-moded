@@ -25,8 +25,8 @@
 #else
 #define MODULE_NETWORK_MTP      "g_nokia" 
 #endif /* NOKIA */
-#define MODULE_MASS_STORAGE     "g_file_storage"
-#define MODULE_CHARGING		"g_file_storage luns=1 stall=0 removable=1"
+#define MODULE_MASS_STORAGE     "g_mass_storage"
+#define MODULE_CHARGING		"g_mass_storage luns=1 stall=0 removable=1"
 #define MODULE_NONE             "none"
 #define MODULE_WINDOWS_NET	"g_ether"
 

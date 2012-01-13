@@ -38,9 +38,9 @@
 #include "usb_moded-hw-ab.h"
 #include "usb_moded-modesetting.h"
 #include "usb_moded-trigger.h"
-#ifdef NOKIA
+#ifdef MLOCK
 #include "usb_moded-devicelock.h"
-#endif /* NOKIA */
+#endif /* MLOCK */
 
 /* global variables */
 static struct udev *udev;
@@ -186,9 +186,9 @@ static void udev_parse(struct udev_device *dev)
     {
 	if(!strcmp(tmp, get_trigger_value()))
 	{
-#ifdef NOKIA
+#ifdef MLOCK
 	 if(!usb_moded_get_export_permission())
-#endif /* NOKIA */
+#endif /* MLOCK */
 	   if(strcmp(get_trigger_mode(), get_usb_mode()) != 0)
 	   {
 		usb_moded_mode_cleanup(get_usb_module());
@@ -201,9 +201,9 @@ static void udev_parse(struct udev_device *dev)
     else
     /* for triggers without trigger value */	
     {
-#ifdef NOKIA
+#ifdef MLOCK
      if(!usb_moded_get_export_permission())
-#endif /* NOKIA */
+#endif /* MLOCK */
        if(strcmp(get_trigger_mode(), get_usb_mode()) != 0)
 	{
 	    usb_moded_mode_cleanup(get_usb_module());

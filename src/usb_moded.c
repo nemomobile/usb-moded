@@ -44,6 +44,7 @@
 #include "usb_moded-trigger.h"
 #include "usb_moded-config.h"
 #include "usb_moded-config-private.h"
+#include "usb_moded-network.h"
 
 /* global definitions */
 
@@ -153,15 +154,15 @@ void set_usb_connected_state(void)
 {	
 
   const char *mode_to_set;  
-#ifdef NOKIA
+#ifdef MLOCK
   int export = 0, act_dead = 0;
-#endif /* NOKIA */
+#endif /* MLOCK */
 
   /* signal usb connected */
   log_debug("usb connected\n");
   usb_moded_send_signal(USB_CONNECTED);
   mode_to_set = get_mode_setting();
-#ifdef NOKIA
+#ifdef MLOCK
   /* check if we are allowed to export system contents 0 is unlocked */
   export = usb_moded_get_export_permission();
   /* check if we are in acting dead or not, /tmp/USER will not exist in acting dead */
@@ -169,7 +170,7 @@ void set_usb_connected_state(void)
   if(mode_to_set && !export && !act_dead)
 #else
   if(mode_to_set)
-#endif /* NOKIA */
+#endif /* MLOCK */
   {
 #ifdef NOKIA
 	/* If we switch to another mode than the one that is still set before the 
@@ -211,7 +212,8 @@ void set_usb_connected_state(void)
  */
 void set_usb_mode(const char *mode)
 {
-  int ret=0, net=0;
+  /* set return to 1 to be sure to error out if no matching mode is found either */
+  int ret=1, net=0;
   
   if(!strcmp(mode, MODE_MASS_STORAGE))
   {
@@ -242,6 +244,7 @@ void set_usb_mode(const char *mode)
 	ret = usb_moded_load_module(MODULE_NETWORK_MTP);
 	if(!ret)
 		ret = set_ovi_suite_mode();
+	goto end;
   } 
 #endif /* N900 */
 
@@ -250,7 +253,8 @@ void set_usb_mode(const char *mode)
 	check_module_state(MODULE_WINDOWS_NET);
 	set_usb_module(MODULE_WINDOWS_NET);
 	ret = usb_moded_load_module(MODULE_WINDOWS_NET);
-	net = system("ifdown usb0 ; ifup usb0");
+	net = usb_network_up();	
+	goto end;
   }
 
 #ifdef APP_SYNC  
@@ -321,7 +325,7 @@ int valid_mode(const char *mode)
  * @return the currently set mode
  *
  */
-const char * get_usb_mode(void)
+inline const char * get_usb_mode(void)
 {
   return(current_mode.mode);
 }
@@ -331,7 +335,7 @@ const char * get_usb_mode(void)
  * @param module The module name for the requested mode
  *
  */
-void set_usb_module(const char *module)
+inline void set_usb_module(const char *module)
 {
   free(current_mode.module);
   current_mode.module = strdup(module);
@@ -342,7 +346,7 @@ void set_usb_module(const char *module)
  * @return The name of the loaded module
  *
  */
-const char * get_usb_module(void)
+inline const char * get_usb_module(void)
 {
   return(current_mode.module);
 }
@@ -352,7 +356,7 @@ const char * get_usb_module(void)
  * @ return A boolean value for connected (TRUE) or not (FALSE)
  *
  */
-gboolean get_usb_connection_state(void)
+inline gboolean get_usb_connection_state(void)
 {
 	return current_mode.connected;
 }
@@ -362,7 +366,7 @@ gboolean get_usb_connection_state(void)
  * @param state The connection status that needs to be set. Connected (TRUE)
  *
  */
-void set_usb_connection_state(gboolean state)
+inline void set_usb_connection_state(gboolean state)
 {
 	current_mode.connected = state;
 }
@@ -372,17 +376,17 @@ void set_usb_connection_state(gboolean state)
 /* set default values for usb_moded */
 static void usb_moded_init(void)
 {
-#ifdef NOKIA
+#ifdef NOKIA_NSU
   char readbuf[MAX_READ_BUF];
   FILE *proc_fd;
-#endif /* NOKIA */
+#endif /* NOKIA_NSU */
 
   current_mode.connected = FALSE;
   current_mode.mounted = FALSE;
   current_mode.mode = strdup(MODE_UNDEFINED);
-  current_mode.module = g_strdup(MODULE_NONE);
+  current_mode.module = strdup(MODULE_NONE);
 
-#ifdef NOKIA
+#ifdef NOKIA_NSU
   proc_fd = fopen("/proc/cmdline", "r");
   if(proc_fd)
   {
@@ -394,7 +398,7 @@ static void usb_moded_init(void)
     fclose(proc_fd);
   }
 	
-#endif /* NOKIA */
+#endif /* NOKIA_NSU */
 #ifdef APP_SYNC
   readlist();
   modelist = read_mode_list();
@@ -654,11 +658,11 @@ int main(int argc, char* argv[])
 		log_crit("hwal init failed\n");
 		goto EXIT;
 	}
-#ifdef NOKIA
+#ifdef MLOCK
 	start_devicelock_listener();
 	if(!runlevel_ignore)
 		usb_moded_dsme_listener();
-#endif /* NOKIA */
+#endif /* MLOCK */
 
 	/* init succesful, run main loop */
 	result = EXIT_SUCCESS;  

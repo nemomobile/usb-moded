@@ -66,6 +66,11 @@ const char * find_udev_path(void)
 {
   return(get_conf_string(UDEV_PATH_ENTRY, UDEV_PATH_KEY));
 }
+
+const char * find_udev_subsystem(void)
+{
+  return(get_conf_string(UDEV_PATH_ENTRY, UDEV_SUBSYSTEM_KEY));
+}
 #endif /* UDEV */
 
 #ifdef NOKIA

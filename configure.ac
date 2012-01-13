@@ -1,4 +1,4 @@
-AC_INIT([usb_moded], [0.47])
+AC_INIT([usb_moded], [0.49])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AM_CONFIG_HEADER([config.h])
@@ -51,6 +51,14 @@ AC_ARG_ENABLE([nokia], AS_HELP_STRING([--enable-nokia], [Enable Nokia extra's @<
    esac],[nokia=false])
 AM_CONDITIONAL([NOKIA], [test x$nokia = xtrue])
 
+AC_ARG_ENABLE([meegodevlock], AS_HELP_STRING([--enable-meegodevlock], [Enable Meego devicelock @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) meegodevlock=true ; CFLAGS="-DMLOCK $CFLAGS" ;;
+   no)  meegodevlock=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-meegodevlock]) ;;
+   esac],[meegodevlock=false])
+AM_CONDITIONAL([MLOCK], [test x$meegodevlock = xtrue])
+
 AC_ARG_ENABLE([n900], AS_HELP_STRING([--enable-n900], [Enable N900 extra's @<:@default=false@:>@]),
   [case "${enableval}" in
    yes) n900=true ; CFLAGS="-DN900 $CFLAGS" ;;
@@ -58,7 +66,6 @@ AC_ARG_ENABLE([n900], AS_HELP_STRING([--enable-n900], [Enable N900 extra's @<:@d
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-n900]) ;;
    esac],[n900=false])
 AM_CONDITIONAL([N900], [test x$n900 = xtrue])
-
 
 AC_ARG_ENABLE([bme], AS_HELP_STRING([--enable-bme], [Enable Nokia bme cable connection interface @<:@default=false@:>@]),
   [case "${enableval}" in

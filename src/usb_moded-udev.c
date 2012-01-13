@@ -59,7 +59,7 @@ static void notify_issue (gpointer data)
 
 gboolean hwal_init(void)
 {
-  const gchar *udev_path = NULL;
+  const gchar *udev_path = NULL, *udev_subsystem = NULL;
   struct udev_device *dev;
   int ret = 0;
 	
@@ -73,7 +73,10 @@ gboolean hwal_init(void)
   
   udev_path = find_udev_path();
   if(udev_path)
+  {
 	dev = udev_device_new_from_syspath(udev, udev_path);
+	g_free((gpointer *)udev_path);
+  }
   else
   	dev = udev_device_new_from_syspath(udev, "/sys/class/power_supply/usb");
   if (!dev) 
@@ -94,7 +97,14 @@ gboolean hwal_init(void)
     /* communicate failure, mainloop will exit and call appropriate clean-up */
     return FALSE;
   }
-  ret = udev_monitor_filter_add_match_subsystem_devtype(mon, "power_supply", NULL);
+  udev_subsystem = find_udev_subsystem();
+  if(udev_subsystem)
+  {
+	  ret = udev_monitor_filter_add_match_subsystem_devtype(mon, udev_subsystem, NULL);
+	  g_free((gpointer *)udev_subsystem);
+  }
+  else
+	  ret = udev_monitor_filter_add_match_subsystem_devtype(mon, "power_supply", NULL);
   if(ret != 0)
   {
     log_err("Udev match failed.\n");
@@ -166,11 +176,13 @@ static void udev_parse(struct udev_device *dev)
   if(!tmp)
     {
     tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
-    /* log_warning("Using present property\n"); */
+    log_warning("Using present property\n");
     }
   if(!tmp)
     {
       log_err("No usable power supply indicator\n");
+      /* TRY AGAIN? 
+      return; */
       exit(1);
     }
   if(!strcmp(tmp, "1"))
@@ -182,7 +194,7 @@ static void udev_parse(struct udev_device *dev)
     {
       /* power supply type might not exist also :( Send connected event but this will not be able
       to discriminate between charger/cable */
-      log_warning("Fallback since cable detection cannot be accurate. Will connect on any voltage on usb.\n");
+      log_warning("Fallback since cable detection might not be accurate. Will connect on any voltage on usb.\n");
       cable = 1;
       set_usb_connected(TRUE);
       return;
