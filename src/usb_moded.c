@@ -154,7 +154,7 @@ void set_usb_connected_state(void)
 {	
 
   const char *mode_to_set;  
-#if defined MEEGOLOCK
+#ifdef MEEGOLOCK
   int export = 0;
 #endif /* MEEGOLOCK */
 
@@ -162,7 +162,7 @@ void set_usb_connected_state(void)
   log_debug("usb connected\n");
   usb_moded_send_signal(USB_CONNECTED);
   mode_to_set = get_mode_setting();
-#if defined MEEGOLOCK
+#ifdef MEEGOLOCK
   /* check if we are allowed to export system contents 0 is unlocked */
   export = usb_moded_get_export_permission();
 #endif
@@ -172,7 +172,7 @@ void set_usb_connected_state(void)
   act_dead = access("/tmp/USER", R_OK);
   if(mode_to_set && !export && !act_dead)
 #else
-  if(mode_to_set && !export)
+  if(mode_to_set)
 #endif /* MEEGOLOCK */
   {
 #ifdef NOKIA
@@ -673,7 +673,7 @@ int main(int argc, char* argv[])
 		log_crit("hwal init failed\n");
 		goto EXIT;
 	}
-#if defined MEEGOLOCK
+#ifdef MEEGOLOCK
 	start_devicelock_listener();
 	if(!runlevel_ignore)
 		usb_moded_dsme_listener();
