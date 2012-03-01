@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2010 Nokia Corporation. All rights reserved.
+  Copyright (C) 2012 Nokia Corporation. All rights reserved.
 
   Author: Philippe De Swert <philippe.de-swert@nokia.com>
 
@@ -17,15 +17,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
   02110-1301 USA
 */
-
-/* possible values for the mode, however only the first three can be set through the method call
-   the others being internal only.
+/*
+ * Function definitions to interact with a security lock to know if 
+   we can expose the system contents or not
  */
-#define MODE_MASS_STORAGE       "mass_storage"
-#define MODE_OVI_SUITE          "ovi_suite"
-#define MODE_CHARGING           "charging_only"
-#define MODE_UNDEFINED		"undefined"
-#define MODE_ASK		"ask"
-#define MODE_WINDOWS_NET	"windows_network"
-#define MODE_DEVELOPER		"developer_mode"
+
+/*============================================================================= */
+int usb_moded_get_export_permission(void);
+int start_devicelock_listener(void);
 

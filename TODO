@@ -1,2 +1,3 @@
 * verify appsync/usb_moded functionality with multiple sessions
 * Fix daemon mode
+* Make sure that --enable-dynamic-modes enables app-sync by default

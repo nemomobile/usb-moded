@@ -51,7 +51,7 @@ usb_moded_SOURCES += \
 	usb_moded-trigger.c
 endif
 
-if MLOCK
+if MEEGOLOCK
 usb_moded_SOURCES += \
 	usb_moded-devicelock.h \
 	usb_moded-devicelock.c 
@@ -63,7 +63,17 @@ usb_moded_SOURCES += \
 	usb_moded-appsync.h \
 	usb_moded-appsync-dbus.c \
 	usb_moded-appsync-dbus.h \
-	usb_moded-appsync-dbus-private.h \
+	usb_moded-appsync-dbus-private.h 
+endif
+
+if UPSTART
+usb_moded_SOURCES += \
+	usb_moded-upstart.h \
+	usb_moded-upstart.c
+endif
+
+if DYN_MODE
+usb_moded_SOURCES += \
 	usb_moded-dyn-config.c \
 	usb_moded-dyn-config.h
 endif

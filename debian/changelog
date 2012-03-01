@@ -1,3 +1,17 @@
+usb-moded (0.52) unstable; urgency=low
+
+  * Add upstart appsync functionality
+  * Coverity fixes
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Thu, 01 Mar 2012 13:57:21 +0200
+
+usb-moded (0.50) unstable; urgency=low
+
+  * Make sure multiple types of devicelock can be used
+  * Switch to g_ether by default for the time being
+
+ -- Philippe De Swert <philippe.de-swert@nokia.com>  Wed, 15 Feb 2012 17:42:51 +0200
+
 usb-moded (0.49) unstable; urgency=low
 
   * small memory usage fixes

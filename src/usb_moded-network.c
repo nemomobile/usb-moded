@@ -67,7 +67,7 @@ int usb_network_up(void)
   return(ret);
 
 #else
-  system("ifdown usb0 && ifup usb0");
+  system("ifconfig usb0 192.168.201.42");
   return(0);
 #endif /* CONNMAN */
 }
@@ -80,7 +80,7 @@ int usb_network_down(void)
 {
 #if CONNMAN
 #else
-  system("ifdown usb0 down");
+  system("ifconfig usb0 down");
   return(0);
 #endif /* CONNMAN */
 }

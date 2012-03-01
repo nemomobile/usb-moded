@@ -25,6 +25,7 @@
 #define APP_INFO_MODE_KEY	"mode"
 #define APP_INFO_NAME_KEY	"name"
 #define APP_INFO_LAUNCH_KEY	"launch"
+#define APP_INFO_UPSTART_KEY	"upstart"
 
 /** 
  * keep all the needed info together for launching an app 
@@ -36,9 +37,11 @@ typedef struct list_elem
   char *mode; 		/* mode in which to launch the app */
   char *launch;		/* dbus launch command/address */ 
   int active;		/* marker to check if the app has started sucessfully */
+  int upstart;		/* marker to know if we start it with upstart or not */
   /*@}*/
 }list_elem;
 
 void readlist(void);
 int activate_sync(const char *mode);
 int mark_active(const gchar *name);
+int appsync_stop(void);

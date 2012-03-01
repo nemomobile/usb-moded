@@ -148,9 +148,8 @@ static const char * get_conf_string(const gchar *entry, const gchar *key)
 {
   GKeyFile *settingsfile;
   gboolean test = FALSE;
-  gchar **keys;
-  const char *ret = NULL, *tmp_char;
-
+  gchar **keys, *tmp_char;
+  const char *ret = NULL;
   settingsfile = g_key_file_new();
   test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
   if(!test)
@@ -170,13 +169,12 @@ static const char * get_conf_string(const gchar *entry, const gchar *key)
                 if(tmp_char)
                 {
                         log_debug("key %s value  = %s\n", key, tmp_char);
-                        ret = g_strdup(tmp_char);
                 }
         }
         keys++;
   }
   g_key_file_free(settingsfile);
-  return(ret);
+  return(g_strdup(tmp_char));
 
 }
 

@@ -38,6 +38,7 @@
 #include "usb_moded-config.h"
 #include "usb_moded-modesetting.h"
 #include "usb_moded-network.h"
+#include "usb_moded-upstart.h"
 
 static void report_mass_storage_blocker(const char *mountpoint, int try);
 
@@ -240,11 +241,10 @@ int set_ovi_suite_mode(void)
    int timeout = 1;
 #endif /* NOKIA */
 
-
+  
 #ifdef APP_SYNC
   activate_sync(MODE_OVI_SUITE);
 #else
-  //system("echo 1 > /sys/devices/platform/musb_hdrc/gadget/softconnect");
   write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "1");
 #endif /* APP_SYNC */
   /* bring network interface up in case no other network is up */
@@ -263,19 +263,21 @@ int set_ovi_suite_mode(void)
 }
 #endif /* N900 */
 
-#ifdef APP_SYNC
+#ifdef DYN_MODE
 int set_dynamic_mode(struct mode_list_elem *data)
 {
   char command[256];
   if(data->appsync)
   	activate_sync(data->mode_name);
   if(data->network)
+  {
 	g_snprintf(command, 256, "ifdown %s ; ifup %s", data->network_interface, data->network_interface);
         system(command);
+  }
 
   return(0);
 }
-#endif /* APP_SYNC */
+#endif /* DYN_MODE */
 
 #ifdef NOKIA
 gboolean export_cdrom(gpointer data)
@@ -316,6 +318,11 @@ int usb_moded_mode_cleanup(const char *module)
         gchar **mounts;
         int ret = 0, i = 0;
 
+	log_debug("Cleaning up mode\n");
+
+#ifdef UPSTART
+	appsync_stop();
+#endif /* UPSTART */
 
         if(!strcmp(module, MODULE_MASS_STORAGE))
         {
@@ -375,9 +382,9 @@ int usb_moded_mode_cleanup(const char *module)
                 sync();
                 /* bring network down immediately */
                 /*system("ifdown usb0"); */
-                /* do soft disconnect */
 		usb_network_down();
-  		write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "0");
+                /* do soft disconnect 
+  		write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "0"); */
 		/* DIRTY WORKAROUND: acm/phonet does not work as it should, remove when it does */
 		system("killall -SIGTERM acm");
         }

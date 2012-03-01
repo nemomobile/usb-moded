@@ -1,7 +1,9 @@
-/*
-  Copyright (C) 2010 Nokia Corporation. All rights reserved.
+/**
+  @file	usb_moded-upstart.h
 
-  Author: Philippe De Swert <philippe.de-swert@nokia.com>
+  Copyright (C) 2012 Nokia Corporation. All rights reserved.
+
+  @author: Philippe De Swert <philippe.de-swert@nokia.com>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the Lesser GNU General Public License 
@@ -18,14 +20,14 @@
   02110-1301 USA
 */
 
-/* possible values for the mode, however only the first three can be set through the method call
-   the others being internal only.
- */
-#define MODE_MASS_STORAGE       "mass_storage"
-#define MODE_OVI_SUITE          "ovi_suite"
-#define MODE_CHARGING           "charging_only"
-#define MODE_UNDEFINED		"undefined"
-#define MODE_ASK		"ask"
-#define MODE_WINDOWS_NET	"windows_network"
-#define MODE_DEVELOPER		"developer_mode"
+#include <stdio.h>
+#include <string.h>
 
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
+
+#define UPSTART_START 	"Start"
+#define UPSTART_STOP	"Stop"
+
+int upstart_control_job(const char *name, const char * action);

@@ -32,6 +32,7 @@
 #include <dbus/dbus-glib-lowlevel.h>
 
 #include "usb_moded-devicelock.h"
+#include "usb_moded-lock.h"
 #include "usb_moded-log.h"
 #include "usb_moded.h"
 #include "usb_moded-modes.h"

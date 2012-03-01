@@ -38,9 +38,9 @@
 #include "usb_moded-hw-ab.h"
 #include "usb_moded-modesetting.h"
 #include "usb_moded-trigger.h"
-#ifdef MLOCK
-#include "usb_moded-devicelock.h"
-#endif /* MLOCK */
+#if defined MEEGOLOCK
+#include "usb_moded-lock.h"
+#endif /* MEEGOLOCK */
 
 /* global variables */
 static struct udev *udev;
@@ -172,38 +172,46 @@ void trigger_stop(void)
 
 static void udev_parse(struct udev_device *dev)
 {
-  const char *tmp;
-
-  tmp = udev_device_get_property_value(dev, get_trigger_property());
+  const char *tmp, *trigger = 0;
+ 
+  trigger = get_trigger_property();
+  tmp = udev_device_get_property_value(dev, trigger);
   if(!tmp)
   {
     /* do nothing and return */
+    free((void *)trigger);
     return;
   }
   else
   {
-    if(get_trigger_value())
+    free((void *)trigger);
+    trigger = get_trigger_value();
+    if(trigger)
     {
-	if(!strcmp(tmp, get_trigger_value()))
+	if(!strcmp(tmp, trigger))
 	{
-#ifdef MLOCK
+#if defined MEEGOLOCK
 	 if(!usb_moded_get_export_permission())
-#endif /* MLOCK */
+#endif /* MEEGOLOCK */
 	   if(strcmp(get_trigger_mode(), get_usb_mode()) != 0)
 	   {
 		usb_moded_mode_cleanup(get_usb_module());
       	   	set_usb_mode(get_trigger_mode());
 	   }
+	   free((void *)trigger);
 	}
 	else
+	{
+	   free((void *)trigger);
 	   return;
+	}
     }
     else
     /* for triggers without trigger value */	
     {
-#ifdef MLOCK
+#if defined MEEGOLOCK
      if(!usb_moded_get_export_permission())
-#endif /* MLOCK */
+#endif /* MEEGOLOCK */
        if(strcmp(get_trigger_mode(), get_usb_mode()) != 0)
 	{
 	    usb_moded_mode_cleanup(get_usb_module());

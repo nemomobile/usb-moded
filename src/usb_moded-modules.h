@@ -21,7 +21,7 @@
 /* module name definitions */
 #define MODULE_NETWORK          "g_nokia" 
 #ifdef NOKIA
-#define MODULE_NETWORK_MTP      "g_nokia use_mtp=1 connect=0" 
+#define MODULE_NETWORK_MTP      "g_nokia devmode=0" 
 #else
 #define MODULE_NETWORK_MTP      "g_nokia" 
 #endif /* NOKIA */
@@ -29,6 +29,7 @@
 #define MODULE_CHARGING		"g_mass_storage luns=1 stall=0 removable=1"
 #define MODULE_NONE             "none"
 #define MODULE_WINDOWS_NET	"g_ether"
+#define MODULE_DEVELOPER	"g_nokia devmode=1"
 
 /* load module */
 int usb_moded_load_module(const char *module);

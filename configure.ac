@@ -1,4 +1,4 @@
-AC_INIT([usb_moded], [0.49])
+AC_INIT([usb_moded], [0.52])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AM_CONFIG_HEADER([config.h])
@@ -11,7 +11,7 @@ AC_C_CONST
 AC_HEADER_STDC
 
 test_gcc_flag() {
-    AC_LANG_CONFTEST([int main() {}])
+#    AC_LANG_CONFTEST([int main() {}])
     $CC -c conftest.c $CFLAGS $@ > /dev/null 2> /dev/null
     ret=$?
     rm -f conftest.o
@@ -53,11 +53,11 @@ AM_CONDITIONAL([NOKIA], [test x$nokia = xtrue])
 
 AC_ARG_ENABLE([meegodevlock], AS_HELP_STRING([--enable-meegodevlock], [Enable Meego devicelock @<:@default=false@:>@]),
   [case "${enableval}" in
-   yes) meegodevlock=true ; CFLAGS="-DMLOCK $CFLAGS" ;;
+   yes) meegodevlock=true ; CFLAGS="-DMEEGOLOCK $CFLAGS" ;;
    no)  meegodevlock=false ;;
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-meegodevlock]) ;;
    esac],[meegodevlock=false])
-AM_CONDITIONAL([MLOCK], [test x$meegodevlock = xtrue])
+AM_CONDITIONAL([MEEGOLOCK], [test x$meegodevlock = xtrue])
 
 AC_ARG_ENABLE([n900], AS_HELP_STRING([--enable-n900], [Enable N900 extra's @<:@default=false@:>@]),
   [case "${enableval}" in
@@ -87,9 +87,17 @@ AC_ARG_ENABLE([app_sync], AS_HELP_STRING([--enable-app-sync], [Enable applicatio
   [case "${enableval}" in
    yes) app_sync=true ; CFLAGS="-DAPP_SYNC $CFLAGS" ;;
    no)  app_sync=false ;;
-   *) AC_MSG_ERROR([bad value ${enableval} for --enable-app_sync]) ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-app-sync]) ;;
    esac],[app_sync=false])
 AM_CONDITIONAL([APP_SYNC], [test x$app_sync = xtrue])
+
+AC_ARG_ENABLE([dynamic_modes], AS_HELP_STRING([--enable-dynamic-modes], [Enable adding modes with ini files @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) dynamic_modes=true ; CFLAGS="-DDYN_MODE $CFLAGS" ;;
+   no)  dynamic_modes=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-dynamic-modes]) ;;
+   esac],[dynamic_modes=false])
+AM_CONDITIONAL([DYN_MODE], [test x$dynamic_modes = xtrue])
 
 AC_ARG_ENABLE([hal], AS_HELP_STRING([--enable-hal], [Enable deprecated hal interface @<:@default=false@:>@]),
   [case "${enableval}" in
@@ -106,6 +114,14 @@ AC_ARG_ENABLE([udev], AS_HELP_STRING([--enable-udev], [Enable udev interface @<:
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-udev]) ;;
    esac],[udev=false])
 AM_CONDITIONAL([UDEV], [test x$udev = xtrue])
+
+AC_ARG_ENABLE([upstart], AS_HELP_STRING([--enable-upstart], [Enable upstart interface for appsync @<:@default=true@:>@]),
+  [case "${enableval}" in
+   yes) upstart=true ; CFLAGS="-DUPSTART $CFLAGS" ;;
+   no)  upstart=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-upstart]) ;;
+   esac],[upstart=false])
+AM_CONDITIONAL([UPSTART], [test x$upstart = xtrue])
 
 
 #TODO: Figure out how to check for this depending on the gconf flag

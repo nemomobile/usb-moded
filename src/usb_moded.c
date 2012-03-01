@@ -37,7 +37,7 @@
 #include "usb_moded-gconf.h"
 #include "usb_moded-modules.h"
 #include "usb_moded-log.h"
-#include "usb_moded-devicelock.h"
+#include "usb_moded-lock.h"
 #include "usb_moded-modesetting.h"
 #include "usb_moded-modules.h"
 #include "usb_moded-appsync.h"
@@ -154,23 +154,26 @@ void set_usb_connected_state(void)
 {	
 
   const char *mode_to_set;  
-#ifdef MLOCK
-  int export = 0, act_dead = 0;
-#endif /* MLOCK */
+#if defined MEEGOLOCK
+  int export = 0;
+#endif /* MEEGOLOCK */
 
   /* signal usb connected */
   log_debug("usb connected\n");
   usb_moded_send_signal(USB_CONNECTED);
   mode_to_set = get_mode_setting();
-#ifdef MLOCK
+#if defined MEEGOLOCK
   /* check if we are allowed to export system contents 0 is unlocked */
   export = usb_moded_get_export_permission();
+#endif
+#ifdef MEEGOLOCK
+  int act_dead = 0;
   /* check if we are in acting dead or not, /tmp/USER will not exist in acting dead */
   act_dead = access("/tmp/USER", R_OK);
   if(mode_to_set && !export && !act_dead)
 #else
-  if(mode_to_set)
-#endif /* MLOCK */
+  if(mode_to_set && !export)
+#endif /* MEEGOLOCK */
   {
 #ifdef NOKIA
 	/* If we switch to another mode than the one that is still set before the 
@@ -202,7 +205,7 @@ void set_usb_connected_state(void)
 	*/
 	set_usb_mode(MODE_CHARGING);
   }
-  
+  free((void *)mode_to_set); 
 }
 
 /** set the usb mode 
@@ -235,7 +238,14 @@ void set_usb_mode(const char *mode)
 	ret = usb_moded_load_module(MODULE_CHARGING);
 	goto end;
   }
-
+else if(!strcmp(mode, MODE_DEVELOPER))
+  {
+	check_module_state(MODULE_DEVELOPER);
+	set_usb_module(MODULE_NETWORK);
+	ret = usb_moded_load_module(MODULE_DEVELOPER);
+	net = usb_network_up();	
+	goto end;
+  }
 #ifdef N900 
   else if(!strcmp(mode, MODE_OVI_SUITE))
   {
@@ -256,8 +266,9 @@ void set_usb_mode(const char *mode)
 	net = usb_network_up();	
 	goto end;
   }
+  
 
-#ifdef APP_SYNC  
+#ifdef DYN_MODE 
   /* go through all the dynamic modes if the modelist exists*/
   if(modelist)
   {
@@ -275,7 +286,7 @@ void set_usb_mode(const char *mode)
       }
     }
   }
-#endif /* APP_SYNC */
+#endif /* DYN_MODE */
 
 end:
   /* if ret != 0 then usb_module loading failed */
@@ -297,10 +308,11 @@ end:
 int valid_mode(const char *mode)
 {
 
-  if(!strcmp(MODE_MASS_STORAGE, mode) || !strcmp(MODE_OVI_SUITE, mode) || !strcmp(MODE_CHARGING, mode) || !strcmp(MODE_WINDOWS_NET, mode))
+  if(!strcmp(MODE_MASS_STORAGE, mode) || !strcmp(MODE_OVI_SUITE, mode) || !strcmp(MODE_CHARGING, mode) 
+     || !strcmp(MODE_WINDOWS_NET, mode) || !strcmp(MODE_DEVELOPER,mode))
 	return(0);
   else
-#ifdef APP_SYNC
+#ifdef DYN_MODE
   {
     /* check dynamic modes */
     if(modelist)
@@ -315,7 +327,7 @@ int valid_mode(const char *mode)
       }
     }
   }
-#endif /* APP_SYNC */
+#endif /* DYN_MODE */
   return(1);
 
 }
@@ -335,7 +347,7 @@ inline const char * get_usb_mode(void)
  * @param module The module name for the requested mode
  *
  */
-inline void set_usb_module(const char *module)
+void set_usb_module(const char *module)
 {
   free(current_mode.module);
   current_mode.module = strdup(module);
@@ -401,8 +413,11 @@ static void usb_moded_init(void)
 #endif /* NOKIA_NSU */
 #ifdef APP_SYNC
   readlist();
-  modelist = read_mode_list();
 #endif /* APP_SYNC */
+#ifdef DYN_MODE
+  modelist = read_mode_list();
+#endif /* DYN_MODE */
+
 #ifdef UDEV
   if(check_trigger())
 	trigger_init();
@@ -658,11 +673,11 @@ int main(int argc, char* argv[])
 		log_crit("hwal init failed\n");
 		goto EXIT;
 	}
-#ifdef MLOCK
+#if defined MEEGOLOCK
 	start_devicelock_listener();
 	if(!runlevel_ignore)
 		usb_moded_dsme_listener();
-#endif /* MLOCK */
+#endif /* MEEGOLOCK */
 
 	/* init succesful, run main loop */
 	result = EXIT_SUCCESS;  

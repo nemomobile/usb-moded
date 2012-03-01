@@ -38,6 +38,7 @@
 #include "usb_moded-appsync-dbus-private.h"
 #include "usb_moded-modesetting.h"
 #include "usb_moded-log.h"
+#include "usb_moded-upstart.h"
 
 static struct list_elem *read_file(const gchar *filename);
 static gboolean enumerate_usb(gpointer data);
@@ -123,6 +124,8 @@ static struct list_elem *read_file(const gchar *filename)
   log_debug("Launch = %s\n", list_item->launch);
   list_item->mode = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, APP_INFO_MODE_KEY, NULL);
   log_debug("Launch mode = %s\n", list_item->mode);
+  list_item->upstart = g_key_file_get_integer(settingsfile, APP_INFO_ENTRY, APP_INFO_UPSTART_KEY, NULL);
+  log_debug("Upstart control = %d\n", list_item->upstart);
 
 cleanup:
 
@@ -198,7 +201,15 @@ int activate_sync(const char *mode)
     if(!strcmp(mode, data->mode))
     {
       log_debug("launching app %s\n", data->launch);
-      usb_moded_dbus_app_launch(data->launch);
+#ifdef UPSTART
+      if(data->upstart)
+      {
+	if(!upstart_control_job(data->name, UPSTART_START))	
+		mark_active(data->name);
+      }
+      else
+#endif /* UPSTART */
+      	usb_moded_dbus_app_launch(data->launch);
     }
   }
 
@@ -259,9 +270,12 @@ static gboolean enumerate_usb(gpointer data)
   }
   else
   {
+
+#ifdef NOKIA_EXTRA
     /* activate usb connection/enumeration */
     write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "1");
     log_debug("Softconnect enumeration done\n");
+#endif
 
     enum_tag = sync_tag;
 
@@ -276,3 +290,23 @@ static gboolean enumerate_usb(gpointer data)
   /* return false to stop the timer from repeating */
   return FALSE;
 }
+
+#ifdef UPSTART
+int appsync_stop(void)
+{
+  GList *iter = 0;
+
+  for( iter = sync_list; iter; iter = g_list_next(iter) )
+  {
+    struct list_elem *data = iter->data;
+    if(data->upstart)
+    {
+      log_debug("Stopping %s\n", data->launch);
+      if(upstart_control_job(data->name, UPSTART_STOP))
+	log_debug("Failed to stop %s\n", data->name);
+    }
+  }
+
+  return(0);
+}
+#endif /* UPSTART */

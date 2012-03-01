@@ -22,8 +22,6 @@
  */
 
 /*============================================================================= */
-int usb_moded_get_export_permission(void);
-int start_devicelock_listener(void);
 
 #define DEVICELOCK_SERVICE		"com.nokia.devicelock"
 #define DEVICELOCK_REQUEST_PATH		"/request"
