@@ -30,6 +30,7 @@
 #define MODULE_NONE             "none"
 #define MODULE_WINDOWS_NET	"g_ether"
 #define MODULE_DEVELOPER	"g_nokia devmode=1"
+#define MODULE_MTP		"g_ffs"
 
 /* load module */
 int usb_moded_load_module(const char *module);

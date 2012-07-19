@@ -52,7 +52,6 @@ extern const char *log_name;
 extern int log_level;
 extern int log_type;
 
-gboolean run_as_daemon = FALSE;
 gboolean runlevel_ignore = FALSE;
 struct usb_mode current_mode;
 guint charging_timeout = 0;
@@ -69,7 +68,6 @@ static gboolean set_disconnected(gpointer data);
 static void usb_moded_init(void);
 static gboolean charging_fallback(gpointer data);
 static void usage(void);
-static gboolean daemonize(void);
 
 
 /* ============= Implementation starts here =========================================== */
@@ -266,6 +264,13 @@ else if(!strcmp(mode, MODE_DEVELOPER))
 	net = usb_network_up();	
 	goto end;
   }
+  else if(!strcmp(mode, MODE_MTP))
+  {
+	check_module_state(MODULE_MTP);
+	set_usb_module(MODULE_MTP);
+	ret = usb_moded_load_module(MODULE_MTP);
+	goto end;
+  }
   
 
 #ifdef DYN_MODE 
@@ -452,140 +457,14 @@ static void usage(void)
                 "Usage: usb_moded [OPTION]...\n"
                   "USB mode daemon\n"
                   "\n"
-                  "  -d,  --daemon	  run as a daemon\n"
-                  "  -s,  --force-syslog  log to syslog even when not "
-                  "daemonized\n"
-                  "  -T,  --force-stderr  log to stderr even when daemonized\n"
+                  "  -s,  --force-syslog  log to syslog\n"
+                  "  -T,  --force-stderr  log to stderr\n"
                   "  -D,  --debug	  turn on debug printing\n"
                   "  -h,  --help          display this help and exit\n"
                   "  -v,  --version       output version information and exit\n"
 		  "  -w,  --watch-off	  do not act on runlevel change\n"
                   "\n");
 }
-
-/* Turn the process in a daemon */
-static gboolean daemonize(void)
-{
-        gint retries = 0;
-        gint i = 0;
-        gchar str[10];
-
-        if (getppid() == 1)
-                exit(0);      /* Already daemonized */
-
-        /* Detach from process group */
-        switch (fork()) 
-	{
-        case -1:
-                /* Failure */
-                exit(1);
-
-        case 0:
-                /* Child */
-                break;
-
-        default:
-                /* Parent -- exit */
-                exit(0);
-        }
-
-        /* Detach TTY */
-        setsid();
-
-        /* Close all file descriptors and redirect stdio to /dev/null */
-        if ((i = getdtablesize()) == -1)
-                i = 256;
-
-        while (--i >= 0) 
-	{
-                if (close(i) == -1) 
-		{
-                        if (retries > 10) 
-			{
-                                log_crit("close() was interrupted more than 10 times. Exiting.\n");
-                                exit(1);
-                        }
-
-                        if (errno == EINTR) 
-			{
-                                log_err("close() was interrupted; retrying.\n");
-                                errno = 0;
-                                i++;
-                                retries++;
-                        } 
-			else if (errno == EBADF) 
-			{
-                               /* fprintf(stdout, "Failed to close() fd %d; %s. Ignoring.\n",
-                                        i + 1, g_strerror(errno));*/
-                                errno = 0;
-                        } 
-			else 
-			{
-                                log_crit("Failed to close() fd %d; %s. Exiting.", i + 1, g_strerror(errno));
-                                exit(1);
-                        }
-                } 
-		else 
-        	        retries = 0;
-	}
-
-        if ((i = open("/dev/null", O_RDWR)) == -1) 
-	{
-                log_crit("Cannot open `/dev/null'; %s. Exiting.", g_strerror(errno));
-                exit(1);
-        }
-
-        if ((dup(i) == -1)) 
-	{
-                log_crit("Failed to dup() `/dev/null'; %s. Exiting.", g_strerror(errno));
-                exit(1);
-        }
-        if ((dup(i) == -1)) 
-	{
-		log_crit("Failed to dup() `/dev/null'; %s. Exiting.", g_strerror(errno));
-                exit(1);
-        }
-
-        /* Set umask */
-        umask(022);
-
-        /* Set working directory */
-        if ((chdir("/tmp") == -1)) 
-	{
-                log_crit("Failed to chdir() to `/tmp'; %s. Exiting.", g_strerror(errno));
-                exit(1);
-        }
-
-        /* Single instance */
-        if ((i = open(USB_MODED_LOCKFILE, O_RDWR | O_CREAT, 0640)) == -1) 
-	{
-                log_crit("Cannot open lockfile; %s. Exiting.", g_strerror(errno));
-                exit(1);
-        }
-
-        if (lockf(i, F_TLOCK, 0) == -1) 
-	{
-                log_crit("Already running. Exiting.");
-                exit(1);
-        }
-
-        sprintf(str, "%d\n", getpid());
-        write(i, str, strlen(str));
-        close(i);
-
-        /* Ignore TTY signals */
-        signal(SIGTSTP, SIG_IGN);
-        signal(SIGTTOU, SIG_IGN);
-        signal(SIGTTIN, SIG_IGN);
-
-        /* Ignore child terminate signal */
-        signal(SIGCHLD, SIG_IGN);
-
-        log_info("Daemon running.");
-        return 0;
-}
-
-
 
 int main(int argc, char* argv[])
 {
@@ -606,14 +485,10 @@ int main(int argc, char* argv[])
 	log_name = basename(*argv);
 
 	 /* Parse the command-line options */
-        while ((opt = getopt_long(argc, argv, "dsTDhvw", options, &opt_idx)) != -1) 
+        while ((opt = getopt_long(argc, argv, "sTDhvw", options, &opt_idx)) != -1) 
 	{
                 switch (opt) 
 		{
-                	case 'd':
-                        	run_as_daemon = TRUE;
-	                        break;
-
 		        case 's':
                         	log_type = LOG_TO_SYSLOG;
                         	break;
@@ -643,12 +518,6 @@ int main(int argc, char* argv[])
 				exit(0);
                 }
         }
-
-        if(run_as_daemon == TRUE)
-	{
-		log_notice("going to daemon mode\n");
-		daemonize();
-	}
 
 	/* silence system() calls */
 	if(log_type != LOG_TO_STDERR || log_level != LOG_DEBUG )	

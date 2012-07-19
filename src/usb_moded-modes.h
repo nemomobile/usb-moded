@@ -28,4 +28,5 @@
 #define MODE_ASK		"ask"
 #define MODE_WINDOWS_NET	"windows_network"
 #define MODE_DEVELOPER		"developer_mode"
+#define MODE_MTP		"mtp_mode"
 
