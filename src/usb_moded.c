@@ -271,7 +271,10 @@ else if(!strcmp(mode, MODE_DEVELOPER))
 	ret = usb_moded_load_module(MODULE_MTP);
 	goto end;
   }
-  
+  else if(!strcmp(mode, MODE_ASK))
+  {
+	ret = 0;
+  }
 
 #ifdef DYN_MODE 
   /* go through all the dynamic modes if the modelist exists*/
