@@ -233,6 +233,10 @@ static void report_mass_storage_blocker(const char *mountpoint, int try)
 
 }
 
+int set_mtp_mode(void)
+{
+}
+
 
 #ifdef N900
 int set_ovi_suite_mode(void)

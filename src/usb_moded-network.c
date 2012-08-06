@@ -67,7 +67,7 @@ int usb_network_up(void)
   return(ret);
 
 #else
-  system("ifconfig usb0 192.168.201.42");
+  system("ifconfig usb0 192.168.2.15");
   return(0);
 #endif /* CONNMAN */
 }
