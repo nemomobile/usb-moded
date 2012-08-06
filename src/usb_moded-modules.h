@@ -29,7 +29,7 @@
 #define MODULE_CHARGING		"g_mass_storage luns=1 stall=0 removable=1"
 #define MODULE_NONE             "none"
 #define MODULE_WINDOWS_NET	"g_ether"
-#define MODULE_DEVELOPER	"g_nokia devmode=1"
+#define MODULE_DEVELOPER	"g_ether"
 #define MODULE_MTP		"g_ffs"
 
 /* load module */
