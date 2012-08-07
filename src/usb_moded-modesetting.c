@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 #include <glib.h>
 
@@ -233,8 +234,19 @@ static void report_mass_storage_blocker(const char *mountpoint, int try)
 
 }
 
+
+/* TODO: clean up buteo-mtp hack */
 int set_mtp_mode(void)
 {
+  int pid = 1;
+
+  mkdir("/dev/mtp", S_IRWXO|S_IRWXU);
+  system("mount -t functionfs mtp /dev/mtp\n");	
+
+  if ((pid=fork()) == 0) 
+  {
+	execl("/usr/bin/mtp_service", "mtp_service", NULL);
+  }
 }
 
 
@@ -328,7 +340,7 @@ int usb_moded_mode_cleanup(const char *module)
 	appsync_stop();
 #endif /* UPSTART */
 
-        if(!strcmp(module, MODULE_MASS_STORAGE))
+        if(!strcmp(module, MODULE_MASS_STORAGE)|| !strcmp(module, MODULE_FILE_STORAGE))
         {
                 mount = find_mounts();
                 if(mount)
@@ -393,6 +405,10 @@ int usb_moded_mode_cleanup(const char *module)
 		system("killall -SIGTERM acm");
         }
 #endif /* N900 */
+	if(!strcmp(module, MODULE_MTP))
+	{
+		system("umount /dev/mtp");
+	}
 
 
         return(ret);

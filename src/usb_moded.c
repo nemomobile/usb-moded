@@ -269,6 +269,8 @@ else if(!strcmp(mode, MODE_DEVELOPER))
 	check_module_state(MODULE_MTP);
 	set_usb_module(MODULE_MTP);
 	ret = usb_moded_load_module(MODULE_MTP);
+	if(!ret)
+		ret = set_mtp_mode();
 	goto end;
   }
   else if(!strcmp(mode, MODE_ASK))
