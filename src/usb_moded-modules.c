@@ -52,6 +52,16 @@ int usb_moded_load_module(const char *module)
 	
 	command = g_strconcat("modprobe ", module, NULL);
 	ret = system(command);
+	if(!strcmp(module, MODULE_MASS_STORAGE) && (ret != 0))
+	{
+	  command = g_strconcat("modprobe ", MODULE_FILE_STORAGE, NULL);
+	  ret = system(command);
+	}
+	if(!strcmp(module, MODULE_CHARGING) && (ret != 0))
+	{
+	  command = g_strconcat("modprobe ", MODULE_CHARGE_FALLBACK, NULL);
+	  ret = system(command);
+	}
 	g_free(command);
 	if( ret == 0)
 		log_info("Module %s loaded successfully\n", module);
@@ -99,10 +109,15 @@ const char * usb_moded_find_module(void)
       }
       if( strstr(text, "g_file_storage") )
       {
+	result = MODULE_FILE_STORAGE;
+	break;
+      }
+      if( strstr(text, "g_mass_storage") )
+      {
 	result = MODULE_MASS_STORAGE;
 	break;
       }
-      if( strstr(text, "g_ether") )
+     if( strstr(text, "g_ether") )
       {
 	result = MODULE_WINDOWS_NET;
 	break;
@@ -110,6 +125,11 @@ const char * usb_moded_find_module(void)
       if( strstr(text, "g_ncm") )
       {
 	result = "g_ncm";
+	break;
+      }
+      if( strstr(text, "g_ffs") )
+      {
+	result = MODULE_MTP;
 	break;
       }
       /* if switching without disconnect we might have some dynamic module loaded */
