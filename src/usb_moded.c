@@ -239,7 +239,7 @@ void set_usb_mode(const char *mode)
 else if(!strcmp(mode, MODE_DEVELOPER))
   {
 	check_module_state(MODULE_DEVELOPER);
-	set_usb_module(MODULE_NETWORK);
+	set_usb_module(MODULE_DEVELOPER);
 	ret = usb_moded_load_module(MODULE_DEVELOPER);
 	net = usb_network_up();	
 	goto end;
@@ -317,7 +317,7 @@ int valid_mode(const char *mode)
 {
 
   if(!strcmp(MODE_MASS_STORAGE, mode) || !strcmp(MODE_OVI_SUITE, mode) || !strcmp(MODE_CHARGING, mode) 
-     || !strcmp(MODE_WINDOWS_NET, mode) || !strcmp(MODE_DEVELOPER,mode))
+     || !strcmp(MODE_WINDOWS_NET, mode) || !strcmp(MODE_DEVELOPER,mode) || !strcmp(MODE_MTP,mode))
 	return(0);
   else
 #ifdef DYN_MODE
