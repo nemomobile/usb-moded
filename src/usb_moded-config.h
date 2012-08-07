@@ -43,6 +43,9 @@
 #define TRIGGER_MODE_KEY		"mode"
 #define TRIGGER_PROPERTY_KEY		"property"
 #define TRIGGER_PROPERTY_VALUE_KEY	"value"
+#define NETWORK_ENTRY			"network"
+#define NETWORK_IP_KEY			"ip"
+#define NETWORK_INTERFACE_KEY		"interface"
 
 const char * find_mounts(void);
 int find_sync(void);
@@ -65,3 +68,6 @@ const char * get_trigger_mode(void);
 const char * get_trigger_property(void);
 const char * get_trigger_value(void);
 #endif /* UDEV */
+
+const char * get_network_ip(void);
+const char * get_network_interface(void);

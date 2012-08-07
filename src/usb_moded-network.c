@@ -40,6 +40,9 @@
  */
 int usb_network_up(void)
 {
+   const char *ip, *interface;
+   char command[128];
+
 #if CONNMAN
   DBusConnection *dbus_conn_connman = NULL;
   DBusMessage *msg = NULL, *reply = NULL;
@@ -67,7 +70,16 @@ int usb_network_up(void)
   return(ret);
 
 #else
-  system("ifconfig usb0 192.168.2.15");
+  ip = get_network_ip();
+  interface = get_network_interface();
+  if(ip == NULL)
+  	system("ifconfig usb0 192.168.2.15");
+  if(interface == NULL)
+	sprintf(command, "ifconfig usb0 %s\n", ip);	
+  else
+	sprintf(command, "ifconfig %s %s\n", interface, ip);
+
+  system(command);
   return(0);
 #endif /* CONNMAN */
 }
