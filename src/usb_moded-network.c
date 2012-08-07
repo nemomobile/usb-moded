@@ -73,7 +73,10 @@ int usb_network_up(void)
   ip = get_network_ip();
   interface = get_network_interface();
   if(ip == NULL)
+  {
   	system("ifconfig usb0 192.168.2.15");
+	return(0);
+  }
   if(interface == NULL)
 	sprintf(command, "ifconfig usb0 %s\n", ip);	
   else
