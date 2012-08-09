@@ -158,7 +158,7 @@ static const char * get_conf_string(const gchar *entry, const gchar *key)
 {
   GKeyFile *settingsfile;
   gboolean test = FALSE;
-  gchar **keys, *tmp_char;
+  gchar **keys, *tmp_char = NULL;
   const char *ret = NULL;
   settingsfile = g_key_file_new();
   test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);

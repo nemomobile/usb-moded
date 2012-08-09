@@ -136,10 +136,9 @@ static gboolean set_disconnected(gpointer data)
   		/* signal usb disconnected */
 		usb_moded_send_signal(USB_DISCONNECTED);
 		/* unload modules and general cleanup */
-		if(!strcmp(mode, MODE_CHARGING))
-			/* skip clean-up nothing to do */
-		else
+		if(strcmp(get_usb_mode(), MODE_CHARGING))
 			usb_moded_mode_cleanup(get_usb_module());
+		/* No else as we do not need to do anything for cleaning up charging mode */
 		usb_moded_module_cleanup(get_usb_module());
 		set_usb_mode(MODE_UNDEFINED);
 #endif /* NOKIA */
