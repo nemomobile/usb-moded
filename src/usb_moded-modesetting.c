@@ -241,14 +241,11 @@ int set_mtp_mode(void)
   int pid = 1;
 
   mkdir("/dev/mtp", S_IRWXO|S_IRWXU);
-  system("mount -t functionfs mtp /dev/mtp\n");	
+  system("mount -t functionfs mtp  -o id=1000,mode=0770 /dev/mtp\n");	
+  system("systemctl start buteo-mtp.service\n");
 
-  if ((pid=fork()) == 0) 
-  {
-	execl("/usr/bin/mtp_service", "mtp_service", NULL);
-  }
+  return 0;
 }
-
 
 #ifdef N900
 int set_ovi_suite_mode(void)
@@ -408,6 +405,7 @@ int usb_moded_mode_cleanup(const char *module)
 	if(!strcmp(module, MODULE_MTP))
 	{
 		system("umount /dev/mtp");
+  		system("systemctl stop buteo-mtp.service\n");
 	}
 
 
