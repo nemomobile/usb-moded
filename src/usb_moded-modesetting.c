@@ -404,8 +404,9 @@ int usb_moded_mode_cleanup(const char *module)
 #endif /* N900 */
 	if(!strcmp(module, MODULE_MTP))
 	{
-		system("umount /dev/mtp");
+		/* stop service before umounting ;) */
   		system("systemctl stop buteo-mtp.service\n");
+		system("umount /dev/mtp");
 	}
 
 
