@@ -40,7 +40,7 @@
  */
 int usb_network_up(void)
 {
-   const char *ip, *interface;
+   const char *ip, *interface, *gateway;
    char command[128];
 
 #if CONNMAN
@@ -72,6 +72,7 @@ int usb_network_up(void)
 #else
   ip = get_network_ip();
   interface = get_network_interface();
+  gateway = get_network_gateway();
   if(ip == NULL)
   {
   	system("ifconfig usb0 192.168.2.15");
@@ -81,8 +82,14 @@ int usb_network_up(void)
 	sprintf(command, "ifconfig usb0 %s\n", ip);	
   else
 	sprintf(command, "ifconfig %s %s\n", interface, ip);
-
   system(command);
+
+  if(gateway)
+  {
+	sprintf(command, "route add default gw %s %s\n", gateway);
+        system(command);
+  }
+	
   return(0);
 #endif /* CONNMAN */
 }

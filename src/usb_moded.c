@@ -359,7 +359,7 @@ inline const char * get_usb_mode(void)
  * @param module The module name for the requested mode
  *
  */
-void set_usb_module(const char *module)
+inline void set_usb_module(const char *module)
 {
   free(current_mode.module);
   current_mode.module = strdup(module);

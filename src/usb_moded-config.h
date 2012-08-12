@@ -46,6 +46,7 @@
 #define NETWORK_ENTRY			"network"
 #define NETWORK_IP_KEY			"ip"
 #define NETWORK_INTERFACE_KEY		"interface"
+#define NETWORK_GATEWAY_KEY		"gateway"
 
 const char * find_mounts(void);
 int find_sync(void);
@@ -71,3 +72,4 @@ const char * get_trigger_value(void);
 
 const char * get_network_ip(void);
 const char * get_network_interface(void);
+const char * get_network_gateway(void);

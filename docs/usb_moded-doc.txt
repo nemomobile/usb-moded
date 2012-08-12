@@ -43,7 +43,7 @@ Even the configuration can be set over DBus (this will set either the gconf key 
 
 dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.set_config string:'<mode_name>'
 
-However this can also be optionally handled by setting the following GConf key.
+However this can also be optionally handled by setting the following GConf key (gconf has to be compiled in).
 
 /Meego/System/UsbMode (querying and setting can be done as follows:
 
@@ -89,6 +89,18 @@ mode = ask
 
 The other settings and config dirs will be handled later in the appsync and dynamic modes part.
 (This is optional and can be compiled out)
+
+There is also an optional network configuration. The default ip set for usb networking is 192.168.2.15 
+(for Meego/Nemo). However this can be configured by hand in the ini file also.
+For example:
+
+[network]
+ip = 10.0.0.2
+interface = usb1
+gateway = 10.0.0.1
+
+By default usb0 will be used, so no need to fill it in if not needed. The gateway setting is also optional
+and will not be set if there is no value filled in.
 
 Functional overview
 --------------------

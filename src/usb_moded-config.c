@@ -122,6 +122,11 @@ const char * get_network_interface(void)
   return(get_conf_string(NETWORK_ENTRY, NETWORK_INTERFACE_KEY));
 }
 
+const char * get_network_gateway(void)
+{
+  return(get_conf_string(NETWORK_ENTRY, NETWORK_GATEWAY_KEY));
+}
+
 static int get_conf_int(const gchar *entry, const gchar *key)
 {
   GKeyFile *settingsfile;
