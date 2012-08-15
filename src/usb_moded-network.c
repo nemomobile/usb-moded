@@ -25,6 +25,7 @@
 #include <stdlib.h>
 
 #include "usb_moded-network.h"
+#include "usb_moded-config.h"
 
 #if CONNMAN
 #include <dbus/dbus.h>

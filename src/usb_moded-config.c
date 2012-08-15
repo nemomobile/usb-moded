@@ -26,9 +26,10 @@
 #include <stdio.h>
 
 #include <glib.h>
+/*
 #include <glib/gkeyfile.h>
 #include <glib/gstdio.h>
-
+*/
 #include "usb_moded-config.h"
 #include "usb_moded-config-private.h"
 #include "usb_moded-log.h"
