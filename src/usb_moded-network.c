@@ -87,7 +87,7 @@ int usb_network_up(void)
 
   if(gateway)
   {
-	sprintf(command, "route add default gw %s %s\n", gateway);
+	sprintf(command, "route add default gw %s\n", gateway);
         system(command);
   }
 	

@@ -59,9 +59,9 @@ guint charging_timeout = 0;
 gboolean special_mode = FALSE;
 guint timeout_source = 0;
 #endif /* NOKIA */
-#ifdef APP_SYNC
+#ifdef DYN_SYNC
 static GList *modelist;
-#endif /* APP_SYNC */
+#endif /* DYN_SYNC */
 
 /* static helper functions */
 static gboolean set_disconnected(gpointer data);
@@ -307,6 +307,8 @@ end:
 	  set_usb_module(MODULE_NONE);
 	  mode = MODE_UNDEFINED;
   }
+  if(net)
+    log_debug("Network setting failed!\n");
   free(current_mode.mode);
   current_mode.mode = strdup(mode);
   usb_moded_send_signal(get_usb_mode());

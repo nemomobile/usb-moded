@@ -238,8 +238,6 @@ static void report_mass_storage_blocker(const char *mountpoint, int try)
 /* TODO: clean up buteo-mtp hack */
 int set_mtp_mode(void)
 {
-  int pid = 1;
-
   mkdir("/dev/mtp", S_IRWXO|S_IRWXU);
   system("mount -t functionfs mtp  -o gid=1000,mode=0770 /dev/mtp\n");	
   system("systemctl start buteo-mtp.service\n");
