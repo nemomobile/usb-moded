@@ -535,7 +535,9 @@ int main(int argc, char* argv[])
 		freopen("/dev/null", "a", stderr);
 	}
         g_type_init();
+#if !GLIB_CHECK_VERSION(2, 31, 0)
 	g_thread_init(NULL);
+#endif
 	mainloop = g_main_loop_new(NULL, FALSE);
 	log_debug("usb_moded starting\n");
 
