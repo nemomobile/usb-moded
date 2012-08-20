@@ -23,7 +23,7 @@ configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 	if [ ! -x configure ]; then ./autogen.sh; fi	
-	./configure --prefix=/usr --enable-nokia --enable-app-sync --enable-udev --enable-gconf
+	./configure --prefix=/usr --enable-n900 --enable-app-sync --enable-udev
 
 	touch configure-stamp
 
@@ -114,7 +114,7 @@ binary-arch: build install
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
-	aegis-deb-add -control debian/usb-moded/DEBIAN/control .. debian/usb-moded.aegis=_aegis
+#	aegis-deb-add -control debian/usb-moded/DEBIAN/control .. debian/usb-moded.aegis=_aegis
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install configure

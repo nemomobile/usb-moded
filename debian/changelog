@@ -1,3 +1,14 @@
+usb-moded (0.53) unstable; urgency=low
+ 
+  * Un-nokia to make usb_moded more generic
+  * Add mtp support for buteo
+  * More generic network set-up and configuration
+  * Fix bug with charging mode clean-up 
+  * Compile for all versions of glib
+  * Support g_mass_storage and g_file_storage so we are not kernel dependant.
+
+ -- Philippe De Swert <philippedeswert@gmail.com>  Mon, 20 Aug 2012 15:58:27 +0300
+
 usb-moded (0.52) unstable; urgency=low
 
   * Add upstart appsync functionality
