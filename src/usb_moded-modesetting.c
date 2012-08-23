@@ -337,6 +337,10 @@ int usb_moded_mode_cleanup(const char *module)
 
         if(!strcmp(module, MODULE_MASS_STORAGE)|| !strcmp(module, MODULE_FILE_STORAGE))
         {
+		/* no clean-up needs to be done when we come from charging mode. We need
+		   to check since we use fake mass-storage for charging */
+		if(!strcmp(MODE_CHARGING, get_usb_mode()))
+		  return 0;	
                 mount = find_mounts();
                 if(mount)
                 {

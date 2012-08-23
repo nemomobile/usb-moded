@@ -165,6 +165,12 @@ int usb_moded_module_cleanup(const char *module)
 	*/
 	
 	failure = usb_moded_unload_module(module);
+
+	/* if we have MODULE_MASS_STORAGE it might be MODULE_FILE_STORAGE might
+	   be loaded. So check and unload that one if unloading fails first time */
+	if(failure && !strcmp(MODULE_MASS_STORAGE, module))
+		failure = usb_moded_unload_module(module);
+
 	while(failure)
 	{
 		// SP: up to 2 second sleep -> worth a warning log?

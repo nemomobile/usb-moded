@@ -43,9 +43,6 @@ int usb_moded_unload_module(const char *module);
 /* find which module is loaded */
 const char * usb_moded_find_module(void);
 
-/* clean up for the mode changes on disconnect */
-int usb_moded_mode_cleanup(const char *module);
-
 /* clean up modules when usb gets disconnected */
 int usb_moded_module_cleanup(const char *module);
 
