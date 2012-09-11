@@ -39,6 +39,7 @@
 /* state definitions for signals and method parameters */
 #define USB_CONNECTED			"USB connected"
 #define USB_DISCONNECTED		"USB disconnected"
+#define USB_REALLY_DISCONNECT		"USB mode change in progress"
 #define DATA_IN_USE			"data_in_use"
 #define USB_CONNECTED_DIALOG_SHOW	"mode_requested_show_dialog"
 #define USB_PRE_UNMOUNT			"pre-unmount"

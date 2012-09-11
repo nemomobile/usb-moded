@@ -176,8 +176,8 @@ int usb_moded_module_cleanup(const char *module)
 		// SP: up to 2 second sleep -> worth a warning log?
 		/* module did not get unloaded. We will wait a bit and try again */
 		sleep(1);
-		/* send another disconnect message */
-		usb_moded_send_signal(USB_DISCONNECTED);
+		/* send the REALLY  disconnect message */
+		usb_moded_send_signal(USB_REALLY_DISCONNECT);
 		failure = usb_moded_unload_module(module);
 		log_debug("unloading failure = %d\n", failure);
 		if(!failure)
@@ -196,7 +196,7 @@ int usb_moded_module_cleanup(const char *module)
 			   lets go for more extreme measures
 			   lsof, then various options of kill
 			*/
-			log_info("DIE DIE DIE! Free USB-illy!\n");
+			log_info("Oh noes the platform is on fire!\n");
 kill:		
 			/* DIRTY DESPERATE WORKAROUND */
 			/*system("for i in `lsof -t /dev/ttyGS*`; do cat /proc/$i/cmdline | sed 's/|//g' | sed "s/\x00/ /g" | awk '{ print $1 }' | xargs kill; done");
