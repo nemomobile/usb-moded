@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "usb_moded-network.h"
 #include "usb_moded-config.h"
@@ -78,6 +79,13 @@ int usb_network_up(void)
   {
   	system("ifconfig usb0 192.168.2.15");
 	return(0);
+  }
+  if(!strcmp(ip, "dhcp"))
+  {
+  	if(interface == NULL)
+		sprintf(command, "dhclient -d usb0\n");
+	else
+		sprintf(command, "dhclient -d %s\n", interface);
   }
   if(interface == NULL)
 	sprintf(command, "ifconfig usb0 %s\n", ip);	

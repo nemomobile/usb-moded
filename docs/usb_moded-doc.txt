@@ -101,6 +101,7 @@ gateway = 10.0.0.1
 
 By default usb0 will be used, so no need to fill it in if not needed. The gateway setting is also optional
 and will not be set if there is no value filled in.
+If the ip is set to dhcp, usb_moded will try to use dhcp to configure the network (requires dhclient atm)
 
 Functional overview
 --------------------
