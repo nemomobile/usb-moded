@@ -53,6 +53,7 @@ extern int log_level;
 extern int log_type;
 
 gboolean runlevel_ignore = FALSE;
+gboolean hw_fallback = FALSE;
 struct usb_mode current_mode;
 guint charging_timeout = 0;
 #ifdef NOKIA
@@ -482,7 +483,7 @@ int main(int argc, char* argv[])
 	GMainLoop *mainloop = NULL;
 
 	struct option const options[] = {
-                { "daemon", no_argument, 0, 'd' },
+                { "fallback", no_argument, 0, 'd' },
                 { "force-syslog", no_argument, 0, 's' },
                 { "force-stderr", no_argument, 0, 'T' },
                 { "debug", no_argument, 0, 'D' },
@@ -494,10 +495,13 @@ int main(int argc, char* argv[])
 	log_name = basename(*argv);
 
 	 /* Parse the command-line options */
-        while ((opt = getopt_long(argc, argv, "sTDhvw", options, &opt_idx)) != -1) 
+        while ((opt = getopt_long(argc, argv, "fsTDhvw", options, &opt_idx)) != -1) 
 	{
                 switch (opt) 
 		{
+			case 'f':
+				hw_fallback = TRUE;
+				break;
 		        case 's':
                         	log_type = LOG_TO_SYSLOG;
                         	break;
@@ -551,7 +555,10 @@ int main(int argc, char* argv[])
 	if( !hwal_init() )
 	{
 		log_crit("hwal init failed\n");
-		goto EXIT;
+		if(hw_fallback)
+			set_usb_connected(TRUE);			
+		else
+			goto EXIT;
 	}
 #ifdef MEEGOLOCK
 	start_devicelock_listener();

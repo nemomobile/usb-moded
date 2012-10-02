@@ -259,8 +259,12 @@ int set_ovi_suite_mode(void)
   write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "1");
 #endif /* APP_SYNC */
   /* bring network interface up in case no other network is up */
-  /* system("ifdown usb0 ; ifup usb0"); */
+#ifdef DEBIAN
+  system("ifdown usb0 ; ifup usb0");
+#else
+  usb_network_down();
   usb_network_up();
+#endif /* DEBIAN */
 
 #ifdef NOKIA
   /* timeout for exporting CDROM image */
@@ -282,8 +286,13 @@ int set_dynamic_mode(struct mode_list_elem *data)
   	activate_sync(data->mode_name);
   if(data->network)
   {
+#ifdef DEBIAN
 	g_snprintf(command, 256, "ifdown %s ; ifup %s", data->network_interface, data->network_interface);
         system(command);
+#else
+	usb_network_down();
+	usb_network_up();
+#endif /* DEBIAN */
   }
 
   return(0);

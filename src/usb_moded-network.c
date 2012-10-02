@@ -93,11 +93,14 @@ int usb_network_up(void)
 	sprintf(command, "ifconfig %s %s\n", interface, ip);
   system(command);
 
+  /* TODO: Check first if there is a gateway set */
   if(gateway)
   {
 	sprintf(command, "route add default gw %s\n", gateway);
         system(command);
   }
+
+end:
 	
   return(0);
 #endif /* CONNMAN */
