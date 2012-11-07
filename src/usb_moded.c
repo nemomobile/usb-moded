@@ -52,6 +52,8 @@ extern const char *log_name;
 extern int log_level;
 extern int log_type;
 
+extern gboolean rescue_mode;
+
 gboolean runlevel_ignore = FALSE;
 gboolean hw_fallback = FALSE;
 struct usb_mode current_mode;
@@ -126,6 +128,8 @@ void set_usb_connected(gboolean connected)
 
 static gboolean set_disconnected(gpointer data)
 {
+  /* let usb settle */
+  sleep(1);
   /* only disconnect for real if we are actually still disconnected */
   if(!get_usb_connection_state())
 	{
@@ -139,7 +143,7 @@ static gboolean set_disconnected(gpointer data)
 		/* unload modules and general cleanup */
 		if(strcmp(get_usb_mode(), MODE_CHARGING))
 			usb_moded_mode_cleanup(get_usb_module());
-		/* No else as we do not need to do anything for cleaning up charging mode */
+		/* Nothing else as we do not need to do anything for cleaning up charging mode */
 		usb_moded_module_cleanup(get_usb_module());
 		set_usb_mode(MODE_UNDEFINED);
 #endif /* NOKIA */
@@ -166,6 +170,8 @@ void set_usb_connected_state(void)
 #ifdef MEEGOLOCK
   /* check if we are allowed to export system contents 0 is unlocked */
   export = usb_moded_get_export_permission();
+  if(rescue_mode)
+	export = 1;
 #endif
 #ifdef MEEGOLOCK
   int act_dead = 0;
@@ -488,6 +494,7 @@ int main(int argc, char* argv[])
                 { "force-stderr", no_argument, 0, 'T' },
                 { "debug", no_argument, 0, 'D' },
                 { "help", no_argument, 0, 'h' },
+		{ "rescue", no_argument, 0, 'r' },
                 { "version", no_argument, 0, 'v' },
                 { 0, 0, 0, 0 }
         };
@@ -495,7 +502,7 @@ int main(int argc, char* argv[])
 	log_name = basename(*argv);
 
 	 /* Parse the command-line options */
-        while ((opt = getopt_long(argc, argv, "fsTDhvw", options, &opt_idx)) != -1) 
+        while ((opt = getopt_long(argc, argv, "fsTDhrvw", options, &opt_idx)) != -1) 
 	{
                 switch (opt) 
 		{
@@ -518,6 +525,10 @@ int main(int argc, char* argv[])
                         	usage();
 				exit(0);
 
+			case 'r':
+				rescue_mode = TRUE;
+				break;
+	
 	                case 'v':
 				printf("USB mode daemon version: %s\n", VERSION);
 				exit(0);
@@ -556,7 +567,11 @@ int main(int argc, char* argv[])
 	{
 		log_crit("hwal init failed\n");
 		if(hw_fallback)
+		{
+			log_warning("Forcing USB state to connected always. ASK mode non functional!\n");
+			/* Since there will be no disconnect signals coming from hw the state should not change */
 			set_usb_connected(TRUE);			
+		}
 		else
 			goto EXIT;
 	}
