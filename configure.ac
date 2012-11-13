@@ -119,6 +119,7 @@ PKG_CHECK_MODULES([USB_MODED], [
  dbus-glib-1 >= 0.78
  gobject-2.0 >= 2.16.6
  gio-2.0
+ libkmod
 ])
 
 AC_SUBST(USB_MODED_LIBS)

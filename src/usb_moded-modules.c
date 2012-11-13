@@ -27,6 +27,8 @@
 
 #include <glib.h>
 
+#include <libkmod.h>
+
 #include "usb_moded.h"
 #include "usb_moded-modules.h"
 #include "usb_moded-log.h"
@@ -39,6 +41,9 @@
 #include "usb_moded-modes.h"
 #endif
 
+/* kmod context - initialized at start in usb_moded_init */
+struct kmod_ctx *ctx;
+
 /** load module 
  *
  * @param module Name of the module to load
@@ -47,8 +52,9 @@
  */
 int usb_moded_load_module(const char *module)
 {
-	gchar *command; 
 	int ret = 0;
+#ifdef NO_KMOD
+	gchar *command; 
 	
 	command = g_strconcat("modprobe ", module, NULL);
 	ret = system(command);
@@ -63,6 +69,30 @@ int usb_moded_load_module(const char *module)
 	  ret = system(command);
 	}
 	g_free(command);
+#else
+	const int probe_flags = KMOD_PROBE_APPLY_BLACKLIST;
+	struct kmod_module *mod;
+	const char *charging_args = NULL;
+
+	ret = kmod_module_new_from_name(ctx, module, &mod);
+	if(!strcmp(module, MODULE_MASS_STORAGE) && (ret != 0))
+	{
+	  ret = kmod_module_new_from_name(ctx, MODULE_FILE_STORAGE, &mod);
+	}
+	if(!strcmp(module, MODULE_CHARGING) && (ret != 0))
+	{
+	  /* split the string in module name and arguments, if it still fails do the same
+             for MODULE_CHARGE_FALLBACK */
+	}
+
+	if(!charging_args)
+		ret = kmod_module_probe_insert_module(mod, probe_flags, NULL, NULL, NULL, NULL);
+	else
+		ret = kmod_module_probe_insert_module(mod, probe_flags, charging_args, NULL, NULL, NULL);
+	
+	kmod_module_unref(mod);
+#endif /* NO_KMOD */
+
 	if( ret == 0)
 		log_info("Module %s loaded successfully\n", module);
 	return(ret);
@@ -76,12 +106,22 @@ int usb_moded_load_module(const char *module)
  */
 int usb_moded_unload_module(const char *module)
 {
-	gchar *command;
 	int ret = 0;
+
+#ifdef NO_KMOD
+	gchar *command;
 
 	command = g_strconcat("rmmod ", module, NULL);
 	ret = system(command);
 	g_free(command);
+#else
+	struct kmod_module *mod;
+
+	kmod_module_new_from_name(ctx, module, &mod);
+	ret = kmod_module_remove_module(mod, KMOD_REMOVE_NOWAIT);
+	kmod_module_unref(mod);
+
+#endif /* NO_KMOD */
 
 	return(ret);
 }

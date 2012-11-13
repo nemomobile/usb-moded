@@ -29,6 +29,8 @@
 #include <string.h>
 #endif
 
+#include <libkmod.h>
+
 #include "usb_moded.h"
 #include "usb_moded-modes.h"
 #include "usb_moded-dbus.h"
@@ -52,7 +54,7 @@ extern const char *log_name;
 extern int log_level;
 extern int log_type;
 
-extern gboolean rescue_mode;
+gboolean rescue_mode;
 
 gboolean runlevel_ignore = FALSE;
 gboolean hw_fallback = FALSE;
@@ -413,6 +415,7 @@ static void usb_moded_init(void)
   char readbuf[MAX_READ_BUF];
   FILE *proc_fd;
 #endif /* NOKIA_NSU */
+  extern struct kmod_ctx *ctx;
 
   current_mode.connected = FALSE;
   current_mode.mounted = FALSE;
@@ -443,6 +446,11 @@ static void usb_moded_init(void)
   if(check_trigger())
 	trigger_init();
 #endif /* UDEV */
+
+  /* kmod init */
+  ctx = kmod_new(NULL, NULL);
+  kmod_load_resources(ctx);
+
   /* TODO: add more start-up clean-up and init here if needed */
 }	
 
