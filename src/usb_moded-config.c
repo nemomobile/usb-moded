@@ -33,6 +33,7 @@
 #include "usb_moded-config.h"
 #include "usb_moded-config-private.h"
 #include "usb_moded-log.h"
+#include "usb_moded-modes.h"
 
 static int get_conf_int(const gchar *entry, const gchar *key);
 static const char * get_conf_string(const gchar *entry, const gchar *key);
@@ -128,6 +129,20 @@ const char * get_network_gateway(void)
   return(get_conf_string(NETWORK_ENTRY, NETWORK_GATEWAY_KEY));
 }
 
+/* create basic conffile with sensible defaults */
+static void create_conf_file(void)
+{
+  GKeyFile *settingsfile;
+  gchar **keys, *keyfile;
+
+  settingsfile = g_key_file_new();
+
+  g_key_file_set_string(settingsfile, MODE_SETTING_ENTRY, MODE_SETTING_KEY, MODE_DEVELOPER );
+  keyfile = g_key_file_to_data (settingsfile, NULL, NULL);
+  if(g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile, -1, NULL) == 0)
+	log_debug("conffile creation failed. Continuing without configuration!\n");
+}
+
 static int get_conf_int(const gchar *entry, const gchar *key)
 {
   GKeyFile *settingsfile;
@@ -139,9 +154,8 @@ static int get_conf_int(const gchar *entry, const gchar *key)
   test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
   if(!test)
   {
-      log_debug("no conffile\n");
-      g_key_file_free(settingsfile);
-      return(ret);
+      log_debug("no conffile, Creating\n");
+      create_conf_file();
   }
   keys = g_key_file_get_keys (settingsfile, entry, NULL, NULL);
   if(keys == NULL)
@@ -170,9 +184,8 @@ static const char * get_conf_string(const gchar *entry, const gchar *key)
   test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
   if(!test)
   {
-      log_debug("No conffile.\n");
-      g_key_file_free(settingsfile);
-      return(ret);
+      log_debug("No conffile. Creating\n");
+      create_conf_file();
   }
   keys = g_key_file_get_keys (settingsfile, entry, NULL, NULL);
   if(keys == NULL)
@@ -211,9 +224,8 @@ int set_mode_setting(const char *mode)
   test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
   if(!test)
   {
-      log_debug("No conffile.\n");
-      g_key_file_free(settingsfile);
-      return(1);
+      log_debug("No conffile. Creating.\n");
+      create_conf_file();
   }
 
   g_key_file_set_string(settingsfile, MODE_SETTING_ENTRY, MODE_SETTING_KEY, mode);
@@ -227,5 +239,7 @@ int set_mode_setting(const char *mode)
   /* g_file_set_contents returns 1 on succes, since set_mode_settings returns 0 on succes we return the ! value */
   return(!ret);
 }
+
+
 #endif
 
