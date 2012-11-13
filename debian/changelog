@@ -1,3 +1,10 @@
+usb-moded (0.54) unstable; urgency=low
+
+  * Instead of spawning shells with system() use libkmod
+  * Make config file optional as defaults work for most
+
+ -- Philippe De Swert <philippedeswert@gmail.com> Tue. 13 Nov 2012 18:56:23 +0300
+
 usb-moded (0.53) unstable; urgency=low
  
   * Un-nokia to make usb_moded more generic

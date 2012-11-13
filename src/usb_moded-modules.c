@@ -126,12 +126,31 @@ int usb_moded_unload_module(const char *module)
 	return(ret);
 }
 
+/** Check which state a module is in
+ *
+ * @return 1 if loaded, 0 when not loaded
+ */
+static int module_state_check(const char *module)
+{
+  int ret = 0;
+  struct kmod_module *mod;
+
+  kmod_module_new_from_name(ctx, module, &mod);
+  ret = kmod_module_get_initstate(mod);
+  kmod_module_unref(mod);
+  if( ret == KMOD_MODULE_LIVE)
+	return(1);
+  else
+	return(0);
+}
+
 /** find which module is loaded 
  *
  * @return The name of the loaded module, or NULL if no modules are loaded.
  */
 const char * usb_moded_find_module(void)
 {
+#ifdef NO_KMOD
   FILE *stream = 0;
   const char *result = 0;
   
@@ -181,8 +200,26 @@ const char * usb_moded_find_module(void)
     }
     pclose(stream);
   }
+
+return result;
+#endif /* NO_KMOD */
   
-  return result;
+  if(module_state_check("g_nokia"))
+	return(MODULE_NETWORK);
+  else if(module_state_check("g_ether"))
+	return(MODULE_WINDOWS_NET); 
+  else if(module_state_check("g_ncm"))
+	return("g_ncm");
+  else if(module_state_check("g_ffs"))
+	return(MODULE_MTP);
+  else if(module_state_check("g_mass_storage"))
+	return(MODULE_MASS_STORAGE);
+  else if(module_state_check("g_file_storage"))
+	return(MODULE_FILE_STORAGE);
+  else if(module_state_check(get_usb_module()))
+	return(get_usb_module());
+  /* no module loaded */
+  return(0);
 }
 
 /** clean up for modules when usb gets disconnected
