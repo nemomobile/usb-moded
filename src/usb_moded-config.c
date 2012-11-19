@@ -133,7 +133,7 @@ const char * get_network_gateway(void)
 static void create_conf_file(void)
 {
   GKeyFile *settingsfile;
-  gchar **keys, *keyfile;
+  gchar *keyfile;
 
   settingsfile = g_key_file_new();
 
@@ -240,6 +240,39 @@ int set_mode_setting(const char *mode)
   return(!ret);
 }
 
+int set_network_setting(const char *config, const char *setting)
+{
+  GKeyFile *settingsfile;
+  gboolean test = FALSE;
+  int ret = 0; 
+  gchar *keyfile;
+
+  settingsfile = g_key_file_new();
+  test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
+  if(!test)
+  {
+      log_debug("No conffile. Creating.\n");
+      create_conf_file();
+  }
+
+  if(!strcmp(config, NETWORK_IP_KEY) || !strcmp(config, NETWORK_INTERFACE_KEY) || !strcmp(config, NETWORK_GATEWAY_KEY))
+  {
+	g_key_file_set_string(settingsfile, NETWORK_ENTRY, config, setting);
+  	keyfile = g_key_file_to_data (settingsfile, NULL, NULL); 
+  	/* free the settingsfile before writing things out to be sure 
+     	the contents will be correctly written to file afterwards.
+     	Just a precaution. */
+  	g_key_file_free(settingsfile);
+  	ret = g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile, -1, NULL);
+  }
+  else
+  {
+	g_key_file_free(settingsfile);
+	return(1);
+  }
+  /* g_file_set_contents returns 1 on succes, since set_mode_settings returns 0 on succes we return the ! value */
+  return(!ret);
+}
 
 #endif
 

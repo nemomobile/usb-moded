@@ -35,6 +35,7 @@
 **/
 #define USB_MODE_STATE_SET	"set_mode"
 #define USB_MODE_CONFIG_SET	"set_config"
+#define USB_MODE_NETWORK_SET	"net_config"
 
 /* state definitions for signals and method parameters */
 #define USB_CONNECTED			"USB connected"

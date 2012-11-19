@@ -100,8 +100,6 @@ int usb_network_up(void)
         system(command);
   }
 
-end:
-	
   return(0);
 #endif /* CONNMAN */
 }
