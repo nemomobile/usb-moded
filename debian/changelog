@@ -2,6 +2,7 @@ usb-moded (0.54) unstable; urgency=low
 
   * Instead of spawning shells with system() use libkmod
   * Make config file optional as defaults work for most
+  * Add dbus method to set network configuration
 
  -- Philippe De Swert <philippedeswert@gmail.com> Tue. 13 Nov 2012 18:56:23 +0300
 

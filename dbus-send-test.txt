@@ -2,6 +2,7 @@ dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /
 dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.set_mode string:'ovi_suite'
 dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.set_config string:'ovi_suite'
 dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.set_mode string:'mass_storage'
+dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.net_config string:'ip' string:'192.168.2.15'
 
 security extra:
 aegis-exec -a usb-moded::USBControl
