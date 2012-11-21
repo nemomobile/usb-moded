@@ -25,6 +25,9 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include <glib.h>
 /*
 #include <glib/gkeyfile.h>
@@ -134,6 +137,8 @@ static void create_conf_file(void)
 {
   GKeyFile *settingsfile;
   gchar *keyfile;
+
+  mkdir(FS_MOUNT_CONFIG_FILE, 755);
 
   settingsfile = g_key_file_new();
 

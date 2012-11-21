@@ -481,10 +481,12 @@ static void usage(void)
                 "Usage: usb_moded [OPTION]...\n"
                   "USB mode daemon\n"
                   "\n"
+		  "  -f,  --fallback	  assume always connected\n"
                   "  -s,  --force-syslog  log to syslog\n"
                   "  -T,  --force-stderr  log to stderr\n"
                   "  -D,  --debug	  turn on debug printing\n"
                   "  -h,  --help          display this help and exit\n"
+		  "  -r,  --rescue	  rescue mode\n"
                   "  -v,  --version       output version information and exit\n"
 		  "  -w,  --watch-off	  do not act on runlevel change\n"
                   "\n");
