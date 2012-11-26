@@ -39,6 +39,7 @@ static DBusHandlerResult usb_moded_dsme_cb(DBusConnection *conn, DBusMessage *ms
 #endif
 
 static DBusConnection *dbus_connection_sys = NULL;
+extern gboolean rescue_mode;
 
 static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessage *const msg, gpointer const user_data)
 {
@@ -145,6 +146,11 @@ error_reply:
        				reply = dbus_message_new_error(msg, DBUS_ERROR_INVALID_ARGS, config);
 		}
 		dbus_error_free(&err);	
+	}
+	else if(!strcmp(member, USB_MODE_RESCUE_OFF))
+	{
+		rescue_mode = FALSE;
+		reply = dbus_message_new_method_return(msg);
 	}
   	else
     	{ 

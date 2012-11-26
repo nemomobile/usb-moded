@@ -30,6 +30,7 @@
 
 /* supported methods */
 #define USB_MODE_STATE_REQUEST	"mode_request"
+#define USB_MODE_RESCUE_OFF	"rescue_off"
 /**
   * @credential usb-moded::USBControl	Credential needed to be able to call the set_mode or set_config methods
 **/
