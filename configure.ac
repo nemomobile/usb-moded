@@ -86,7 +86,7 @@ AC_ARG_ENABLE([dynamic_modes], AS_HELP_STRING([--enable-dynamic-modes], [Enable 
    esac],[dynamic_modes=false])
 AM_CONDITIONAL([DYN_MODE], [test x$dynamic_modes = xtrue])
 
-AC_ARG_ENABLE([hal], AS_HELP_STRING([--enable-hal], [Enable deprecated hal interface @<:@default=false@:>@]),
+AC_ARG_ENABLE([hal], AS_HELP_STRING([--enable-hal], [Enable deprecated hal interface (use --disable-udev also) @<:@default=false@:>@]),
   [case "${enableval}" in
    yes) hal=true ; CFLAGS="-DHAL -I/usr/include/hal -lhal $CFLAGS" ;;
    no)  hal=false ;;
@@ -99,7 +99,7 @@ AC_ARG_ENABLE([udev], AS_HELP_STRING([--enable-udev], [Enable udev interface @<:
    yes) udev=true ; CFLAGS="-DUDEV -ludev $CFLAGS" ;;
    no)  udev=false ;;
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-udev]) ;;
-   esac],[udev=false])
+   esac],[udev=true CFLAGS="-DUDEV -ludev $CFLAGS" ])
 AM_CONDITIONAL([UDEV], [test x$udev = xtrue])
 
 AC_ARG_ENABLE([upstart], AS_HELP_STRING([--enable-upstart], [Enable upstart interface for appsync @<:@default=true@:>@]),
