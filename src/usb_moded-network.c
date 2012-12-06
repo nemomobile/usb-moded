@@ -1,8 +1,11 @@
 /*
   @file usb-moded_network.c : (De)activates network depending on the network setting system.
-  Copyright (C) 2011 Nokia Corporation. All rights reserved.
 
-  Author: Philippe De Swert <philippe.de-swert@nokia.com>
+  Copyright (C) 2011 Nokia Corporation. All rights reserved.
+  Copyright (C) 2012 Jolla. All rights reserved.
+
+  @author: Philippe De Swert <philippe.de-swert@nokia.com>
+  @author: Philippe De Swert <philippe.deswert@jollamobile.com>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the Lesser GNU General Public License 
