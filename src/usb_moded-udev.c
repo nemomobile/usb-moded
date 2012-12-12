@@ -159,10 +159,16 @@ static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition c
 
 void hwal_cleanup(void)
 {
-  g_source_remove(watch_id);
-  watch_id = 0;
-  g_io_channel_unref(iochannel);
-  iochannel = NULL;
+  if(watch_id != 0)
+  {
+    g_source_remove(watch_id);
+    watch_id = 0;
+  }
+  if(iochannel != NULL)
+  {
+    g_io_channel_unref(iochannel);
+    iochannel = NULL;
+  }
   udev_monitor_unref(mon);
   udev_unref(udev);
 }
