@@ -18,7 +18,6 @@ usb_moded_SOURCES = \
 	usb_moded-dbus-private.h \
 	usb_moded-hw-ab.h \
 	usb_moded-config-private.h \
-	usb_moded-modules.c \
 	usb_moded-modules.h \
 	usb_moded-log.h \
 	usb_moded-log.c \
@@ -28,6 +27,14 @@ usb_moded_SOURCES = \
 	usb_moded-network.h \
 	usb_moded-modesetting.c \
 	usb_moded-modesetting.h 
+
+if !ANDROID
+usb_moded_SOURCES += \
+	usb_moded-modules.c 
+else
+usb_moded_SOURCES += \
+	usb_moded-modules-android.c 
+endif
 
 if GCONF
 usb_moded_SOURCES += \

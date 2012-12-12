@@ -18,6 +18,7 @@
   02110-1301 USA
 */
 
+#ifndef ANDROID
 /* module name definitions */
 #define MODULE_NETWORK          "g_nokia" 
 #ifdef NOKIA
@@ -33,6 +34,15 @@
 #define MODULE_WINDOWS_NET	"g_ether"
 #define MODULE_DEVELOPER	"g_ether"
 #define MODULE_MTP		"g_ffs"
+#else
+#define MODULE_MASS_STORAGE     "mass_storage"
+#define MODULE_FILE_STORAGE	"mass_storage"
+#define MODULE_WINDOWS_NET	"rndis"
+#define MODULE_DEVELOPER	"rndis"
+#define MODULE_MTP		"mtp"
+#define MODULE_NONE             "none"
+#define MODULE_CHARGING		"mass_storage"
+#endif
 
 /* load module */
 int usb_moded_load_module(const char *module);

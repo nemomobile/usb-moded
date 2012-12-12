@@ -1,4 +1,4 @@
-AC_INIT([usb_moded], [0.54])
+AC_INIT([usb_moded], [0.55])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AM_CONFIG_HEADER([config.h])
@@ -110,6 +110,13 @@ AC_ARG_ENABLE([upstart], AS_HELP_STRING([--enable-upstart], [Enable upstart inte
    esac],[upstart=false])
 AM_CONDITIONAL([UPSTART], [test x$upstart = xtrue])
 
+AC_ARG_ENABLE([android], AS_HELP_STRING([--enable-android], [Enable Android "module" interface @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) android=true ; CFLAGS="-DANDROID $CFLAGS" ;;
+   no)  android=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-android]) ;;
+   esac],[android=false])
+AM_CONDITIONAL([ANDROID], [test x$android = xtrue])
 
 #TODO: Figure out how to check for this depending on the gconf flag
 # gconf-2.0 >= 2.16.0
