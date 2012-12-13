@@ -38,10 +38,8 @@
 #include "usb_moded-dbus.h"
 #include "usb_moded-dbus-private.h"
 #include "usb_moded-config.h"
-#ifdef NOKIA
 #include "usb_moded-modesetting.h"
 #include "usb_moded-modes.h"
-#endif
 
 /* kmod context - initialized at start in usb_moded_init */
 struct kmod_ctx *ctx;
@@ -55,6 +53,7 @@ struct kmod_ctx *ctx;
 int usb_moded_load_module(const char *module)
 {
 	int ret = 0;
+	const char * softconnect;
 #ifdef NO_KMOD
 	gchar *command; 
 	
@@ -95,6 +94,12 @@ int usb_moded_load_module(const char *module)
 	kmod_module_unref(mod);
 #endif /* NO_KMOD */
 
+	softconnect = get_soft_connect_path();
+	if(softconnect)	
+	{
+		write_to_file(softconnect, "connect");
+		free((void *)softconnect);
+	}
 	if( ret == 0)
 		log_info("Module %s loaded successfully\n", module);
 	return(ret);

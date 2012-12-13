@@ -48,6 +48,8 @@
 #define NETWORK_IP_KEY			"ip"
 #define NETWORK_INTERFACE_KEY		"interface"
 #define NETWORK_GATEWAY_KEY		"gateway"
+#define SOFT_CONNECT_ENTRY		"soft_connect"
+#define SOFT_CONNECT_PATH_KEY		"soft_connect_path"
 
 const char * find_mounts(void);
 int find_sync(void);
@@ -74,3 +76,5 @@ const char * get_trigger_value(void);
 const char * get_network_ip(void);
 const char * get_network_interface(void);
 const char * get_network_gateway(void);
+
+const char * get_soft_connect_path(void);

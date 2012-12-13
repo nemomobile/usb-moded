@@ -132,6 +132,11 @@ const char * get_network_gateway(void)
   return(get_conf_string(NETWORK_ENTRY, NETWORK_GATEWAY_KEY));
 }
 
+const char * get_soft_connect_path(void)
+{
+  return(get_conf_string(SOFT_CONNECT_ENTRY, SOFT_CONNECT_PATH_KEY));
+}
+
 /* create basic conffile with sensible defaults */
 static void create_conf_file(void)
 {
