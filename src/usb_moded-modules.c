@@ -118,6 +118,7 @@ int usb_moded_load_module(const char *module)
 int usb_moded_unload_module(const char *module)
 {
 	int ret = 0;
+	const char * softconnect;
 
 #ifdef NO_KMOD
 	gchar *command;
