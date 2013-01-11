@@ -94,7 +94,10 @@ static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessa
 		{
 				/* check if usb is connected, since it makes no sense to change mode if it isn't */
 				if(!get_usb_connection_state())
+				{
+					log_warning("USB not connected, not changing mode!\n");
 					goto error_reply;
+				}
 				/* check if the mode exists */
 				if(valid_mode(use))
 					goto error_reply;
