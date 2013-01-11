@@ -133,6 +133,12 @@ int usb_moded_unload_module(const char *module)
 	kmod_module_unref(mod);
 
 #endif /* NO_KMOD */
+	softconnect = get_soft_connect_path();
+	if(softconnect)	
+	{
+		write_to_file(softconnect, "disconnect");
+		free((void *)softconnect);
+	}
 
 	return(ret);
 }
