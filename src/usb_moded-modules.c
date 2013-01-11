@@ -76,8 +76,12 @@ int usb_moded_load_module(const char *module)
 	const char *charging_args = NULL;
 
 	ret = kmod_module_new_from_name(ctx, module, &mod);
-	if(!strcmp(module, MODULE_MASS_STORAGE) && (ret != 0))
+	/* since kmod_module_new_from_name does not check if the module
+           exists we test it's path in case we deal with the mass-storage one */
+	if(!strcmp(module, MODULE_MASS_STORAGE) && 
+	    (kmod_module_get_path(mod) == NULL))
 	{
+	  log_debug("Fallback on older g_file_storage\n");  
 	  ret = kmod_module_new_from_name(ctx, MODULE_FILE_STORAGE, &mod);
 	}
 	if(!strcmp(module, MODULE_CHARGING) && (ret != 0))
@@ -253,7 +257,7 @@ int usb_moded_module_cleanup(const char *module)
 	/* if we have MODULE_MASS_STORAGE it might be MODULE_FILE_STORAGE might
 	   be loaded. So check and unload that one if unloading fails first time */
 	if(failure && !strcmp(MODULE_MASS_STORAGE, module))
-		failure = usb_moded_unload_module(module);
+		failure = usb_moded_unload_module(MODULE_FILE_STORAGE);
 
 	while(failure)
 	{
