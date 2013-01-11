@@ -245,6 +245,7 @@ int set_mtp_mode(void)
   return 0;
 }
 
+#ifndef ANDROID
 #ifdef N900
 int set_ovi_suite_mode(void)
 {
@@ -277,6 +278,7 @@ int set_ovi_suite_mode(void)
   return(0);
 }
 #endif /* N900 */
+#endif /* ANDROID */
 
 #ifdef DYN_MODE
 int set_dynamic_mode(struct mode_list_elem *data)
@@ -399,6 +401,7 @@ int usb_moded_mode_cleanup(const char *module)
                 }
 
         }
+#ifndef ANDROID
 #ifdef N900
         if(!strcmp(module, MODULE_NETWORK))
         {
@@ -413,6 +416,7 @@ int usb_moded_mode_cleanup(const char *module)
 		system("killall -SIGTERM acm");
         }
 #endif /* N900 */
+#endif /* ANDROID */
 	if(!strcmp(module, MODULE_MTP))
 	{
 		/* stop service before umounting ;) */

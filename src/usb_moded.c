@@ -257,6 +257,7 @@ else if(!strcmp(mode, MODE_DEVELOPER))
 	net = usb_network_up();	
 	goto end;
   }
+#ifndef ANDROID
 #ifdef N900 
   else if(!strcmp(mode, MODE_OVI_SUITE))
   {
@@ -268,6 +269,7 @@ else if(!strcmp(mode, MODE_DEVELOPER))
 	goto end;
   } 
 #endif /* N900 */
+#endif /* ANDROID */
 
   else if(!strcmp(mode, MODE_WINDOWS_NET))
   {	
