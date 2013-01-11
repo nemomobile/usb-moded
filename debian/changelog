@@ -1,3 +1,11 @@
+usb-moded (0.56) unstable; urgency=low
+
+  * Fix possible compiltation issue with N900 support and android which are mutually exclusive
+  * Fix g_file_storage fallback which did not work anymore with kmod
+  * Warn when using dbus methods to change mode when not connected
+
+ -- Philippe De Swert <philippedeswert@jollamobile.com> Fri, 11 Jan 2013 18:57:58 +0200
+
 usb-moded (0.55) unstable; urgency=low
 
   * Add android gadget driver support

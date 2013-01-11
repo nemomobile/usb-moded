@@ -213,3 +213,26 @@ udev_subsystem = platform
 mode = mass_storage
 property = TRIGGER_CMD
 
+
+Softconnect support
+-------------------
+
+In some cases gadget drivers are not active by default. (for example with the android gadget driver)
+As there is no standard softconnect path, to use this feature it will have to be enabled 
+in the config file.
+
+[soft_connect]
+soft_connect_path = /path/where/softconnect/is
+
+NOTE: It is expected that the value to connect is "connect", and "disconnect" to disconnect.
+
+Android gadget driver support
+-----------------------------
+
+This will need usb_moded to be compiled after being configured with --enable-android 
+The regular gadget support will not work anymore as the android gadget driver is 
+supposed to be used built-in. A thusly build usb_moded will be usable on stock
+android kernels.
+
+atm only networking mode is fully supported, mass-storage partly.
+
