@@ -49,6 +49,7 @@
 #include "usb_moded-config.h"
 #include "usb_moded-config-private.h"
 #include "usb_moded-network.h"
+#include "usb_moded-mac.h"
 
 /* global definitions */
 
@@ -180,7 +181,7 @@ void set_usb_connected_state(void)
 #ifdef MEEGOLOCK
   int act_dead = 0;
   /* check if we are in acting dead or not, /tmp/USER will not exist in acting dead */
-  act_dead = access("/tmp/USER", R_OK);
+  act_dead = accesa("/tmp/USER", R_OK);
   if(mode_to_set && !export && !act_dead)
 #else
   if(mode_to_set)
@@ -455,6 +456,10 @@ static void usb_moded_init(void)
   ctx = kmod_new(NULL, NULL);
   kmod_load_resources(ctx);
 
+  if(!access("/etc/modprobe.d/g_ether.conf", F_OK))
+  {
+    generate_random_mac();  	
+  }
   /* TODO: add more start-up clean-up and init here if needed */
 }	
 

@@ -26,7 +26,9 @@ usb_moded_SOURCES = \
 	usb_moded-network.c \
 	usb_moded-network.h \
 	usb_moded-modesetting.c \
-	usb_moded-modesetting.h 
+	usb_moded-modesetting.h \
+ 	usb_moded-mac.c \
+	usb_moded-mac.h
 
 if !ANDROID
 usb_moded_SOURCES += \
