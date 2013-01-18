@@ -110,6 +110,13 @@ for exmaple:
 
 dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.net_config string:'ip' string:'192.168.2.15'
 
+
+
+Usb_moded will generate a random mac address for the g_ether driver. Thus when plugging in the device repeatedly the mac address will not
+change and udev rules / network manager etc will not think it is a new device each time.
+This mac is stored using the default modprobe configuration and thus will be in /etc/modprobe.d/g_ether.conf
+If this file exits usb_moded will assume there is a default mac set and will not do anything.
+
 Functional overview
 --------------------
 
