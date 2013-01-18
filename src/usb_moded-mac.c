@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include "usb_moded-mac.h"
+#include "usb_moded-log.h"
 
 static void random_ether_addr(unsigned char *addr)
 {
@@ -41,7 +42,7 @@ void generate_random_mac (void)
   int i;
   FILE *g_ether;
 
-  printf("Getting random usb ethernet mac\n");
+  log_debug("Getting random usb ethernet mac\n");
   random_ether_addr(addr);
   
   g_ether = fopen("/etc/modprobe.d/g_ether.conf", "w");
@@ -51,6 +52,6 @@ void generate_random_mac (void)
   {
 	fprintf(g_ether, "%02x:",addr[i]);
   }
-  fprintf(g_ether, "%02x",addr[i]);
+  fprintf(g_ether, "%02x\n",addr[i]);
   fclose(g_ether);
 }

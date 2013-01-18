@@ -456,7 +456,7 @@ static void usb_moded_init(void)
   ctx = kmod_new(NULL, NULL);
   kmod_load_resources(ctx);
 
-  if(!access("/etc/modprobe.d/g_ether.conf", F_OK))
+  if(access("/etc/modprobe.d/g_ether.conf", F_OK) != 0)
   {
     generate_random_mac();  	
   }
