@@ -452,14 +452,16 @@ static void usb_moded_init(void)
 	trigger_init();
 #endif /* UDEV */
 
-  /* kmod init */
-  ctx = kmod_new(NULL, NULL);
-  kmod_load_resources(ctx);
-
+  /* Set-up mac address before kmod */
   if(access("/etc/modprobe.d/g_ether.conf", F_OK) != 0)
   {
     generate_random_mac();  	
   }
+
+  /* kmod init */
+  ctx = kmod_new(NULL, NULL);
+  kmod_load_resources(ctx);
+
   /* TODO: add more start-up clean-up and init here if needed */
 }	
 
