@@ -240,7 +240,7 @@ int set_mtp_mode(void)
 {
   mkdir("/dev/mtp", S_IRWXO|S_IRWXU);
   system("mount -t functionfs mtp  -o gid=1000,mode=0770 /dev/mtp\n");	
-  system("systemctl start buteo-mtp.service\n");
+  system("buteo-mtp start\n");
 
   return 0;
 }
@@ -420,7 +420,7 @@ int usb_moded_mode_cleanup(const char *module)
 	if(!strcmp(module, MODULE_MTP))
 	{
 		/* stop service before umounting ;) */
-  		system("systemctl stop buteo-mtp.service\n");
+  		system("buteo-mtp stop\n");
 		system("umount /dev/mtp");
 	}
 
