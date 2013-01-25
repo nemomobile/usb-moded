@@ -266,9 +266,15 @@ int usb_moded_module_cleanup(const char *module)
 	if(failure && !strcmp(MODULE_MASS_STORAGE, module))
 		failure = usb_moded_unload_module(MODULE_FILE_STORAGE);
 
+	/* if it still failed it might be the mode has not been cleaned-up correctly,
+	   so we clean up the mode to be sure */
+	if(failure)
+	{
+		usb_moded_mode_cleanup(usb_moded_find_module());
+	}
+
 	while(failure)
 	{
-		// SP: up to 2 second sleep -> worth a warning log?
 		/* module did not get unloaded. We will wait a bit and try again */
 		sleep(1);
 		/* send the REALLY  disconnect message */
