@@ -473,6 +473,7 @@ static gboolean charging_fallback(gpointer data)
    * means a mode has been set */
   if(strcmp(get_usb_mode(), MODE_ASK) != 0)
 		  return FALSE;
+
   set_usb_mode(MODE_CHARGING);
   /* since this is the fallback, we keep an indication
      for the UI, as we are not really in charging mode.

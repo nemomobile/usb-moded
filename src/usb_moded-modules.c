@@ -28,6 +28,7 @@
 #include <stdio.h>
 
 #include <glib.h>
+#include <glib/gprintf.h>
 
 #include <libkmod.h>
 
@@ -73,9 +74,30 @@ int usb_moded_load_module(const char *module)
 #else
 	const int probe_flags = KMOD_PROBE_APPLY_BLACKLIST;
 	struct kmod_module *mod;
-	const char *charging_args = NULL;
+	char *charging_args = NULL;
+	char *load = NULL;
+	
+	/* copy module to load as it might be modified if we're trying charging mode */
+	load = strdup(module);
+	if(!strcmp(module, MODULE_CHARGING) || !strcmp(module, MODULE_CHARGE_FALLBACK))
+	{
+	  /* split the string in module name and argument, they are the same for MODULE_CHARGE_FALLBACK 
+	     so no need to handle them separately  */
+	  gchar **strings;
 
-	ret = kmod_module_new_from_name(ctx, module, &mod);
+	  /* since the mass_storage module is the newer one and we check against it to avoid 
+	     loading failures we use it here, as we fall back to g_file_storage if g_mass_storage 
+	     fails to load */
+	  strings = g_strsplit(MODULE_CHARGE_FALLBACK, " ", 2);
+	  log_debug("module args = %s, module = %s\n", strings[1], strings[0]);
+          charging_args = strdup(strings[1]);
+	  /* load was already assigned. Free it to re-assign */
+	  free(load);
+	  load = strdup(strings[0]);
+	  g_strfreev(strings);
+	  
+	}
+	ret = kmod_module_new_from_name(ctx, load, &mod);
 	/* since kmod_module_new_from_name does not check if the module
            exists we test it's path in case we deal with the mass-storage one */
 	if(!strcmp(module, MODULE_MASS_STORAGE) && 
@@ -84,18 +106,16 @@ int usb_moded_load_module(const char *module)
 	  log_debug("Fallback on older g_file_storage\n");  
 	  ret = kmod_module_new_from_name(ctx, MODULE_FILE_STORAGE, &mod);
 	}
-	if(!strcmp(module, MODULE_CHARGING) && (ret != 0))
-	{
-	  /* split the string in module name and arguments, if it still fails do the same
-             for MODULE_CHARGE_FALLBACK */
-	}
 
 	if(!charging_args)
 		ret = kmod_module_probe_insert_module(mod, probe_flags, NULL, NULL, NULL, NULL);
 	else
+	{
 		ret = kmod_module_probe_insert_module(mod, probe_flags, charging_args, NULL, NULL, NULL);
-	
+		free(charging_args);
+	}
 	kmod_module_unref(mod);
+	free(load);
 #endif /* NO_KMOD */
 
 	softconnect = get_soft_connect_path();
