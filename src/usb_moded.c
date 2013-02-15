@@ -165,7 +165,7 @@ void set_usb_connected_state(void)
 
   const char *mode_to_set;  
 #ifdef MEEGOLOCK
-  int export = 0;
+  int export = 1; /* assume locked */
 #endif /* MEEGOLOCK */
 
   /* signal usb connected */
@@ -175,9 +175,12 @@ void set_usb_connected_state(void)
 #ifdef MEEGOLOCK
   /* check if we are allowed to export system contents 0 is unlocked */
   export = usb_moded_get_export_permission();
-  if(rescue_mode)
-	export = 1;
 #endif
+  if(rescue_mode)
+  {
+	set_usb_mode(MODE_DEVELOPER);
+	return;
+  }
 #ifdef MEEGOLOCK
   int act_dead = 0;
   /* check if we are in acting dead or not, /tmp/USER will not exist in acting dead */
