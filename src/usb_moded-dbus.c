@@ -152,6 +152,13 @@ error_reply:
 		}
 		dbus_error_free(&err);	
 	}
+	else if(!strcmp(member, USB_MODE_CONFIG_GET))
+	{
+		const char *config = get_mode_setting();
+		
+      		if((reply = dbus_message_new_method_return(msg)))
+        		dbus_message_append_args (reply, DBUS_TYPE_STRING, &config, DBUS_TYPE_INVALID);
+	}
 	else if(!strcmp(member, USB_MODE_RESCUE_OFF))
 	{
 		rescue_mode = FALSE;

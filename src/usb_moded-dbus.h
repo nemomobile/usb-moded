@@ -31,12 +31,14 @@
 /* supported methods */
 #define USB_MODE_STATE_REQUEST	"mode_request"
 #define USB_MODE_RESCUE_OFF	"rescue_off"
+#define USB_MODE_CONFIG_GET	"get_config"	/* returns the mode set in the config */
+
 /**
   * @credential usb-moded::USBControl	Credential needed to be able to call the set_mode or set_config methods
 **/
-#define USB_MODE_STATE_SET	"set_mode"
-#define USB_MODE_CONFIG_SET	"set_config"
-#define USB_MODE_NETWORK_SET	"net_config"
+#define USB_MODE_STATE_SET	"set_mode"	/* set a mode (only works when connected) */
+#define USB_MODE_CONFIG_SET	"set_config"	/* set the mode that needs to be activated in the config file */
+#define USB_MODE_NETWORK_SET	"net_config"    /* set the network config in the config file */
 
 /* state definitions for signals and method parameters */
 #define USB_CONNECTED			"USB connected"

@@ -1,3 +1,10 @@
+usb-moded (0.59) unstable; urgency=low
+
+  * Do not depend on the config, but always go to developer mode in rescue mode
+  * Add a dbus method to query the currently set config option
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com> Fri, 15 Feb 2013 23:32:55 +0200
+
 usb-moded (0.58) unstable; urgency=low
 
   * Fix bug with ask mode since module loading failed

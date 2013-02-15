@@ -43,12 +43,20 @@ Even the configuration can be set over DBus (this will set either the gconf key 
 
 dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.set_config string:'<mode_name>'
 
+To get the currently stored default mode from the config:
+
+dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.get_config
+
+=== WITH GCONF ONLY === 
+
 However this can also be optionally handled by setting the following GConf key (gconf has to be compiled in).
 
 /Meego/System/UsbMode (querying and setting can be done as follows:
 
 gconftool-2 -g /Meego/System/UsbMode
 gconftool-2 -s /Meego/System/UsbMode --type=string <mode_name>
+
+=== END WITH GCONF ONLY === 
 
 Usb_moded will also broadcast changes and errors over the system bus.
 This will happen on the com.meego.usb_moded interface
@@ -243,3 +251,12 @@ android kernels.
 
 atm only networking mode is fully supported, mass-storage partly.
 
+rescue mode
+-----------
+
+When started with -r usb_moded will always enable developer mode (networking)
+if it can. This is a debug feature and should not be used in a final image.
+
+Turning it off when the device is booted completely can easily be done over dbus.
+
+dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.rescue_off
