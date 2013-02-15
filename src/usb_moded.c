@@ -178,6 +178,7 @@ void set_usb_connected_state(void)
 #endif
   if(rescue_mode)
   {
+	log_debug("Entering rescue mode!\n");
 	set_usb_mode(MODE_DEVELOPER);
 	return;
   }
