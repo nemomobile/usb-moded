@@ -24,6 +24,7 @@
 
 #define _GNU_SOURCE
 #include <getopt.h>
+#include <stdio.h>
 
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -331,6 +332,7 @@ end:
   current_mode.mode = strdup(mode);
   usb_moded_send_signal(get_usb_mode());
 }
+
 /** check if a given usb_mode exists
  *
  * @param mode The mode to look for
@@ -362,6 +364,41 @@ int valid_mode(const char *mode)
 #endif /* DYN_MODE */
   return(1);
 
+}
+
+/** make a list of all available usb modes
+ *
+ * @return a comma-separated list of modes (MODE_ASK not included as it is not a real mode)
+ *
+ */
+char *get_mode_list(void)
+{
+
+  char *modelist;
+
+#ifdef N900
+  asprintf(&modelist, "%s, %s, %s, %s, %s, %s", MODE_MASS_STORAGE, MODE_OVI_SUITE, MODE_CHARGING, MODE_WINDOWS_NET, MODE_DEVELOPER, MODE_MTP);
+#else
+  asprintf(&modelist, "%s, %s, %s, %s, %s", MODE_MASS_STORAGE, MODE_CHARGING, MODE_WINDOWS_NET, MODE_DEVELOPER, MODE_MTP);
+#endif /* N900 */
+#ifdef DYN_MODE
+  {
+    /* check dynamic modes */
+    if(modelist)
+    {
+      GList *iter;
+
+      for( iter = modelist; iter; iter = g_list_next(iter) )
+      {
+        struct mode_list_elem *data = iter->data;
+	/* TODO : concat correctly the mode names
+	strconcat(modelist, data->mode_name);
+	*/
+      }
+    }
+  }
+#endif /* DYN_MODE */
+  return modelist;
 }
 
 /** get the usb mode 

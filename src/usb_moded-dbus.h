@@ -32,6 +32,7 @@
 #define USB_MODE_STATE_REQUEST	"mode_request"
 #define USB_MODE_RESCUE_OFF	"rescue_off"
 #define USB_MODE_CONFIG_GET	"get_config"	/* returns the mode set in the config */
+#define USB_MODE_LIST		"get_modes"	/* returns a comma-separated list of supported modes for ui's */
 
 /**
   * @credential usb-moded::USBControl	Credential needed to be able to call the set_mode or set_config methods

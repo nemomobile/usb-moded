@@ -30,3 +30,4 @@
 #define MODE_DEVELOPER		"developer_mode"
 #define MODE_MTP		"mtp_mode"
 
+char *get_mode_list(void);

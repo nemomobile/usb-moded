@@ -47,6 +47,10 @@ To get the currently stored default mode from the config:
 
 dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.get_config
 
+The supported modes can be queried over dbus as follows:
+
+dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.get_modes
+
 === WITH GCONF ONLY === 
 
 However this can also be optionally handled by setting the following GConf key (gconf has to be compiled in).

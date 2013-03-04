@@ -159,6 +159,13 @@ error_reply:
       		if((reply = dbus_message_new_method_return(msg)))
         		dbus_message_append_args (reply, DBUS_TYPE_STRING, &config, DBUS_TYPE_INVALID);
 	}
+	else if(!strcmp(member, USB_MODE_LIST))
+	{
+		 const char *mode_list = get_mode_list();
+
+                if((reply = dbus_message_new_method_return(msg)))
+                        dbus_message_append_args (reply, DBUS_TYPE_STRING, &mode_list, DBUS_TYPE_INVALID);
+	}
 	else if(!strcmp(member, USB_MODE_RESCUE_OFF))
 	{
 		rescue_mode = FALSE;
