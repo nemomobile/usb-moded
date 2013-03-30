@@ -286,3 +286,56 @@ int set_network_setting(const char *config, const char *setting)
 
 #endif
 
+int conf_file_merge(void)
+{
+  GDir *confdir;
+  struct stat fileinfo, dir;
+  const gchar *filename;
+  gchar *keyfile_string = NULL;
+  GKeyFile *settingsfile;
+  int ret = 0, test = 0;
+
+  confdir = g_dir_open(CONFIG_FILE_DIR, 0, NULL);
+  if(!confdir)
+  {
+      log_debug("No configuration. Creating defaults.\n");
+      create_conf_file();
+      return (ret);
+  }
+
+  if (stat(FS_MOUNT_CONFIG_FILE, &fileinfo) == -1) 
+  {
+	/* conf file not created yet, merge all */
+	goto merge;
+  }
+
+  /* config file is created, so the dir must exists */
+  stat(CONFIG_FILE_DIR, &dir);
+
+  /* st_mtime is changed by file modifications, st_mtime of a directory is changed by the creation or deletion of files in that directory.
+  So if the st_mtime of the config file is equal to the directory time we can be sure the config is untouched and we do not need 
+  to re-merge the config.
+  */
+  if(fileinfo.st_mtime == dir.st_mtime)
+	return 0;
+
+merge:
+  /* check each ini file and get contents */
+  while((filename = g_dir_read_name(confdir)) != NULL)
+  {
+	settingsfile = g_key_file_new();
+	/* load contents of file, if it fails skip to next one */
+ 	test = g_key_file_load_from_file(settingsfile, filename, G_KEY_FILE_NONE, NULL);
+	if(!test)
+		break;
+	keyfile_string = g_strconcat(keyfile_string, g_key_file_to_data(settingsfile, NULL, NULL), NULL);
+  	g_key_file_free(settingsfile);
+  }
+
+  /* write out merged config file */
+  /* g_file_set_contents returns 1 on succes, this function returns 0 */
+  ret = !g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile_string, -1, NULL);
+
+  g_dir_close(confdir);
+  return(ret);
+}

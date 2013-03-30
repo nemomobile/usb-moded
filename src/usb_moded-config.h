@@ -78,3 +78,5 @@ const char * get_network_interface(void);
 const char * get_network_gateway(void);
 
 const char * get_soft_connect_path(void);
+
+int conf_file_merge(void);

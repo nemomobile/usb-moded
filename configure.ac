@@ -20,7 +20,7 @@ test_gcc_flag() {
 
 # We use gnu99 instead of c99 because many have interpreted the standard
 # in a way that int64_t isn't defined on non-64 bit platforms.
-CFLAGS="-std=gnu99 -Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wendif-labels -Wpointer-arith -Wcast-align -Wwrite-strings -Winline -Wno-unused-parameter"
+CFLAGS="-Os -std=gnu99 -Wall -W -Wextra -pedantic -pipe -Wformat -Wold-style-definition -Wdeclaration-after-statement -Wfloat-equal -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wendif-labels -Wpointer-arith -Wcast-align -Wwrite-strings -Winline -Wno-unused-parameter -finline-small-functions"
 
 AC_ARG_ENABLE([debug], AS_HELP_STRING([--enable-debug],[Enable debug @<:@default=false@:>@]),
   [case "${enableval}" in
@@ -145,6 +145,7 @@ echo "
 
     Compiler:               ${CC}
     CFLAGS:                 ${CFLAGS}
+    LDFLAGS:		    ${LDFLAGS}
 
     Debug enabled:          ${debug}
 "
