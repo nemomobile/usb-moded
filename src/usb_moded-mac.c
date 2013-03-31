@@ -46,6 +46,11 @@ void generate_random_mac (void)
   random_ether_addr(addr);
   
   g_ether = fopen("/etc/modprobe.d/g_ether.conf", "w");
+  if(!g_ether)	
+  {
+	log_warning("Failed to write mac address to /etc/modprobe.d/g_ether.conf\n");
+	return;
+  }
   fprintf(g_ether, "options g_ether host_addr=");
  
   for(i=0; i<5; i++)
