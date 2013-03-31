@@ -143,14 +143,14 @@ static void create_conf_file(void)
   GKeyFile *settingsfile;
   gchar *keyfile;
 
-  mkdir(CONFIG_FILE_DIR, 755);
+  mkdir(CONFIG_FILE_DIR, 0755);
 
   settingsfile = g_key_file_new();
 
   g_key_file_set_string(settingsfile, MODE_SETTING_ENTRY, MODE_SETTING_KEY, MODE_DEVELOPER );
   keyfile = g_key_file_to_data (settingsfile, NULL, NULL);
   if(g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile, -1, NULL) == 0)
-	log_debug("conffile creation failed. Continuing without configuration!\n");
+	log_debug("Conffile creation failed. Continuing without configuration!\n");
 }
 
 static int get_conf_int(const gchar *entry, const gchar *key)
@@ -290,11 +290,13 @@ int conf_file_merge(void)
 {
   GDir *confdir;
   struct stat fileinfo, dir;
-  const gchar *filename;
+  const gchar *filename, *mode = 0;
+  gchar *filename_full;
   gchar *keyfile_string = NULL;
   GKeyFile *settingsfile;
   int ret = 0, test = 0;
 
+  log_debug("Merging/creating configuration.\n");
   confdir = g_dir_open(CONFIG_FILE_DIR, 0, NULL);
   if(!confdir)
   {
@@ -323,19 +325,42 @@ merge:
   /* check each ini file and get contents */
   while((filename = g_dir_read_name(confdir)) != NULL)
   {
-	settingsfile = g_key_file_new();
-	/* load contents of file, if it fails skip to next one */
- 	test = g_key_file_load_from_file(settingsfile, filename, G_KEY_FILE_NONE, NULL);
-	if(!test)
+	log_debug("filename = %s\n", filename);
+	filename_full = g_strconcat(CONFIG_FILE_DIR, "/", filename, NULL);
+	if(!strcmp(filename_full, FS_MOUNT_CONFIG_FILE))
+	{
+		/* store mode info to add it later as we want to keep it */
+		mode = get_mode_setting();
 		break;
-	keyfile_string = g_strconcat(keyfile_string, g_key_file_to_data(settingsfile, NULL, NULL), NULL);
+	}
+	/* load contents of file, if it fails skip to next one */
+	settingsfile = g_key_file_new();
+ 	test = g_key_file_load_from_file(settingsfile, filename_full, G_KEY_FILE_KEEP_COMMENTS, NULL);
+	if(!test)
+	{
+		log_debug("%d failed loading config file %s\n", test, filename_full);
+		g_free(filename_full);
+		break;
+	}
+	g_free(filename_full);
+        log_debug("file data = %s\n", g_key_file_to_data(settingsfile, NULL, NULL));
+	keyfile_string = g_strconcat(g_key_file_to_data(settingsfile, NULL, NULL), keyfile_string, NULL);
+	log_debug("keyfile_string = %s\n", keyfile_string);
   	g_key_file_free(settingsfile);
   }
 
-  /* write out merged config file */
-  /* g_file_set_contents returns 1 on succes, this function returns 0 */
-  ret = !g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile_string, -1, NULL);
-
+  if(keyfile_string)
+  {
+	/* write out merged config file */
+  	/* g_file_set_contents returns 1 on succes, this function returns 0 */
+  	ret = !g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile_string, -1, NULL);
+	g_free(keyfile_string);
+	set_mode_setting(mode);
+  }
+  else
+	ret = 1;
+  if(mode)
+  	free((void *)mode);
   g_dir_close(confdir);
   return(ret);
 }

@@ -481,6 +481,14 @@ static void usb_moded_init(void)
   }
 	
 #endif /* NOKIA_NSU */
+
+  /* check config, merge or create if outdated */
+  if(conf_file_merge() != 0)
+  {
+    log_err("Cannot create or find a valid configuration. Exiting.\n");
+    exit(1);
+  }
+
 #ifdef APP_SYNC
   readlist();
 #endif /* APP_SYNC */
