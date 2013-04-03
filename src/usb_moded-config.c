@@ -151,6 +151,7 @@ static void create_conf_file(void)
   keyfile = g_key_file_to_data (settingsfile, NULL, NULL);
   if(g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile, -1, NULL) == 0)
 	log_debug("Conffile creation failed. Continuing without configuration!\n");
+  g_key_file_free(settingsfile);
 }
 
 static int get_conf_int(const gchar *entry, const gchar *key)
@@ -292,11 +293,10 @@ int conf_file_merge(void)
   struct stat fileinfo, dir;
   const gchar *filename, *mode = 0;
   gchar *filename_full;
-  gchar *keyfile_string = NULL;
+  GString *keyfile_string = NULL;
   GKeyFile *settingsfile;
   int ret = 0, test = 0;
 
-  log_debug("Merging/creating configuration.\n");
   confdir = g_dir_open(CONFIG_FILE_DIR, 0, NULL);
   if(!confdir)
   {
@@ -307,8 +307,8 @@ int conf_file_merge(void)
 
   if (stat(FS_MOUNT_CONFIG_FILE, &fileinfo) == -1) 
   {
-	/* conf file not created yet, merge all */
-	goto merge;
+	/* conf file not created yet, make default and merge all */
+      	create_conf_file();
   }
 
   /* config file is created, so the dir must exists */
@@ -321,7 +321,8 @@ int conf_file_merge(void)
   if(fileinfo.st_mtime == dir.st_mtime)
 	return 0;
 
-merge:
+  log_debug("Merging/creating configuration.\n");
+  keyfile_string = g_string_new(NULL);
   /* check each ini file and get contents */
   while((filename = g_dir_read_name(confdir)) != NULL)
   {
@@ -344,8 +345,8 @@ merge:
 	}
 	g_free(filename_full);
         log_debug("file data = %s\n", g_key_file_to_data(settingsfile, NULL, NULL));
-	keyfile_string = g_strconcat(g_key_file_to_data(settingsfile, NULL, NULL), keyfile_string, NULL);
-	log_debug("keyfile_string = %s\n", keyfile_string);
+	keyfile_string = g_string_append(keyfile_string, g_key_file_to_data(settingsfile, NULL, NULL));
+	log_debug("keyfile_string = %s\n", keyfile_string->str);
   	g_key_file_free(settingsfile);
   }
 
@@ -353,9 +354,12 @@ merge:
   {
 	/* write out merged config file */
   	/* g_file_set_contents returns 1 on succes, this function returns 0 */
-  	ret = !g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile_string, -1, NULL);
-	g_free(keyfile_string);
-	set_mode_setting(mode);
+  	ret = !g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile_string->str, -1, NULL);
+	g_string_free(keyfile_string, TRUE);
+	if(mode)
+	{
+		set_mode_setting(mode);
+	}
   }
   else
 	ret = 1;
