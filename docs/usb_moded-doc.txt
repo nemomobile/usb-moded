@@ -24,9 +24,6 @@ Starting usb_moded
 Simply start with usb_moded.
 usb_moded --help will give you more details
 
-*NOTE: daemon mode does not work correctly. See TODO*
-
-
 Status and configuration query/setting
 ---------------------------------------
 
@@ -205,12 +202,6 @@ network = 1
 network_interface = usb0
 
 Only the mode name and module are mandatory.
-However if you specify that there has to be network bringup, the
-network interface is mandatory. Atm the network interface
-bring-up will only work on debian based systems, since it uses
-ifup/ifdown as the network configuration has to be handled
-in the regular places to avoid conflicts and keep it easy to
-configure.
 
 If appsync is not defined or explicitly set to 0 it will not be used.
 
@@ -255,6 +246,8 @@ android kernels.
 
 atm only networking mode is fully supported, mass-storage partly.
 
+Also note that the softconnect has to be configured!!!
+
 rescue mode
 -----------
 
@@ -264,3 +257,16 @@ if it can. This is a debug feature and should not be used in a final image.
 Turning it off when the device is booted completely can easily be done over dbus.
 
 dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.rescue_off
+
+config files and config file merging
+------------------------------------
+
+The main config file for usb_moded is /etc/usb-moded/usb-moded.ini
+
+If this does not exist usb_moded will create one for you, which will default
+to setting up a default network with ip 192.168.2.15 and uses the g_ether module.
+
+The different sections of the config file can be split out in different ini files,
+however take into account usb_moded will need to be restarted to merge these in a 
+new usb-moded.ini file. As usb_moded will check if new files were added to the /etc/usb-moded
+directory and refresh the main ini file as needed on start-up.
