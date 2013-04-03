@@ -271,7 +271,7 @@ static gboolean enumerate_usb(gpointer data)
   else
   {
 
-#ifdef NOKIA_EXTRA
+#ifdef NOKIA
     /* activate usb connection/enumeration */
     write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "1");
     log_debug("Softconnect enumeration done\n");
