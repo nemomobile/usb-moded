@@ -276,15 +276,6 @@ else if(!strcmp(mode, MODE_DEVELOPER))
   } 
 #endif /* N900 */
 #endif /* ANDROID */
-
-  else if(!strcmp(mode, MODE_WINDOWS_NET))
-  {	
-	check_module_state(MODULE_WINDOWS_NET);
-	set_usb_module(MODULE_WINDOWS_NET);
-	ret = usb_moded_load_module(MODULE_WINDOWS_NET);
-	net = usb_network_up();	
-	goto end;
-  }
   else if(!strcmp(mode, MODE_MTP))
   {
 	check_module_state(MODULE_MTP);
@@ -342,8 +333,8 @@ end:
 int valid_mode(const char *mode)
 {
 
-  if(!strcmp(MODE_MASS_STORAGE, mode) || !strcmp(MODE_OVI_SUITE, mode) || !strcmp(MODE_CHARGING, mode) 
-     || !strcmp(MODE_WINDOWS_NET, mode) || !strcmp(MODE_DEVELOPER,mode) || !strcmp(MODE_MTP,mode))
+  if(!strcmp(MODE_MASS_STORAGE, mode) || !strcmp(MODE_OVI_SUITE, mode) || !strcmp(MODE_CHARGING, mode) ||
+     !strcmp(MODE_DEVELOPER,mode) || !strcmp(MODE_MTP,mode))
 	return(0);
   else
 #ifdef DYN_MODE
@@ -377,9 +368,9 @@ char *get_mode_list(void)
   char *modelist;
 
 #ifdef N900
-  asprintf(&modelist, "%s, %s, %s, %s, %s, %s", MODE_MASS_STORAGE, MODE_OVI_SUITE, MODE_CHARGING, MODE_WINDOWS_NET, MODE_DEVELOPER, MODE_MTP);
+  asprintf(&modelist, "%s, %s, %s, %s, %s", MODE_MASS_STORAGE, MODE_OVI_SUITE, MODE_CHARGING, MODE_DEVELOPER, MODE_MTP);
 #else
-  asprintf(&modelist, "%s, %s, %s, %s, %s", MODE_MASS_STORAGE, MODE_CHARGING, MODE_WINDOWS_NET, MODE_DEVELOPER, MODE_MTP);
+  asprintf(&modelist, "%s, %s, %s, %s", MODE_MASS_STORAGE, MODE_CHARGING, MODE_DEVELOPER, MODE_MTP);
 #endif /* N900 */
 #ifdef DYN_MODE
   {

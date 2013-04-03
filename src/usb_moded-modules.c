@@ -245,7 +245,7 @@ return result;
   if(module_state_check("g_nokia"))
 	return(MODULE_NETWORK);
   else if(module_state_check("g_ether"))
-	return(MODULE_WINDOWS_NET); 
+	return(MODULE_DEVELOPER); 
   else if(module_state_check("g_ncm"))
 	return("g_ncm");
   else if(module_state_check("g_ffs"))

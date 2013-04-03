@@ -26,7 +26,6 @@
 #define MODE_CHARGING           "charging_only"
 #define MODE_UNDEFINED		"undefined"
 #define MODE_ASK		"ask"
-#define MODE_WINDOWS_NET	"windows_network"
 #define MODE_DEVELOPER		"developer_mode"
 #define MODE_MTP		"mtp_mode"
 

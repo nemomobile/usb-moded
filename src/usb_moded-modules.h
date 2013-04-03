@@ -31,13 +31,11 @@
 #define MODULE_CHARGING		"g_mass_storage luns=1 stall=0 removable=1"
 #define MODULE_CHARGE_FALLBACK	"g_file_storage luns=1 stall=0 removable=1"
 #define MODULE_NONE             "none"
-#define MODULE_WINDOWS_NET	"g_ether"
 #define MODULE_DEVELOPER	"g_ether"
 #define MODULE_MTP		"g_ffs"
 #else
 #define MODULE_MASS_STORAGE     "mass_storage"
 #define MODULE_FILE_STORAGE	"mass_storage"
-#define MODULE_WINDOWS_NET	"rndis"
 #define MODULE_DEVELOPER	"rndis"
 #define MODULE_MTP		"mtp"
 #define MODULE_NONE             "none"
