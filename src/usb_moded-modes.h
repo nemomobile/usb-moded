@@ -29,4 +29,6 @@
 #define MODE_DEVELOPER		"developer_mode"
 #define MODE_MTP		"mtp_mode"
 
-char *get_mode_list(void);
+/* due to the use of the modelist these functions are defined in usb_moded.c */
+gchar *get_mode_list(void);
+int valid_mode(const char *mode);

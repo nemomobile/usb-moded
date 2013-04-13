@@ -78,14 +78,6 @@ AC_ARG_ENABLE([app_sync], AS_HELP_STRING([--enable-app-sync], [Enable applicatio
    esac],[app_sync=false])
 AM_CONDITIONAL([APP_SYNC], [test x$app_sync = xtrue])
 
-AC_ARG_ENABLE([dynamic_modes], AS_HELP_STRING([--enable-dynamic-modes], [Enable adding modes with ini files @<:@default=false@:>@]),
-  [case "${enableval}" in
-   yes) dynamic_modes=true ; CFLAGS="-DDYN_MODE $CFLAGS" ;;
-   no)  dynamic_modes=false ;;
-   *) AC_MSG_ERROR([bad value ${enableval} for --enable-dynamic-modes]) ;;
-   esac],[dynamic_modes=false])
-AM_CONDITIONAL([DYN_MODE], [test x$dynamic_modes = xtrue])
-
 AC_ARG_ENABLE([hal], AS_HELP_STRING([--enable-hal], [Enable deprecated hal interface (use --disable-udev also) @<:@default=false@:>@]),
   [case "${enableval}" in
    yes) hal=true ; CFLAGS="-DHAL -I/usr/include/hal -lhal $CFLAGS" ;;

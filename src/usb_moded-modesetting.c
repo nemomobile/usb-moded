@@ -280,15 +280,17 @@ int set_ovi_suite_mode(void)
 #endif /* N900 */
 #endif /* ANDROID */
 
-#ifdef DYN_MODE
 int set_dynamic_mode(struct mode_list_elem *data)
 {
-  char command[256];
+#ifdef APP_SYNC
   if(data->appsync)
   	activate_sync(data->mode_name);
+#endif
   if(data->network)
   {
 #ifdef DEBIAN
+  	char command[256];
+
 	g_snprintf(command, 256, "ifdown %s ; ifup %s", data->network_interface, data->network_interface);
         system(command);
 #else
@@ -299,7 +301,6 @@ int set_dynamic_mode(struct mode_list_elem *data)
 
   return(0);
 }
-#endif /* DYN_MODE */
 
 #ifdef NOKIA
 gboolean export_cdrom(gpointer data)
