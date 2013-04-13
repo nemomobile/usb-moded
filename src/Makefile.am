@@ -29,7 +29,9 @@ usb_moded_SOURCES = \
 	usb_moded-modesetting.c \
 	usb_moded-modesetting.h \
  	usb_moded-mac.c \
-	usb_moded-mac.h
+	usb_moded-mac.h \
+	usb_moded-dyn-config.c \
+	usb_moded-dyn-config.h
 
 if !ANDROID
 usb_moded_SOURCES += \
@@ -80,12 +82,6 @@ if UPSTART
 usb_moded_SOURCES += \
 	usb_moded-upstart.h \
 	usb_moded-upstart.c
-endif
-
-if DYN_MODE
-usb_moded_SOURCES += \
-	usb_moded-dyn-config.c \
-	usb_moded-dyn-config.h
 endif
 
 usb_moded_util_CPPFLAGS = \

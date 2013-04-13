@@ -68,9 +68,7 @@ guint charging_timeout = 0;
 gboolean special_mode = FALSE;
 guint timeout_source = 0;
 #endif /* NOKIA */
-#ifdef DYN_SYNC
 static GList *modelist;
-#endif /* DYN_SYNC */
 
 /* static helper functions */
 static gboolean set_disconnected(gpointer data);
@@ -252,18 +250,7 @@ void set_usb_mode(const char *mode)
   /* set return to 1 to be sure to error out if no matching mode is found either */
   int ret=1, net=0;
   
-  if(!strcmp(mode, MODE_MASS_STORAGE))
-  {
-
-	check_module_state(MODULE_MASS_STORAGE);
-	/* now proceed to set the mode correctly */
-  	set_usb_module(MODULE_MASS_STORAGE);
-	ret = usb_moded_load_module(MODULE_MASS_STORAGE);
-	if(!ret)
-        	ret = set_mass_storage_mode();
-	goto end;
-  }
-  else if(!strcmp(mode, MODE_CHARGING))
+  if(!strcmp(mode, MODE_CHARGING))
   {
 	check_module_state(MODULE_MASS_STORAGE);
 	/* for charging we use a fake file_storage (blame USB certification for this insanity */
@@ -272,6 +259,7 @@ void set_usb_mode(const char *mode)
 	ret = usb_moded_load_module(MODULE_CHARGING);
 	goto end;
   }
+<<<<<<< HEAD
 else if(!strcmp(mode, MODE_DEVELOPER))
   {
 	check_module_state(MODULE_DEVELOPER);
@@ -307,7 +295,6 @@ else if(!strcmp(mode, MODE_DEVELOPER))
 	ret = 0;
   }
 
-#ifdef DYN_MODE 
   /* go through all the dynamic modes if the modelist exists*/
   if(modelist)
   {
@@ -325,7 +312,6 @@ else if(!strcmp(mode, MODE_DEVELOPER))
       }
     }
   }
-#endif /* DYN_MODE */
 
 end:
   /* if ret != 0 then usb_module loading failed */
@@ -354,7 +340,6 @@ int valid_mode(const char *mode)
      !strcmp(MODE_DEVELOPER,mode) || !strcmp(MODE_MTP,mode))
 	return(0);
   else
-#ifdef DYN_MODE
   {
     /* check dynamic modes */
     if(modelist)
@@ -369,7 +354,6 @@ int valid_mode(const char *mode)
       }
     }
   }
-#endif /* DYN_MODE */
   return(1);
 
 }
@@ -379,17 +363,18 @@ int valid_mode(const char *mode)
  * @return a comma-separated list of modes (MODE_ASK not included as it is not a real mode)
  *
  */
-char *get_mode_list(void)
+gchar *get_mode_list(void)
 {
 
-  char *modelist;
+  GString *modelist_str;
+
+  modelist_str = g_string_new(NULL);
 
 #ifdef N900
-  asprintf(&modelist, "%s, %s, %s, %s, %s", MODE_MASS_STORAGE, MODE_OVI_SUITE, MODE_CHARGING, MODE_DEVELOPER, MODE_MTP);
+  asprintf(&modelist_str->str, "%s, %s, %s, %s, %s", MODE_MASS_STORAGE, MODE_OVI_SUITE, MODE_CHARGING, MODE_DEVELOPER, MODE_MTP);
 #else
-  asprintf(&modelist, "%s, %s, %s, %s", MODE_MASS_STORAGE, MODE_CHARGING, MODE_DEVELOPER, MODE_MTP);
+  asprintf(&modelist_str->str, "%s, %s, %s, %s", MODE_MASS_STORAGE, MODE_CHARGING, MODE_DEVELOPER, MODE_MTP);
 #endif /* N900 */
-#ifdef DYN_MODE
   {
     /* check dynamic modes */
     if(modelist)
@@ -399,14 +384,11 @@ char *get_mode_list(void)
       for( iter = modelist; iter; iter = g_list_next(iter) )
       {
         struct mode_list_elem *data = iter->data;
-	/* TODO : concat correctly the mode names
-	strconcat(modelist, data->mode_name);
-	*/
+	modelist_str = g_string_append(modelist_str, data->mode_name);
       }
     }
   }
-#endif /* DYN_MODE */
-  return modelist;
+  return(g_string_free(modelist_str, FALSE));
 }
 
 /** get the usb mode 
@@ -500,9 +482,7 @@ static void usb_moded_init(void)
 #ifdef APP_SYNC
   readlist();
 #endif /* APP_SYNC */
-#ifdef DYN_MODE
   modelist = read_mode_list();
-#endif /* DYN_MODE */
 
 #ifdef UDEV
   if(check_trigger())
