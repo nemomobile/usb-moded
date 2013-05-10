@@ -60,5 +60,6 @@ void set_usb_module(const char *module);
 const char * get_usb_module(void);
 gboolean get_usb_connection_state(void);
 void set_usb_connection_state(gboolean state);
+void set_charger_connected(gboolean state);
 
 #endif /* USB_MODED_H */

@@ -158,6 +158,23 @@ static gboolean set_disconnected(gpointer data)
   return FALSE;
 }
 
+/** set and track charger state
+ *
+ */
+void set_charger_connected(gboolean state)
+{
+  if(state)
+  {
+    usb_moded_send_signal(CHARGER_CONNECTED);
+    set_usb_mode(MODE_CHARGER);
+  }
+  else
+  {
+    usb_moded_send_signal(CHARGER_DISCONNECTED);
+    set_usb_mode(MODE_UNDEFINED);
+  }
+}
+
 /** set the chosen usb state
  *
  */
@@ -285,7 +302,7 @@ else if(!strcmp(mode, MODE_DEVELOPER))
 		ret = set_mtp_mode();
 	goto end;
   }
-  else if(!strcmp(mode, MODE_ASK))
+  else if(!strcmp(mode, MODE_ASK) || !strcmp(mode, MODE_CHARGER))
   {
 	ret = 0;
   }

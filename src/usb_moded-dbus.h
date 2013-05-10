@@ -49,6 +49,8 @@
 #define USB_CONNECTED_DIALOG_SHOW	"mode_requested_show_dialog"
 #define USB_PRE_UNMOUNT			"pre-unmount"
 #define RE_MOUNT_FAILED			"mount_failed"
+#define CHARGER_CONNECTED		"charger_connected"
+#define CHARGER_DISCONNECTED		"charger_disconnected"
 
 /* errors */
 #define UMOUNT_ERROR			"Unmounting filesystem failed. Exporting impossible"

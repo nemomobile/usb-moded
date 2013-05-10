@@ -28,5 +28,6 @@
 #define MODE_ASK		"ask"
 #define MODE_DEVELOPER		"developer_mode"
 #define MODE_MTP		"mtp_mode"
+#define MODE_CHARGER		"dedicated_charger"
 
 char *get_mode_list(void);
