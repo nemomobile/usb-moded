@@ -148,10 +148,15 @@ is disconnected. This also avoids race conditions in case the  UI starts
 after a cable is inserted and usb_moded has also been started. The UI can then 
 query the state to know if it needs to show a selection dialog or not.
 
-On disconnect usb_moded will broadcast a disconnect signal, so that all programs
+On cable disconnect usb_moded will broadcast a disconnect signal, so that all programs
 that use the usb interface/mode know that a cable is disconnected and then can act
 (if needed) on the changed situation. It will then do all the necessary to reset
 the system to a clean state.
+
+Another special feature is the dedicated charger tracking. When a charger is connected
+usb_moded will broadcast a charger_connected signal and go to "dedicated charger" mode.
+This is just a place-holder mode. On charger disconnect then there will be a 
+charger_disconnected signal.
 
 Appsync feature
 ---------------

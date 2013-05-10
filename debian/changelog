@@ -1,3 +1,9 @@
+usb-moded (0.60) unstable; urgency=low
+
+  * Add dedicated charger tracking 
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com> Fri, 10 May 2013 15:56:03 +0300
+
 usb-moded (0.59) unstable; urgency=low
 
   * Do not depend on the config, but always go to developer mode in rescue mode
