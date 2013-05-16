@@ -52,7 +52,7 @@ int usb_moded_load_module(const char *module)
 	int ret = 0;
 
 	write_to_file("/sys/class/android_usb/android0/functions", module);
-	write_to_file("/sys/class/android_usb/android0/enable", "0");
+	write_to_file("/sys/class/android_usb/android0/enable", "1");
 	if( ret == 0)
 		log_info("Module setting to %s successfully\n", module);
 	return(ret);
