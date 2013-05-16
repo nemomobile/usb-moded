@@ -107,11 +107,66 @@ static int get_mode_configured (void)
   return 1;
 }
 
+static int set_mode (char *mode)
+{
+  DBusMessage *req = NULL, *reply = NULL;
+  char *ret = 0;
+
+  printf("Trying to set the following mode %s\n", mode);
+  if ((req = dbus_message_new_method_call(USB_MODE_SERVICE, USB_MODE_OBJECT, USB_MODE_INTERFACE, USB_MODE_STATE_SET)) != NULL)
+  {
+	dbus_message_append_args (req, DBUS_TYPE_STRING, &mode, DBUS_TYPE_INVALID);
+        if ((reply = dbus_connection_send_with_reply_and_block(conn, req, -1, NULL)) != NULL)
+        {
+            dbus_message_get_args(reply, NULL, DBUS_TYPE_STRING, &ret, DBUS_TYPE_INVALID);
+            dbus_message_unref(reply);
+        }
+        dbus_message_unref(req);
+  }
+
+  if(ret)
+  {
+    printf("mode set = %s\n", ret);
+    return 0;
+  }
+  
+  /* not everything went as planned, return error */
+  return 1;
+}
+
+static int set_mode_config (char *mode)
+{
+  DBusMessage *req = NULL, *reply = NULL;
+  char *ret = 0;
+
+  printf("Trying to set the following mode %s\n", mode);
+  if ((req = dbus_message_new_method_call(USB_MODE_SERVICE, USB_MODE_OBJECT, USB_MODE_INTERFACE, USB_MODE_CONFIG_SET)) != NULL)
+  {
+	dbus_message_append_args (req, DBUS_TYPE_STRING, &mode, DBUS_TYPE_INVALID);
+        if ((reply = dbus_connection_send_with_reply_and_block(conn, req, -1, NULL)) != NULL)
+        {
+            dbus_message_get_args(reply, NULL, DBUS_TYPE_STRING, &ret, DBUS_TYPE_INVALID);
+            dbus_message_unref(reply);
+        }
+        dbus_message_unref(req);
+  }
+
+  if(ret)
+  {
+    printf("mode set in the configuration file = %s\n", ret);
+    return 0;
+  }
+  
+  /* not everything went as planned, return error */
+  return 1;
+}
+
 int main (int argc, char *argv[])
 {
   int query = 0, network = 0, setmode = 0, config = 0;
   int modelist = 0, mode_configured = 0;
   int res = 1, opt;
+  char *option = 0;
 
   if(argc == 1)
   {
@@ -119,11 +174,12 @@ int main (int argc, char *argv[])
     exit(1);
   }
 
-  while ((opt = getopt(argc, argv, "cdhmnqs")) != -1)
+  while ((opt = getopt(argc, argv, "c:dhmn:qs:")) != -1)
   {
 	switch (opt) {
 		case 'c':
 			config = 1;
+			option = optarg;
                         break;
 		case 'd': 
 			mode_configured = 1;
@@ -133,12 +189,14 @@ int main (int argc, char *argv[])
 			break;
 		case 'n':
 			network = 1;
+			option = optarg;
 			break;
 		case 'q':
 			query = 1;
 			break;
 		case 's':
 			setmode = 1;
+			option = optarg;
 			break;
 		case 'h':
                 default:
@@ -173,6 +231,12 @@ int main (int argc, char *argv[])
 	res = get_modelist();
   else if (mode_configured)
 	res = get_mode_configured();
+  else if (setmode)
+	res = set_mode(option);
+  else if (config)
+	res = set_mode_config(option);
+  else if (network)
+	printf("Not implemented yet sorry. \n");
 
   /* subfunctions will return 1 if an error occured, print message */
   if(res)
