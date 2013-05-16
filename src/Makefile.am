@@ -1,4 +1,5 @@
-sbin_PROGRAMS = usb_moded
+sbin_PROGRAMS = usb_moded \
+		usb_moded_util 
 
 usb_moded_CPPFLAGS = \
         $(USB_MODED_CFLAGS)
@@ -86,4 +87,15 @@ usb_moded_SOURCES += \
 	usb_moded-dyn-config.c \
 	usb_moded-dyn-config.h
 endif
+
+usb_moded_util_CPPFLAGS = \
+        $(USB_MODED_CFLAGS)
+
+usb_moded_util_LDFLAGS = \
+	-Wl,--as-needed
+
+usb_moded_util_LDADD = \
+        $(USB_MODED_LIBS)
 	
+usb_moded_util_SOURCES = \
+	usb_moded-util.c
