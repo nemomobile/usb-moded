@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <fcntl.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -40,6 +41,7 @@
 
 static int get_conf_int(const gchar *entry, const gchar *key);
 static const char * get_conf_string(const gchar *entry, const gchar *key);
+static const char * get_kcmdline_string(const char *entry);
 
 const char *find_mounts(void)
 {
@@ -119,6 +121,10 @@ const char * get_trigger_value(void)
 
 const char * get_network_ip(void)
 {
+  const char * ip = get_kcmdline_string(NETWORK_IP_KEY);
+  if (ip != NULL)
+    return(ip);
+
   return(get_conf_string(NETWORK_ENTRY, NETWORK_IP_KEY));
 }
 
@@ -129,6 +135,10 @@ const char * get_network_interface(void)
 
 const char * get_network_gateway(void)
 {
+  const char * gw = get_kcmdline_string(NETWORK_GATEWAY_KEY);
+  if (gw != NULL)
+    return(gw);
+
   return(get_conf_string(NETWORK_ENTRY, NETWORK_GATEWAY_KEY));
 }
 
@@ -218,9 +228,56 @@ static const char * get_conf_string(const gchar *entry, const gchar *key)
 
 }
 
+static const char * get_kcmdline_string(const char *entry)
+{
+  int fd;
+  char cmdLine[1024];
+  const char *ret = NULL;
+  int len;
+  gint argc = 0;
+  gchar **argv = NULL;
+  GError *optErr = NULL;
+  int i;
+
+  if ((fd = open("/proc/cmdline", O_RDONLY)) < 0){
+    log_debug("could not read /proc/cmdline");
+    return(ret);
+  }
+
+  len = read(fd, cmdLine, sizeof(cmdLine) - 1);
+  close(fd);
+
+  if (len <= 0){
+    log_debug("kernel command line was empty");
+    return(ret);
+  }
+
+  cmdLine[len] = '\0';
+
+  if (!g_shell_parse_argv(cmdLine, &argc, &argv, &optErr)) {
+    g_error_free(optErr);
+    return(ret);
+  }
+
+  for (i=0; i < argc; i++) {
+    gchar ** arg_tokens;
+    arg_tokens = g_strsplit(argv[i], "=", 2);
+    if (!g_ascii_strcasecmp(arg_tokens[0], entry)){
+      log_debug("use '%s' for '%s' from kernel command line", arg_tokens[1], entry);
+      return(arg_tokens[1]);
+    }
+  }
+
+  return(ret);
+}
+
 #ifndef GCONF
 const char * get_mode_setting(void)
 {
+  const char * mode = get_kcmdline_string(MODE_SETTING_KEY);
+  if (mode != NULL)
+    return(mode);
+
   return(get_conf_string(MODE_SETTING_ENTRY, MODE_SETTING_KEY));
 }
 
