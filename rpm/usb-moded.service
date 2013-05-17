@@ -1,0 +1,12 @@
+[Unit]
+Description=usb-moded USB gadget controller
+
+[Service]
+Type=simple
+RemainAfterExit=no
+EnvironmentFile=-/var/lib/environment/usb-moded/*.conf
+ExecStart=/usr/sbin/usb_moded $USB_MODED_ARGS
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

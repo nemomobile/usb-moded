@@ -1,0 +1,99 @@
+* Wed May 15 2013 Philippe De Swert <philippedeswert@jollamobile.com> - 0.60
+- Android gadget build version 1
+
+* Thu Jan 17 2013 Philippe De Swert <philippedeswert@jollamobile.com> - 0.57
+- Add random mac address generator
+- Apply the dbus patch so we can remove it from the packaging
+
+* Fri Jan 11 2013 Philippe De Swert <philippedeswert@jollamobile.com> - 0.56
+- Fix possible compiltation issue with N900 support and android which are mutually exclusive
+- Fix g_file_storage fallback which did not work anymore with kmod
+- Warn when using dbus methods to change mode when not connected
+
+* Tue Dec 18 2012 Philippe De Swert <philippedeswert@jollamobile.com> - 0.55
+- Add android gadget driver support (compile time feature)
+- Make udev default
+- Add rescue mode
+- Add softconnect support
+
+* Thu Nov 20 2012 Philippe De Swert <philippe.deswert@jollamobile.com> - 0.54.1
+- Fix configuration file creation when the /etc/usb-moded dir is missing
+
+* Mon Nov 19 2012 Philippe De Swert <philippe.deswert@jollamobile.com> - 0.54
+- Instead of spawning shells with system() use libkmod
+- Make config file optional as defaults work for most devices
+- Add dbus method to set network configuration
+- Basic rescue mode
+
+* Tue Aug 21 2012 Philippe De Swert <philippedeswert@gmail.com> - 0.53
+- Update to the latest and greatest 0.53
+- MTP support for buteo
+- More generic network set-up and configuration
+- Fix bug with charging mode clean-up
+- Compile for all versions of glib
+- Support g_mass_storage and g_file_storage so we do not need to depend on certain kernels
+
+* Tue Aug 21 2012 Marko Saukko <marko.saukko@jollamobile.com> - 0.47
+- Fix build with new glib: usb-moded-0.47-Fix-build-with-newer-glib.patch
+
+* Thu Nov 17 2011 Marko Saukko <marko.saukko@cybercom.com> - 0.47
+- Fixed .service file location from sysinit.target.wants to multi-user.target.wants
+- Removed unused file: usb-moded-0.38-schemas.patch
+
+* Tue Sep 13 2011 Philippe De Swert <philippe.de-swert@nokia.com> - 0.47-0
+- No gconf update from upstream 0.47
+- Remove disconnect patch as this is already upstream
+- Use config options from config file. Fixes: MB#22891
+
+* Thu Sep 01 2011 Philippe De Swert <philippe.de-swert@nokia.com> - 0.44-3
+- Switch to systemd
+
+* Wed Aug 24 2011 Marko Saukko <marko.saukko@cybercom.com> - 0.44-2
+- Changed Obsoletes: nokia-usb-networking to Provides: nokia-usb-networking
+  to fix the build differences with zypp and yum mic backends.
+
+* Thu Jul 21 2011 Philippe De Swert <philippe.de-swert@nokia.com> - 0.44-2
+- Add *temporary* disconnect patch that fixes disconnect issues on N900
+
+* Wed Jun 29 2011 Philippe De Swert <philippe.de-swert@nokia.com> - 0.44-1
+- New upstream version 0.44
+- Split off configuration to its own packages
+
+* Tue Jun 21 2011 Tapio Rantala <ext-tapio.rantala@nokia.com> - 0.41-2
+- Wait for udev to settle, fixes usb not reconnecting after boot
+
+* Tue Jun 07 2011 Tapio Rantala <ext-tapio.rantala@nokia.com> - 0.41-1
+- New upstream version
+
+* Thu May 19 2011 Philippe De Swert <philippe.de-swert@nokia.com> - 0.39-1
+- Update to 0.39 upstream version
+
+* Wed May 18 2011 Philippe De Swert <philippe.de-swert@nokia.com> - 0.36-3
+- Allow set_config in dbus policy so settings UI works
+- Set default mode to ovi_suite so we have networking
+- Set DeveloperMode key so settings UI shows windows_networking/SDK option
+
+* Fri May 13 2011 Philippe De Swert <philippe.de-swert@nokia.com> - 0.36-2
+- use gconf schema instead of gconftool to set-up gconf keys
+
+* Thu Apr 28 2011 Tapio Rantala <ext-tapio.rantala@nokia.com> - 0.36-1
+- New upstream version
+- Set gconf key in postinst
+- Use ifconfig instead of ifup/ifdown
+
+* Thu Apr 21 2011 Tapio Rantala <ext-tapio.rantala@nokia.com> - 0.34+git20110421-1
+- New upstream version
+
+* Mon Apr 18 2011 Tapio Rantala <ext-tapio.rantala@nokia.com> - 0.34+git20110415-2
+- Add /etc/modprobe.d/usb_moded.conf
+- Do not use daemonize in startup, as it causes regressions
+
+* Fri Apr 15 2011 Tapio Rantala <ext-tapio.rantala@nokia.com> - 0.34+git20110415-1
+- New upstream version
+- Refresh n900-config patch to export internal mmc on mass storage mode
+
+* Thu Apr 14 2011 Tapio Rantala <ext-tapio.rantala@nokia.com> - 0.34+git20110412-1
+- New upstream version
+
+* Fri Apr 08 2011 Tapio Rantala <ext-tapio.rantala@nokia.com> - 0.34+git20110408-1
+- Initial MeeGo packaging (FEA#5770)
