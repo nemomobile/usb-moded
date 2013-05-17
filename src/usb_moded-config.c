@@ -239,7 +239,8 @@ static const char * get_kcmdline_string(const char *entry)
   GError *optErr = NULL;
   int i;
 
-  if ((fd = open("/proc/cmdline", O_RDONLY)) < 0){
+  if ((fd = open("/proc/cmdline", O_RDONLY)) < 0)
+  {
     log_debug("could not read /proc/cmdline");
     return(ret);
   }
@@ -247,25 +248,30 @@ static const char * get_kcmdline_string(const char *entry)
   len = read(fd, cmdLine, sizeof(cmdLine) - 1);
   close(fd);
 
-  if (len <= 0){
+  if (len <= 0)
+  {
     log_debug("kernel command line was empty");
     return(ret);
   }
 
   cmdLine[len] = '\0';
 
-  if (!g_shell_parse_argv(cmdLine, &argc, &argv, &optErr)) {
+  if (!g_shell_parse_argv(cmdLine, &argc, &argv, &optErr)) 
+  {
     g_error_free(optErr);
     return(ret);
   }
 
-  for (i=0; i < argc; i++) {
+  for (i=0; i < argc; i++) 
+  {
     gchar ** arg_tokens;
     arg_tokens = g_strsplit(argv[i], "=", 2);
-    if (!g_ascii_strcasecmp(arg_tokens[0], entry)){
+    if (!g_ascii_strcasecmp(arg_tokens[0], entry))
+    {
       log_debug("use '%s' for '%s' from kernel command line", arg_tokens[1], entry);
-      return(arg_tokens[1]);
+      ret = g_strdup(arg_tokens[1]);
     }
+    g_strfreev(arg_tokens);
   }
 
   return(ret);

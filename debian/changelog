@@ -1,9 +1,15 @@
+usb-moded (0.61) unstable; urgency=low
+
+  * Add basic version of usb_moded_util to not having to remember dbus-send commands
+  * Fix small bug in the android mode setting
+  * Add kernel command line support. Thank you Reto Zingg!
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com> Fri, 17 May 2013 14:23:34 +0300
+
 usb-moded (0.60) unstable; urgency=low
 
   * Add dedicated charger tracking 
   * Config file merging support
-  * Add basic version of usb_moded_util to not having to remember dbus-send commands
-  * Fix small bug in the android mode setting
 
  -- Philippe De Swert <philippe.deswert@jollamobile.com> Fri, 10 May 2013 15:56:03 +0300
 
