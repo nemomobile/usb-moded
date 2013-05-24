@@ -236,6 +236,7 @@ static const char * get_kcmdline_string(const char *entry)
   int len;
   gint argc = 0;
   gchar **argv = NULL;
+  gchar **arg_tokens = NULL, **network_tokens = NULL;
   GError *optErr = NULL;
   int i;
 
@@ -257,24 +258,42 @@ static const char * get_kcmdline_string(const char *entry)
   cmdLine[len] = '\0';
 
   /* we're looking for a piece of the kernel command line matching this:
-    ip=192.168.3.100:192.168.3.1::255.255.255.0::usb0:on */
+    ip=192.168.3.100::192.168.3.1:255.255.255.0::usb0:on */
   if (!g_shell_parse_argv(cmdLine, &argc, &argv, &optErr)) 
   {
     g_error_free(optErr);
     return(ret);
   }
 
+  /* find the ip token */
   for (i=0; i < argc; i++) 
   {
-    gchar ** arg_tokens;
     arg_tokens = g_strsplit(argv[i], "=", 2);
-    if (!g_ascii_strcasecmp(arg_tokens[0], entry))
+    if (!g_ascii_strcasecmp(arg_tokens[0], "ip"))
     {
-      log_debug("use '%s' for '%s' from kernel command line", arg_tokens[1], entry);
-      ret = g_strdup(arg_tokens[1]);
+      network_tokens = g_strsplit(arg_tokens[1], ":", 7);
+      /* check if it is for the usb */
+      if(!strcmp(network_tokens[5], "usb0"))
+      {
+	if(!strcmp(entry, NETWORK_IP_KEY))
+	{
+		ret = g_strdup(network_tokens[0]);
+		log_debug("Command line ip = %s\n", ret);
+	}
+	if(!strcmp(entry, NETWORK_GATEWAY_KEY))
+	{
+		/* gateway might be empty, so we do not want to return an empty string */
+		if(strlen(network_tokens[2]) > 2)
+		{
+		  ret = g_strdup(network_tokens[2]);
+		  log_debug("Command line gateway = %s\n", ret);
+		}
+	}
+      } 
     }
-    g_strfreev(arg_tokens);
   }
+  g_strfreev(arg_tokens);
+  g_strfreev(network_tokens);
 
   return(ret);
 }
@@ -440,7 +459,7 @@ int conf_file_merge(void)
 #ifdef UDEV
 	if(udev)
 	{
-		set_settings_option(UDEV_PATH_ENTRY, UDEV_PATH_KEY, udev);
+		set_config_setting(UDEV_PATH_ENTRY, UDEV_PATH_KEY, udev);
 	}
 #endif /* UDEV */
   }

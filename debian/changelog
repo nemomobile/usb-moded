@@ -1,3 +1,10 @@
+usb-moded (0.62) unstable; urgency=low
+
+  * Kernel command line parameters are now in sync with regular kernel command parameters
+  * Save the udev path setting in config file merging so it does not get lost on upgrades
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com> Fri, 24 May 2013 17:20:54 +0300
+
 usb-moded (0.61) unstable; urgency=low
 
   * Add basic version of usb_moded_util to not having to remember dbus-send commands

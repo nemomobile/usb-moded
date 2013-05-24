@@ -124,9 +124,17 @@ change and udev rules / network manager etc will not think it is a new device ea
 This mac is stored using the default modprobe configuration and thus will be in /etc/modprobe.d/g_ether.conf
 If this file exits usb_moded will assume there is a default mac set and will not do anything.
 
-It is possible to set the configuration on the kernel command line also. Just add a valid keypair in the kernel command line.
+It is possible to set the configuration on the kernel command line also. For this the regular ip setting from the kernel is
+being re-used. 
 
-for example :  ip=192.168.2.15 gateway=192.168.2.2 mode=developer_mode
+The format followed is:
+ip=<client-ip>:<server-ip>:<gw-ip>:<netmask>:<hostname>:<device>:<autoconf>
+
+For more info see the kernel source: Documentation/filesystems/nfs/nfsroot.txt
+
+for example : ip=192.168.3.100::192.168.3.1:255.255.255.0::usb0:on
+
+NOTE: The device must be usb0! The autoconf value is ignored.
 
 Functional overview
 --------------------
