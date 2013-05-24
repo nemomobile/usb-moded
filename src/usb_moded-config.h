@@ -20,7 +20,7 @@
 */
 
 
-#define CONFIG_FILE_DIR			"/tmp/etc/usb-moded"
+#define CONFIG_FILE_DIR			"/etc/usb-moded"
 #define FS_MOUNT_CONFIG_FILE		CONFIG_FILE_DIR"/usb-moded.ini"
 
 #define MODE_SETTING_ENTRY		"usbmode"

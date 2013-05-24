@@ -256,6 +256,8 @@ static const char * get_kcmdline_string(const char *entry)
 
   cmdLine[len] = '\0';
 
+  /* we're looking for a piece of the kernel command line matching this:
+    ip=192.168.3.100:192.168.3.1::255.255.255.0::usb0:on */
   if (!g_shell_parse_argv(cmdLine, &argc, &argv, &optErr)) 
   {
     g_error_free(optErr);
