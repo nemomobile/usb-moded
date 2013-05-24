@@ -20,7 +20,7 @@
 */
 
 
-#define CONFIG_FILE_DIR			"/etc/usb-moded"
+#define CONFIG_FILE_DIR			"/tmp/etc/usb-moded"
 #define FS_MOUNT_CONFIG_FILE		CONFIG_FILE_DIR"/usb-moded.ini"
 
 #define MODE_SETTING_ENTRY		"usbmode"
@@ -76,7 +76,7 @@ const char * get_trigger_value(void);
 const char * get_network_ip(void);
 const char * get_network_interface(void);
 const char * get_network_gateway(void);
-
 const char * get_soft_connect_path(void);
 
 int conf_file_merge(void);
+int set_config_setting(const char *entry, const char *key, const char *value);

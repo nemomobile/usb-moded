@@ -287,7 +287,7 @@ const char * get_mode_setting(void)
   return(get_conf_string(MODE_SETTING_ENTRY, MODE_SETTING_KEY));
 }
 
-int set_mode_setting(const char *mode)
+int set_config_setting(const char *entry, const char *key, const char *value)
 {
   GKeyFile *settingsfile;
   gboolean test = FALSE;
@@ -302,7 +302,7 @@ int set_mode_setting(const char *mode)
       create_conf_file();
   }
 
-  g_key_file_set_string(settingsfile, MODE_SETTING_ENTRY, MODE_SETTING_KEY, mode);
+  g_key_file_set_string(settingsfile, entry, key, value);
   keyfile = g_key_file_to_data (settingsfile, NULL, NULL); 
   /* free the settingsfile before writing things out to be sure 
      the contents will be correctly written to file afterwards.
@@ -312,6 +312,11 @@ int set_mode_setting(const char *mode)
   
   /* g_file_set_contents returns 1 on succes, since set_mode_settings returns 0 on succes we return the ! value */
   return(!ret);
+}
+
+int set_mode_setting(const char *mode)
+{
+  return (set_config_setting(MODE_SETTING_ENTRY, MODE_SETTING_KEY, mode));
 }
 
 int set_network_setting(const char *config, const char *setting)
@@ -359,6 +364,9 @@ int conf_file_merge(void)
   GString *keyfile_string = NULL;
   GKeyFile *settingsfile;
   int ret = 0, test = 0;
+#ifdef UDEV
+  const gchar *udev = 0;
+#endif /* UDEV */
 
   confdir = g_dir_open(CONFIG_FILE_DIR, 0, NULL);
   if(!confdir)
@@ -395,6 +403,10 @@ int conf_file_merge(void)
 	{
 		/* store mode info to add it later as we want to keep it */
 		mode = get_mode_setting();
+#ifdef UDEV
+		/* store udev path (especially important for the upgrade path */
+		udev = find_udev_path();
+#endif /* UDEV */
 		break;
 	}
 	/* load contents of file, if it fails skip to next one */
@@ -423,11 +435,22 @@ int conf_file_merge(void)
 	{
 		set_mode_setting(mode);
 	}
+#ifdef UDEV
+	if(udev)
+	{
+		set_settings_option(UDEV_PATH_ENTRY, UDEV_PATH_KEY, udev);
+	}
+#endif /* UDEV */
   }
   else
 	ret = 1;
   if(mode)
   	free((void *)mode);
+#ifdef UDEV
+  if(udev)
+	free((void *)udev);
+#endif /* UDEV */
+
   g_dir_close(confdir);
   return(ret);
 }
