@@ -296,6 +296,14 @@ int set_dynamic_mode(struct mode_list_elem *data)
 	usb_network_up();
 #endif /* DEBIAN */
   }
+  if(data->sysfs_path)
+  {
+	write_to_file(data->sysfs_path, data->sysfs_value);
+  }
+  if(data->softconnect)
+  {
+	write_to_file(data->softconnect_path, data->softconnect);
+  }
 
   return(0);
 }

@@ -32,7 +32,6 @@
 #define MODULE_NONE             "none"
 #define MODULE_DEVELOPER	"g_ether"
 #define MODULE_MTP		"g_ffs"
-#define MODULE_NONE		"none"
 
 /* load module */
 int usb_moded_load_module(const char *module);

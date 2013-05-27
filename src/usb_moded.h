@@ -35,6 +35,8 @@
 #include <glib-2.0/glib.h>
 #include <glib-object.h>
 
+#include "usb_moded-dyn-config.h"
+
 #define USB_MODED_LOCKFILE	"/var/run/usb_moded.pid"
 #define MAX_READ_BUF 512
 
@@ -44,10 +46,11 @@
 typedef struct usb_mode  
 {
   /*@{*/
-  gboolean connected; 	/* connection status, 1 for connected */
-  gboolean mounted;  	/* mount status, 1 for mounted -UNUSED atm- */
-  char *mode;  		/* the mode name */
-  char *module; 	/* the module name for the specific mode */
+  gboolean connected; 		/* connection status, 1 for connected */
+  gboolean mounted;  		/* mount status, 1 for mounted -UNUSED atm- */
+  char *mode;  			/* the mode name */
+  char *module; 		/* the module name for the specific mode */
+  struct mode_list_elem *data;  /* contains the mode data */
   /*@}*/
 }usb_mode;
 
@@ -57,6 +60,8 @@ void set_usb_mode(const char *mode);
 const char * get_usb_mode(void);
 void set_usb_module(const char *module);
 const char * get_usb_module(void);
+void set_usb_mode_data(struct mode_list_elem *data);
+struct mode_list_elem * get_usb_mode_data(void);
 gboolean get_usb_connection_state(void);
 void set_usb_connection_state(gboolean state);
 void set_charger_connected(gboolean state);

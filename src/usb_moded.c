@@ -279,16 +279,20 @@ void set_usb_mode(const char *mode)
 	set_usb_module(data->mode_module);
 	ret = usb_moded_load_module(data->mode_module);
         ret = set_dynamic_mode(data);
+	set_usb_mode_data(data);
       }
     }
   }
 
 end:
-  /* if ret != 0 then usb_module loading failed */
+  /* if ret != 0 then usb_module loading failed 
+     no mode matched or MODE_UNDEFINED was requested */
   if(ret)
   {
 	  set_usb_module(MODULE_NONE);
 	  mode = MODE_UNDEFINED;
+	  /*TODO: unset_dynamic_mode */
+	  set_usb_mode_data(NULL);
   }
   if(net)
     log_debug("Network setting failed!\n");
@@ -410,6 +414,26 @@ inline gboolean get_usb_connection_state(void)
 inline void set_usb_connection_state(gboolean state)
 {
 	current_mode.connected = state;
+}
+
+/** set the mode_list_elem data
+ *
+ * @param data mode_list_element pointer
+ *
+*/
+void set_usb_mode_data(struct mode_list_elem *data)
+{
+  current_mode.data = data;
+}
+
+/** get the usb mode data 
+ *
+ * @return a pointer to the usb mode data
+ *
+ */
+inline struct mode_list_elem * get_usb_mode_data(void)
+{
+  return(current_mode.data);
 }
 
 /*================  Static functions ===================================== */
