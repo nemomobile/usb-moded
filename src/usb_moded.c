@@ -259,48 +259,10 @@ void set_usb_mode(const char *mode)
 	ret = usb_moded_load_module(MODULE_CHARGING);
 	goto end;
   }
-  if(!strcmp(mode, MODE_MASS_STORAGE))
-  {
-
-       check_module_state(MODULE_MASS_STORAGE);
-       /* now proceed to set the mode correctly */
-       set_usb_module(MODULE_MASS_STORAGE);
-       ret = usb_moded_load_module(MODULE_MASS_STORAGE);
-       if(!ret)
-               ret = set_mass_storage_mode();
-       goto end;
-  }
-  else if(!strcmp(mode, MODE_DEVELOPER))
-  {
-	check_module_state(MODULE_DEVELOPER);
-	set_usb_module(MODULE_DEVELOPER);
-	ret = usb_moded_load_module(MODULE_DEVELOPER);
-	net = usb_network_up();	
-	goto end;
-  }
-#ifdef N900 
-  else if(!strcmp(mode, MODE_OVI_SUITE))
-  {
-	check_module_state(MODULE_NETWORK);
- 	set_usb_module(MODULE_NETWORK);
-	ret = usb_moded_load_module(MODULE_NETWORK_MTP);
-	if(!ret)
-		ret = set_ovi_suite_mode();
-	goto end;
-  } 
-#endif /* N900 */
-  else if(!strcmp(mode, MODE_MTP))
-  {
-	check_module_state(MODULE_MTP);
-	set_usb_module(MODULE_MTP);
-	ret = usb_moded_load_module(MODULE_MTP);
-	if(!ret)
-		ret = set_mtp_mode();
-	goto end;
-  }
   else if(!strcmp(mode, MODE_ASK) || !strcmp(mode, MODE_CHARGER))
   {
 	ret = 0;
+	goto end;
   }
 
   /* go through all the dynamic modes if the modelist exists*/
