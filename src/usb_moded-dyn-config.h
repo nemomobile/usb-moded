@@ -31,6 +31,10 @@
 #define MODE_NEEDS_APPSYNC_KEY		"appsync"
 #define MODE_NETWORK_KEY		"network"
 #define MODE_NETWORK_INTERFACE_KEY	"network_interface"
+#define MODE_SYSFS_PATH			"sysfs_path"
+#define MODE_SYSFS_VALUE		"sysfs_value"
+#define MODE_SOFTCONNECT		"softconnect"
+#define MODE_SOFTCONNECT_PATH		"softconnect_path"
 
 /**
  * Struct keeping all the data needed for the definition of a dynamic mode

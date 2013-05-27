@@ -31,15 +31,8 @@ usb_moded_SOURCES = \
  	usb_moded-mac.c \
 	usb_moded-mac.h \
 	usb_moded-dyn-config.c \
-	usb_moded-dyn-config.h
-
-if !ANDROID
-usb_moded_SOURCES += \
+	usb_moded-dyn-config.h \
 	usb_moded-modules.c 
-else
-usb_moded_SOURCES += \
-	usb_moded-modules-android.c 
-endif
 
 if GCONF
 usb_moded_SOURCES += \

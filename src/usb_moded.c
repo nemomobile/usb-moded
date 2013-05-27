@@ -259,8 +259,18 @@ void set_usb_mode(const char *mode)
 	ret = usb_moded_load_module(MODULE_CHARGING);
 	goto end;
   }
-<<<<<<< HEAD
-else if(!strcmp(mode, MODE_DEVELOPER))
+  if(!strcmp(mode, MODE_MASS_STORAGE))
+  {
+
+       check_module_state(MODULE_MASS_STORAGE);
+       /* now proceed to set the mode correctly */
+       set_usb_module(MODULE_MASS_STORAGE);
+       ret = usb_moded_load_module(MODULE_MASS_STORAGE);
+       if(!ret)
+               ret = set_mass_storage_mode();
+       goto end;
+  }
+  else if(!strcmp(mode, MODE_DEVELOPER))
   {
 	check_module_state(MODULE_DEVELOPER);
 	set_usb_module(MODULE_DEVELOPER);
@@ -268,7 +278,6 @@ else if(!strcmp(mode, MODE_DEVELOPER))
 	net = usb_network_up();	
 	goto end;
   }
-#ifndef ANDROID
 #ifdef N900 
   else if(!strcmp(mode, MODE_OVI_SUITE))
   {
@@ -280,7 +289,6 @@ else if(!strcmp(mode, MODE_DEVELOPER))
 	goto end;
   } 
 #endif /* N900 */
-#endif /* ANDROID */
   else if(!strcmp(mode, MODE_MTP))
   {
 	check_module_state(MODULE_MTP);
