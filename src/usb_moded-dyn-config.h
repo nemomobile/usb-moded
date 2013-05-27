@@ -31,6 +31,7 @@
 #define MODE_NEEDS_APPSYNC_KEY		"appsync"
 #define MODE_NETWORK_KEY		"network"
 #define MODE_NETWORK_INTERFACE_KEY	"network_interface"
+#define MODE_OPTIONS_ENTRY		"options"
 #define MODE_SYSFS_PATH			"sysfs_path"
 #define MODE_SYSFS_VALUE		"sysfs_value"
 #define MODE_SOFTCONNECT		"softconnect"
@@ -47,6 +48,10 @@ typedef struct mode_list_elem
   int appsync;			/* requires appsync or not */
   int network;			/* bring up network or not */
   char *network_interface;	/* Which network interface to bring up if network needs to be enabled */
+  char *sysfs_path;		/* path to set sysfs options */
+  char *sysfs_value;		/* option name/value to write to sysfs */
+  char *softconnect;		/* value to be written to softconnect interface */
+  char *softconnect_path;	/* path for the softconnect */
   /*@} */
 }mode_list_elem;
 

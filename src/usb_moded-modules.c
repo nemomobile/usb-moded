@@ -55,8 +55,12 @@ int usb_moded_load_module(const char *module)
 {
 	int ret = 0;
 	const char * softconnect;
+
 #ifdef NO_KMOD
 	gchar *command; 
+	
+	if(!strcmp(module, MODULE_NONE))
+		return 0;
 	
 	command = g_strconcat("modprobe ", module, NULL);
 	ret = system(command);
@@ -76,7 +80,10 @@ int usb_moded_load_module(const char *module)
 	struct kmod_module *mod;
 	char *charging_args = NULL;
 	char *load = NULL;
-	
+
+	if(!strcmp(module, MODULE_NONE))
+		return 0;
+
 	/* copy module to load as it might be modified if we're trying charging mode */
 	load = strdup(module);
 	if(!strcmp(module, MODULE_CHARGING) || !strcmp(module, MODULE_CHARGE_FALLBACK))
@@ -140,14 +147,21 @@ int usb_moded_unload_module(const char *module)
 	int ret = 0;
 	const char * softconnect;
 
+
 #ifdef NO_KMOD
 	gchar *command;
+
+	if(!strcmp(module, MODULE_NONE))
+		return 0;
 
 	command = g_strconcat("rmmod ", module, NULL);
 	ret = system(command);
 	g_free(command);
 #else
 	struct kmod_module *mod;
+
+	if(!strcmp(module, MODULE_NONE))
+		return 0;
 
 	kmod_module_new_from_name(ctx, module, &mod);
 	ret = kmod_module_remove_module(mod, KMOD_REMOVE_NOWAIT);
