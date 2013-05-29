@@ -308,6 +308,23 @@ int set_dynamic_mode(struct mode_list_elem *data)
   return(0);
 }
 
+void unset_dynamic_mode(void)
+{ 
+
+  struct mode_list_elem *data; 
+
+  data = get_usb_mode_data();
+  if(data->sysfs_path)
+  {
+	write_to_file(data->sysfs_path, data->sysfs_reset_value);
+  }
+  if(data->softconnect)
+  {
+	write_to_file(data->softconnect_path, data->softconnect_disconnect);
+  }
+
+}
+
 #ifdef NOKIA
 gboolean export_cdrom(gpointer data)
 {

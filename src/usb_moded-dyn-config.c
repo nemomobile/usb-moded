@@ -84,7 +84,9 @@ static struct mode_list_elem *read_mode_file(const gchar *filename)
   list_item->network_interface = g_key_file_get_string(settingsfile, MODE_ENTRY, MODE_NETWORK_INTERFACE_KEY, NULL);
   list_item->sysfs_path = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SYSFS_PATH, NULL);
   list_item->sysfs_value = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SYSFS_VALUE, NULL);
+  list_item->sysfs_reset_value = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SYSFS_RESET_VALUE, NULL);
   list_item->softconnect = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SOFTCONNECT, NULL);
+  list_item->softconnect_disconnect = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SOFTCONNECT_DISCONNECT, NULL);
   list_item->softconnect_path = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SOFTCONNECT_PATH, NULL);
   g_key_file_free(settingsfile);
   if(list_item->mode_name == NULL || list_item->mode_module == NULL)

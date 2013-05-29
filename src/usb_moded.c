@@ -291,7 +291,7 @@ end:
   {
 	  set_usb_module(MODULE_NONE);
 	  mode = MODE_UNDEFINED;
-	  /*TODO: unset_dynamic_mode */
+	  unset_dynamic_mode();
 	  set_usb_mode_data(NULL);
   }
   if(net)

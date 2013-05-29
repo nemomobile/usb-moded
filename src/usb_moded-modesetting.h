@@ -30,6 +30,7 @@ int set_mass_storage_mode(void);
 int set_ovi_suite_mode(void);
 int set_mtp_mode(void);
 int set_dynamic_mode(struct mode_list_elem *data);
+void unset_dynamic_mode(void);
 /* clean up for the mode changes on disconnect */
 int usb_moded_mode_cleanup(const char *module);
 #ifdef NOKIA
