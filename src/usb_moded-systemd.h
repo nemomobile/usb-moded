@@ -19,4 +19,7 @@
   02110-1301 USA
 */
 
+#define SYSTEMD_STOP	"StopUnit"
+#define SYSTEMD_START   "StartUnit"
+
 int systemd_control_service(const char *name, const char *method);

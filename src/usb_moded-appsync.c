@@ -39,6 +39,7 @@
 #include "usb_moded-modesetting.h"
 #include "usb_moded-log.h"
 #include "usb_moded-upstart.h"
+#include "usb_moded-systemd.h"
 
 static struct list_elem *read_file(const gchar *filename);
 static gboolean enumerate_usb(gpointer data);
@@ -205,6 +206,8 @@ int activate_sync(const char *mode)
       log_debug("launching app %s\n", data->launch);
       if(data->systemd)
       {
+        if(!systemd_control_service(data->name, SYSTEMD_START))
+		mark_active(data->name);
       }
 #ifdef UPSTART
       else if(data->upstart)
@@ -306,6 +309,8 @@ int appsync_stop(void)
 
     if(data->systemd)
     {
+        if(!systemd_control_service(data->name, SYSTEMD_STOP))
+		mark_active(data->name);
     }
 #ifdef UPSTART
     else if(data->upstart)
