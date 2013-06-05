@@ -32,6 +32,8 @@ usb_moded_SOURCES = \
 	usb_moded-mac.h \
 	usb_moded-dyn-config.c \
 	usb_moded-dyn-config.h \
+	usb_moded-systemd.c \
+	usb_moded-systemd.h \
 	usb_moded-modules.c 
 
 if GCONF
