@@ -234,8 +234,8 @@ static void report_mass_storage_blocker(const char *mountpoint, int try)
 
 }
 
-
-/* TODO: clean up buteo-mtp hack */
+#if 0
+/* NOT NEEDED ANYMORE?  : clean up buteo-mtp hack */
 int set_mtp_mode(void)
 {
   mkdir("/dev/mtp", S_IRWXO|S_IRWXU);
@@ -244,6 +244,7 @@ int set_mtp_mode(void)
 
   return 0;
 }
+#endif
 
 #ifdef N900
 int set_ovi_suite_mode(void)

@@ -310,8 +310,8 @@ end:
 int valid_mode(const char *mode)
 {
 
-  if(!strcmp(MODE_MASS_STORAGE, mode) || !strcmp(MODE_OVI_SUITE, mode) || !strcmp(MODE_CHARGING, mode) ||
-     !strcmp(MODE_DEVELOPER,mode) || !strcmp(MODE_MTP,mode))
+  /* MODE_ASK and MODE_CHARGER are not modes that are settable seen their special status */
+  if(!strcmp(MODE_CHARGING, mode))
 	return(0);
   else
   {
