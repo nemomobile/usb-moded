@@ -366,7 +366,9 @@ int usb_moded_mode_cleanup(const char *module)
 
 	log_debug("Cleaning up mode\n");
 
+#ifdef APP_SYNC
 	appsync_stop();
+#endif /* APP_SYNC */
 
         if(!strcmp(module, MODULE_MASS_STORAGE)|| !strcmp(module, MODULE_FILE_STORAGE))
         {
