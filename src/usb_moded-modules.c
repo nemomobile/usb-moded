@@ -133,6 +133,8 @@ int usb_moded_load_module(const char *module)
 	}
 	if( ret == 0)
 		log_info("Module %s loaded successfully\n", module);
+	else
+		log_info("Module %s failed to load\n", module);
 	return(ret);
 }
 

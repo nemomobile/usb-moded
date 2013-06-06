@@ -511,6 +511,7 @@ static gboolean charging_fallback(gpointer data)
   */
   free(current_mode.mode);
   current_mode.mode = strdup(MODE_ASK);
+  current_mode.data = NULL;
   charging_timeout = 0;
   log_info("Falling back on charging mode.\n");
 	

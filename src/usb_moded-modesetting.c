@@ -315,6 +315,10 @@ void unset_dynamic_mode(void)
   struct mode_list_elem *data; 
 
   data = get_usb_mode_data();
+  /* the modelist could be empty */
+  if(!data)
+	return;
+
   if(data->sysfs_path)
   {
 	write_to_file(data->sysfs_path, data->sysfs_reset_value);
