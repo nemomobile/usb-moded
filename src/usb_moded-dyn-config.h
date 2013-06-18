@@ -34,7 +34,7 @@
 #define MODE_OPTIONS_ENTRY		"options"
 #define MODE_SYSFS_PATH			"sysfs_path"
 #define MODE_SYSFS_VALUE		"sysfs_value"
-#define MODE_SYSFS_RESET_VALUE		"sysfs_value"
+#define MODE_SYSFS_RESET_VALUE		"sysfs_reset_value"
 #define MODE_SOFTCONNECT		"softconnect"
 #define MODE_SOFTCONNECT_DISCONNECT	"softconnec_disconnect"
 #define MODE_SOFTCONNECT_PATH		"softconnect_path"
@@ -54,7 +54,7 @@ typedef struct mode_list_elem
   char *sysfs_value;		/* option name/value to write to sysfs */
   char *sysfs_reset_value;	/* value to reset the the sysfs to default */
   char *softconnect;		/* value to be written to softconnect interface */
-  char *softconnect_disconnect; /* vlaue to set on the softconnect interface to disable after disconnect */
+  char *softconnect_disconnect; /* value to set on the softconnect interface to disable after disconnect */
   char *softconnect_path;	/* path for the softconnect */
   /*@} */
 }mode_list_elem;
