@@ -297,10 +297,12 @@ int set_dynamic_mode(struct mode_list_elem *data)
 	usb_network_up(data);
 #endif /* DEBIAN */
   }
+
+  /* set functionality first, then enable */
   if(data->sysfs_path)
   {
 	write_to_file(data->sysfs_path, data->sysfs_value);
-	log_debug("writing to file %s, value %s\n", data->sysfs_path, data->sysfs_reset_value);
+	log_debug("writing to file %s, value %s\n", data->sysfs_path, data->sysfs_value);
   }
   if(data->softconnect)
   {
@@ -320,14 +322,15 @@ void unset_dynamic_mode(void)
   if(!data)
 	return;
 
+  /* disconnect before changing functionality */
+  if(data->softconnect)
+  {
+	write_to_file(data->softconnect_path, data->softconnect_disconnect);
+  }
   if(data->sysfs_path)
   {
 	write_to_file(data->sysfs_path, data->sysfs_reset_value);
 	log_debug("writing to file %s, value %s\n", data->sysfs_path, data->sysfs_reset_value);
-  }
-  if(data->softconnect)
-  {
-	write_to_file(data->softconnect_path, data->softconnect_disconnect);
   }
 
 }
