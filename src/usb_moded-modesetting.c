@@ -239,7 +239,7 @@ static void report_mass_storage_blocker(const char *mountpoint, int try)
 int set_mtp_mode(void)
 {
   mkdir("/dev/mtp", S_IRWXO|S_IRWXU);
-  system("mount -t functionfs mtp  -o gid=1000,mode=0770 /dev/mtp\n");	
+  system("mount -t functionfs mtp  -o gid=10000,mode=0770 /dev/mtp\n");	
   system("buteo-mtp start\n");
 
   return 0;
