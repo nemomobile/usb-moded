@@ -436,13 +436,15 @@ int conf_file_merge(void)
 	if(!test)
 	{
 		log_debug("%d failed loading config file %s\n", test, filename_full);
-		g_free(filename_full);
+		goto next;
 	}
-	g_free(filename_full);
         log_debug("file data = %s\n", g_key_file_to_data(settingsfile, NULL, NULL));
 	keyfile_string = g_string_append(keyfile_string, g_key_file_to_data(settingsfile, NULL, NULL));
 	log_debug("keyfile_string = %s\n", keyfile_string->str);
   	g_key_file_free(settingsfile);
+
+next:	
+	g_free(filename_full);
   }
 
   if(keyfile_string)

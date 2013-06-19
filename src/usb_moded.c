@@ -249,6 +249,8 @@ void set_usb_mode(const char *mode)
 {
   /* set return to 1 to be sure to error out if no matching mode is found either */
   int ret=1, net=0;
+
+  log_debug("Setting %s\n", mode);
   
   if(!strcmp(mode, MODE_CHARGING))
   {
@@ -275,6 +277,7 @@ void set_usb_mode(const char *mode)
       struct mode_list_elem *data = iter->data;
       if(!strcmp(mode, data->mode_name))
       {
+	log_debug("Matching mode %s found.\n", mode);
   	check_module_state(data->mode_module);
 	set_usb_module(data->mode_module);
 	ret = usb_moded_load_module(data->mode_module);
