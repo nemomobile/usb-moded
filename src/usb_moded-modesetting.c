@@ -290,7 +290,11 @@ int set_dynamic_mode(void)
   if(data->appsync)
   	activate_sync(data->mode_name);
 #endif
-
+  /* make sure things are disabled before changing functionality */
+  if(data->softconnect)
+  {
+	write_to_file(data->softconnect_path, data->softconnect_disconnect);
+  }
   /* set functionality first, then enable */
   if(data->sysfs_path)
   {
