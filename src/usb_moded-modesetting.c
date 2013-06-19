@@ -279,24 +279,17 @@ int set_ovi_suite_mode(void)
 }
 #endif /* N900 */
 
-int set_dynamic_mode(struct mode_list_elem *data)
+int set_dynamic_mode(void)
 {
+
+  struct mode_list_elem *data; 
+
+  data = get_usb_mode_data();
+
 #ifdef APP_SYNC
   if(data->appsync)
   	activate_sync(data->mode_name);
 #endif
-  if(data->network)
-  {
-#ifdef DEBIAN
-  	char command[256];
-
-	g_snprintf(command, 256, "ifdown %s ; ifup %s", data->network_interface, data->network_interface);
-        system(command);
-#else
-	usb_network_down(data);
-	usb_network_up(data);
-#endif /* DEBIAN */
-  }
 
   /* set functionality first, then enable */
   if(data->sysfs_path)
@@ -309,6 +302,19 @@ int set_dynamic_mode(struct mode_list_elem *data)
 	write_to_file(data->softconnect_path, data->softconnect);
   }
 
+  /* functionality should be enabled, so we can enable the network now */
+  if(data->network)
+  {
+#ifdef DEBIAN
+  	char command[256];
+
+	g_snprintf(command, 256, "ifdown %s ; ifup %s", data->network_interface, data->network_interface);
+        system(command);
+#else
+	usb_network_down(data);
+	usb_network_up(data);
+#endif /* DEBIAN */
+  }
   return(0);
 }
 
@@ -318,6 +324,7 @@ void unset_dynamic_mode(void)
   struct mode_list_elem *data; 
 
   data = get_usb_mode_data();
+
   /* the modelist could be empty */
   if(!data)
 	return;
@@ -456,6 +463,8 @@ int usb_moded_mode_cleanup(const char *module)
 		system("umount /dev/mtp");
 	}
 
+	if(get_usb_mode_data())
+		unset_dynamic_mode();
 
         return(ret);
 }
