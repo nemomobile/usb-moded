@@ -89,7 +89,6 @@ int usb_network_up(struct mode_list_elem *data)
   else
   	interface = get_network_interface();
   ip = get_network_ip();
-  	interface = get_network_interface();
   gateway = get_network_gateway();
   if(ip == NULL)
   {
