@@ -1,4 +1,4 @@
-AC_INIT([usb_moded], [0.62.1])
+AC_INIT([usb_moded], [0.63])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AM_CONFIG_HEADER([config.h])
@@ -78,14 +78,6 @@ AC_ARG_ENABLE([app_sync], AS_HELP_STRING([--enable-app-sync], [Enable applicatio
    esac],[app_sync=false])
 AM_CONDITIONAL([APP_SYNC], [test x$app_sync = xtrue])
 
-AC_ARG_ENABLE([dynamic_modes], AS_HELP_STRING([--enable-dynamic-modes], [Enable adding modes with ini files @<:@default=false@:>@]),
-  [case "${enableval}" in
-   yes) dynamic_modes=true ; CFLAGS="-DDYN_MODE $CFLAGS" ;;
-   no)  dynamic_modes=false ;;
-   *) AC_MSG_ERROR([bad value ${enableval} for --enable-dynamic-modes]) ;;
-   esac],[dynamic_modes=false])
-AM_CONDITIONAL([DYN_MODE], [test x$dynamic_modes = xtrue])
-
 AC_ARG_ENABLE([hal], AS_HELP_STRING([--enable-hal], [Enable deprecated hal interface (use --disable-udev also) @<:@default=false@:>@]),
   [case "${enableval}" in
    yes) hal=true ; CFLAGS="-DHAL -I/usr/include/hal -lhal $CFLAGS" ;;
@@ -109,14 +101,6 @@ AC_ARG_ENABLE([upstart], AS_HELP_STRING([--enable-upstart], [Enable upstart inte
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-upstart]) ;;
    esac],[upstart=false])
 AM_CONDITIONAL([UPSTART], [test x$upstart = xtrue])
-
-AC_ARG_ENABLE([android], AS_HELP_STRING([--enable-android], [Enable Android "module" interface @<:@default=false@:>@]),
-  [case "${enableval}" in
-   yes) android=true ; CFLAGS="-DANDROID $CFLAGS" ;;
-   no)  android=false ;;
-   *) AC_MSG_ERROR([bad value ${enableval} for --enable-android]) ;;
-   esac],[android=false])
-AM_CONDITIONAL([ANDROID], [test x$android = xtrue])
 
 #TODO: Figure out how to check for this depending on the gconf flag
 # gconf-2.0 >= 2.16.0

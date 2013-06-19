@@ -39,6 +39,7 @@
 #include "usb_moded-modesetting.h"
 #include "usb_moded-log.h"
 #include "usb_moded-upstart.h"
+#include "usb_moded-systemd.h"
 
 static struct list_elem *read_file(const gchar *filename);
 static gboolean enumerate_usb(gpointer data);
@@ -126,6 +127,8 @@ static struct list_elem *read_file(const gchar *filename)
   log_debug("Launch mode = %s\n", list_item->mode);
   list_item->upstart = g_key_file_get_integer(settingsfile, APP_INFO_ENTRY, APP_INFO_UPSTART_KEY, NULL);
   log_debug("Upstart control = %d\n", list_item->upstart);
+  list_item->systemd = g_key_file_get_integer(settingsfile, APP_INFO_ENTRY, APP_INFO_SYSTEMD_KEY, NULL);
+  log_debug("Systemd control = %d\n", list_item->systemd);
 
 cleanup:
 
@@ -201,14 +204,19 @@ int activate_sync(const char *mode)
     if(!strcmp(mode, data->mode))
     {
       log_debug("launching app %s\n", data->launch);
+      if(data->systemd)
+      {
+        if(!systemd_control_service(data->name, SYSTEMD_START))
+		mark_active(data->name);
+      }
 #ifdef UPSTART
-      if(data->upstart)
+      else if(data->upstart)
       {
 	if(!upstart_control_job(data->name, UPSTART_START))	
 		mark_active(data->name);
       }
-      else
 #endif /* UPSTART */
+      else
       	usb_moded_dbus_app_launch(data->launch);
     }
   }
@@ -291,7 +299,6 @@ static gboolean enumerate_usb(gpointer data)
   return FALSE;
 }
 
-#ifdef UPSTART
 int appsync_stop(void)
 {
   GList *iter = 0;
@@ -299,14 +306,21 @@ int appsync_stop(void)
   for( iter = sync_list; iter; iter = g_list_next(iter) )
   {
     struct list_elem *data = iter->data;
-    if(data->upstart)
+
+    if(data->systemd)
+    {
+        if(!systemd_control_service(data->name, SYSTEMD_STOP))
+		mark_active(data->name);
+    }
+#ifdef UPSTART
+    else if(data->upstart)
     {
       log_debug("Stopping %s\n", data->launch);
       if(upstart_control_job(data->name, UPSTART_STOP))
 	log_debug("Failed to stop %s\n", data->name);
     }
+#endif /* UPSTART */
   }
 
   return(0);
 }
-#endif /* UPSTART */

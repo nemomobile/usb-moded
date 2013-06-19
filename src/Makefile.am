@@ -29,15 +29,10 @@ usb_moded_SOURCES = \
 	usb_moded-modesetting.c \
 	usb_moded-modesetting.h \
  	usb_moded-mac.c \
-	usb_moded-mac.h
-
-if !ANDROID
-usb_moded_SOURCES += \
+	usb_moded-mac.h \
+	usb_moded-dyn-config.c \
+	usb_moded-dyn-config.h \
 	usb_moded-modules.c 
-else
-usb_moded_SOURCES += \
-	usb_moded-modules-android.c 
-endif
 
 if GCONF
 usb_moded_SOURCES += \
@@ -73,6 +68,8 @@ usb_moded_SOURCES += \
 	usb_moded-appsync.h \
 	usb_moded-appsync-dbus.c \
 	usb_moded-appsync-dbus.h \
+	usb_moded-systemd.c \
+	usb_moded-systemd.h \
 	usb_moded-appsync-dbus-private.h 
 endif
 
@@ -80,12 +77,6 @@ if UPSTART
 usb_moded_SOURCES += \
 	usb_moded-upstart.h \
 	usb_moded-upstart.c
-endif
-
-if DYN_MODE
-usb_moded_SOURCES += \
-	usb_moded-dyn-config.c \
-	usb_moded-dyn-config.h
 endif
 
 usb_moded_util_CPPFLAGS = \

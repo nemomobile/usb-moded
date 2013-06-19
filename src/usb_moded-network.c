@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <glib.h>
+
 #include "usb_moded-network.h"
 #include "usb_moded-config.h"
 
@@ -43,7 +45,7 @@
  * Activate the network interface
  *
  */
-int usb_network_up(void)
+int usb_network_up(struct mode_list_elem *data)
 {
    const char *ip, *interface, *gateway;
    char command[128];
@@ -75,8 +77,18 @@ int usb_network_up(void)
   return(ret);
 
 #else
+  
+  if(data)
+  {
+	if(data->network_interface)
+	{	
+		interface = malloc(32*sizeof(char));
+		strncpy((char *)interface, data->network_interface, 32);
+	}
+  }
+  else
+  	interface = get_network_interface();
   ip = get_network_ip();
-  interface = get_network_interface();
   gateway = get_network_gateway();
   if(ip == NULL)
   {
@@ -103,6 +115,10 @@ int usb_network_up(void)
         system(command);
   }
 
+  free((char *)interface);
+  free((char *)gateway);
+  free((char *)ip);
+
   return(0);
 #endif /* CONNMAN */
 }
@@ -111,11 +127,32 @@ int usb_network_up(void)
  * Deactivate the network interface
  *
  */
-int usb_network_down(void)
+int usb_network_down(struct mode_list_elem *data)
 {
 #if CONNMAN
 #else
-  system("ifconfig usb0 down");
+  const char *interface;
+  char command[128];
+
+  if(data)
+  {
+	if(data->network_interface)
+	{
+		interface = malloc(32*sizeof(char));
+		strncpy((char *)interface, data->network_interface, 32);
+	}
+  }
+  else
+  	interface = get_network_interface();
+
+  if(interface == NULL)
+	sprintf(command, "ifconfig usb0 down\n");	
+  else
+	sprintf(command, "ifconfig %s down\n", interface);
+  system(command);
+
+  free((char *)interface);
+  
   return(0);
 #endif /* CONNMAN */
 }

@@ -26,6 +26,7 @@
 #define APP_INFO_NAME_KEY	"name"
 #define APP_INFO_LAUNCH_KEY	"launch"
 #define APP_INFO_UPSTART_KEY	"upstart"
+#define APP_INFO_SYSTEMD_KEY	"systemd"
 
 /** 
  * keep all the needed info together for launching an app 
@@ -38,6 +39,7 @@ typedef struct list_elem
   char *launch;		/* dbus launch command/address */ 
   int active;		/* marker to check if the app has started sucessfully */
   int upstart;		/* marker to know if we start it with upstart or not */
+  int systemd;		/* marker to know if we start it with systemd or not */
   /*@}*/
 }list_elem;
 

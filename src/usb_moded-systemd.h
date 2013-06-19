@@ -1,9 +1,8 @@
-/**
-  @file usb_moded-modesetting.h
+/*
  
-  Copyright (C) 2010 Nokia Corporation. All rights reserved.
+  Copyright (C) 2013 Jolla Oy. All rights reserved.
 
-  @author: Philippe De Swert <philippe.de-swert@nokia.com>
+  author: Philippe De Swert <philippe.deswert@njollamobile.com>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the Lesser GNU General Public License 
@@ -20,20 +19,7 @@
   02110-1301 USA
 */
 
-#include "usb_moded-dyn-config.h"
+#define SYSTEMD_STOP	"StopUnit"
+#define SYSTEMD_START   "StartUnit"
 
-#ifdef MAYBE_NEEDED
-int find_number_of_mounts(void);
-#endif
-int write_to_file(const char *path, const char *text);
-int set_mass_storage_mode(void);
-int set_ovi_suite_mode(void);
-int set_mtp_mode(void);
-int set_dynamic_mode(void);
-void unset_dynamic_mode(void);
-/* clean up for the mode changes on disconnect */
-int usb_moded_mode_cleanup(const char *module);
-#ifdef NOKIA
-gboolean export_cdrom (gpointer data);
-#endif
-
+int systemd_control_service(const char *name, const char *method);

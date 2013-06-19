@@ -234,8 +234,8 @@ static void report_mass_storage_blocker(const char *mountpoint, int try)
 
 }
 
-
-/* TODO: clean up buteo-mtp hack */
+#if 0
+/* NOT NEEDED ANYMORE?  : clean up buteo-mtp hack */
 int set_mtp_mode(void)
 {
   mkdir("/dev/mtp", S_IRWXO|S_IRWXU);
@@ -244,8 +244,8 @@ int set_mtp_mode(void)
 
   return 0;
 }
+#endif
 
-#ifndef ANDROID
 #ifdef N900
 int set_ovi_suite_mode(void)
 {
@@ -263,8 +263,8 @@ int set_ovi_suite_mode(void)
 #ifdef DEBIAN
   system("ifdown usb0 ; ifup usb0");
 #else
-  usb_network_down();
-  usb_network_up();
+  usb_network_down(NULL);
+  usb_network_up(NULL);
 #endif /* DEBIAN */
 
 #ifdef NOKIA
@@ -278,28 +278,73 @@ int set_ovi_suite_mode(void)
   return(0);
 }
 #endif /* N900 */
-#endif /* ANDROID */
 
-#ifdef DYN_MODE
-int set_dynamic_mode(struct mode_list_elem *data)
+int set_dynamic_mode(void)
 {
-  char command[256];
+
+  struct mode_list_elem *data; 
+
+  data = get_usb_mode_data();
+
+#ifdef APP_SYNC
   if(data->appsync)
   	activate_sync(data->mode_name);
+#endif
+  /* make sure things are disabled before changing functionality */
+  if(data->softconnect)
+  {
+	write_to_file(data->softconnect_path, data->softconnect_disconnect);
+  }
+  /* set functionality first, then enable */
+  if(data->sysfs_path)
+  {
+	write_to_file(data->sysfs_path, data->sysfs_value);
+	log_debug("writing to file %s, value %s\n", data->sysfs_path, data->sysfs_value);
+  }
+  if(data->softconnect)
+  {
+	write_to_file(data->softconnect_path, data->softconnect);
+  }
+
+  /* functionality should be enabled, so we can enable the network now */
   if(data->network)
   {
 #ifdef DEBIAN
+  	char command[256];
+
 	g_snprintf(command, 256, "ifdown %s ; ifup %s", data->network_interface, data->network_interface);
         system(command);
 #else
-	usb_network_down();
-	usb_network_up();
+	usb_network_down(data);
+	usb_network_up(data);
 #endif /* DEBIAN */
   }
-
   return(0);
 }
-#endif /* DYN_MODE */
+
+void unset_dynamic_mode(void)
+{ 
+
+  struct mode_list_elem *data; 
+
+  data = get_usb_mode_data();
+
+  /* the modelist could be empty */
+  if(!data)
+	return;
+
+  /* disconnect before changing functionality */
+  if(data->softconnect)
+  {
+	write_to_file(data->softconnect_path, data->softconnect_disconnect);
+  }
+  if(data->sysfs_path)
+  {
+	write_to_file(data->sysfs_path, data->sysfs_reset_value);
+	log_debug("writing to file %s, value %s\n", data->sysfs_path, data->sysfs_reset_value);
+  }
+
+}
 
 #ifdef NOKIA
 gboolean export_cdrom(gpointer data)
@@ -342,9 +387,9 @@ int usb_moded_mode_cleanup(const char *module)
 
 	log_debug("Cleaning up mode\n");
 
-#ifdef UPSTART
+#ifdef APP_SYNC
 	appsync_stop();
-#endif /* UPSTART */
+#endif /* APP_SYNC */
 
         if(!strcmp(module, MODULE_MASS_STORAGE)|| !strcmp(module, MODULE_FILE_STORAGE))
         {
@@ -401,7 +446,6 @@ int usb_moded_mode_cleanup(const char *module)
                 }
 
         }
-#ifndef ANDROID
 #ifdef N900
         if(!strcmp(module, MODULE_NETWORK))
         {
@@ -409,14 +453,13 @@ int usb_moded_mode_cleanup(const char *module)
                 sync();
                 /* bring network down immediately */
                 /*system("ifdown usb0"); */
-		usb_network_down();
+		usb_network_down(NULL);
                 /* do soft disconnect 
   		write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "0"); */
 		/* DIRTY WORKAROUND: acm/phonet does not work as it should, remove when it does */
 		system("killall -SIGTERM acm");
         }
 #endif /* N900 */
-#endif /* ANDROID */
 	if(!strcmp(module, MODULE_MTP))
 	{
 		/* stop service before umounting ;) */
@@ -424,6 +467,8 @@ int usb_moded_mode_cleanup(const char *module)
 		system("umount /dev/mtp");
 	}
 
+	if(get_usb_mode_data())
+		unset_dynamic_mode();
 
         return(ret);
 }

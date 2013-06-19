@@ -53,7 +53,7 @@ GList *read_mode_list(void)
     g_dir_close(confdir);
   }
   else
-	  log_debug("Dynamic mode confdir open failed.\n");
+	  log_debug("Mode confdir open failed or file is incomplete/invalid.\n");
   return(modelist);
 }
 
@@ -82,6 +82,14 @@ static struct mode_list_elem *read_mode_file(const gchar *filename)
   list_item->appsync = g_key_file_get_integer(settingsfile, MODE_ENTRY, MODE_NEEDS_APPSYNC_KEY, NULL);
   list_item->network = g_key_file_get_integer(settingsfile, MODE_ENTRY, MODE_NETWORK_KEY, NULL);
   list_item->network_interface = g_key_file_get_string(settingsfile, MODE_ENTRY, MODE_NETWORK_INTERFACE_KEY, NULL);
+  list_item->sysfs_path = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SYSFS_PATH, NULL);
+  log_debug("Dynamic mode sysfs path = %s\n", list_item->sysfs_path);
+  list_item->sysfs_value = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SYSFS_VALUE, NULL);
+  log_debug("Dynamic mode sysfs value = %s\n", list_item->sysfs_value);
+  list_item->sysfs_reset_value = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SYSFS_RESET_VALUE, NULL);
+  list_item->softconnect = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SOFTCONNECT, NULL);
+  list_item->softconnect_disconnect = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SOFTCONNECT_DISCONNECT, NULL);
+  list_item->softconnect_path = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SOFTCONNECT_PATH, NULL);
   g_key_file_free(settingsfile);
   if(list_item->mode_name == NULL || list_item->mode_module == NULL)
   {
@@ -90,6 +98,18 @@ static struct mode_list_elem *read_mode_file(const gchar *filename)
 	return NULL;
   }
   if(list_item->network && list_item->network_interface == NULL)
+  {
+	/* free list_item as it will not be used */
+	free(list_item);
+	return NULL;
+  }
+  if(list_item->sysfs_path && list_item->sysfs_value == NULL)
+  {
+	/* free list_item as it will not be used */
+	free(list_item);
+	return NULL;
+  }
+  if(list_item->softconnect &&  list_item->softconnect_path == NULL)
   {
 	/* free list_item as it will not be used */
 	free(list_item);
