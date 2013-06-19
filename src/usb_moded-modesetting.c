@@ -263,8 +263,8 @@ int set_ovi_suite_mode(void)
 #ifdef DEBIAN
   system("ifdown usb0 ; ifup usb0");
 #else
-  usb_network_down();
-  usb_network_up();
+  usb_network_down(NULL);
+  usb_network_up(NULL);
 #endif /* DEBIAN */
 
 #ifdef NOKIA
@@ -293,13 +293,14 @@ int set_dynamic_mode(struct mode_list_elem *data)
 	g_snprintf(command, 256, "ifdown %s ; ifup %s", data->network_interface, data->network_interface);
         system(command);
 #else
-	usb_network_down();
-	usb_network_up();
+	usb_network_down(data);
+	usb_network_up(data);
 #endif /* DEBIAN */
   }
   if(data->sysfs_path)
   {
 	write_to_file(data->sysfs_path, data->sysfs_value);
+	log_debug("writing to file %s, value %s\n", data->sysfs_path, data->sysfs_reset_value);
   }
   if(data->softconnect)
   {
@@ -322,6 +323,7 @@ void unset_dynamic_mode(void)
   if(data->sysfs_path)
   {
 	write_to_file(data->sysfs_path, data->sysfs_reset_value);
+	log_debug("writing to file %s, value %s\n", data->sysfs_path, data->sysfs_reset_value);
   }
   if(data->softconnect)
   {
@@ -437,7 +439,7 @@ int usb_moded_mode_cleanup(const char *module)
                 sync();
                 /* bring network down immediately */
                 /*system("ifdown usb0"); */
-		usb_network_down();
+		usb_network_down(NULL);
                 /* do soft disconnect 
   		write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "0"); */
 		/* DIRTY WORKAROUND: acm/phonet does not work as it should, remove when it does */

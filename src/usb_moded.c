@@ -359,6 +359,7 @@ gchar *get_mode_list(void)
       {
         struct mode_list_elem *data = iter->data;
 	modelist_str = g_string_append(modelist_str, data->mode_name);
+	modelist_str = g_string_append(modelist_str, ", ");
       }
     }
   }

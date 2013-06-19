@@ -22,5 +22,7 @@
 
 /*============================================================================= */
 
-int usb_network_up(void);
-int usb_network_down(void);
+#include "usb_moded-dyn-config.h"
+
+int usb_network_up(struct mode_list_elem *data);
+int usb_network_down(struct mode_list_elem *data);

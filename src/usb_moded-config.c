@@ -437,7 +437,6 @@ int conf_file_merge(void)
 	{
 		log_debug("%d failed loading config file %s\n", test, filename_full);
 		g_free(filename_full);
-		break;
 	}
 	g_free(filename_full);
         log_debug("file data = %s\n", g_key_file_to_data(settingsfile, NULL, NULL));
