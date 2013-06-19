@@ -281,8 +281,10 @@ void set_usb_mode(const char *mode)
   	check_module_state(data->mode_module);
 	set_usb_module(data->mode_module);
 	ret = usb_moded_load_module(data->mode_module);
-        ret = set_dynamic_mode();
+	/* set data before calling any of the dynamic mode functions
+	   as they will use the get_usb_mode_data function */
 	set_usb_mode_data(data);
+        ret = set_dynamic_mode();
       }
     }
   }
