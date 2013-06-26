@@ -178,11 +178,12 @@ static void udev_parse(struct udev_device *dev)
   const char *tmp;
   static int cable = 0, charger = 0; /* track if cable was connected as we cannot distinguish charger and cable disconnects */
 
-  tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE");
+  /* Check for present first as some drivers use online for when charging is enabled */
+  tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
   if(!tmp)
     {
-    tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT");
-    log_warning("Using present property\n");
+    tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE");
+    log_warning("Using online property\n");
     }
   if(!tmp)
     {
