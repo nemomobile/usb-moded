@@ -101,7 +101,7 @@ cleanup:
 }
 
 
-int set_mass_storage_mode(void)
+static int set_mass_storage_mode(void)
 {
         gchar *command;
         char command2[256];
@@ -200,6 +200,66 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
 
 }
 
+static int unset_mass_storage_mode(void)
+{
+        gchar *command;
+        char command2[256];
+        const char *mount;
+        gchar **mounts;
+        int ret = 1, i = 0;
+
+        mount = find_mounts();
+        if(mount)
+        {
+        	mounts = g_strsplit(mount, ",", 0);
+                for(i=0 ; mounts[i] != NULL; i++)
+                {
+                	/* check if it is still or already mounted, if so (ret==0) skip mounting */
+                	command = g_strconcat("mount | grep ", mounts[i], NULL);
+                        ret = system(command);
+                        g_free(command);
+                        if(ret)
+                        {
+                        	command = g_strconcat("mount ", mounts[i], NULL);
+                                ret = system(command);
+                                g_free(command);
+                                if(ret != 0)
+                                {
+                                	log_err("Mounting %s failed\n", mount);
+                                        usb_moded_send_error_signal(RE_MOUNT_FAILED);
+					g_free((gpointer *)mount);
+                                        mount = find_alt_mount();
+                                        if(mount)
+                                        {
+						/* check if it is already mounted, if not mount failure fallback */
+                                                command = g_strconcat("mount | grep ", mount, NULL);
+                                                ret = system(command);
+                                                g_free(command);
+                                                if(ret)
+                                                {
+                                               		command = g_strconcat("mount -t tmpfs tmpfs -o ro --size=512K ", mount, NULL);
+							log_debug("Total failure, mount ro tmpfs as fallback\n");
+                                                        ret = system(command);
+                                                        g_free(command);
+                                                }
+
+                                        }
+
+                                  }
+                        }
+
+			sprintf(command2, "echo \"\"  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", i);
+                	log_debug("usb lun = %s inactive\n", command2);
+                	system(command2);
+                 }
+                 g_strfreev(mounts);
+		 g_free((gpointer *)mount);
+        }
+
+	return(ret);
+
+}
+
 static void report_mass_storage_blocker(const char *mountpoint, int try)
 {
   FILE *stream = 0;
@@ -286,6 +346,14 @@ int set_dynamic_mode(void)
 
   data = get_usb_mode_data();
 
+  if(!data)
+	return 1;
+
+  if(!strcmp(data->mode_name, MODE_MASS_STORAGE))
+  {
+	return set_mass_storage_mode();
+  }
+
 #ifdef APP_SYNC
   if(data->appsync)
   	activate_sync(data->mode_name);
@@ -333,6 +401,12 @@ void unset_dynamic_mode(void)
   if(!data)
 	return;
 
+  if(!strcmp(data->mode_name, MODE_MASS_STORAGE))
+  {
+	set_mass_storage_mode();
+	return;
+  }
+
   /* disconnect before changing functionality */
   if(data->softconnect)
   {
@@ -379,11 +453,6 @@ gboolean export_cdrom(gpointer data)
  */
 int usb_moded_mode_cleanup(const char *module)
 {
-        gchar *command;
-        char command2[256];
-        const char *mount;
-        gchar **mounts;
-        int ret = 0, i = 0;
 
 	log_debug("Cleaning up mode\n");
 
@@ -397,54 +466,8 @@ int usb_moded_mode_cleanup(const char *module)
 		   to check since we use fake mass-storage for charging */
 		if(!strcmp(MODE_CHARGING, get_usb_mode()))
 		  return 0;	
-                mount = find_mounts();
-                if(mount)
-                {
-                        mounts = g_strsplit(mount, ",", 0);
-                        for(i=0 ; mounts[i] != NULL; i++)
-                        {
-                                /* check if it is still or already mounted, if so (ret==0) skip mounting */
-                                command = g_strconcat("mount | grep ", mounts[i], NULL);
-                                ret = system(command);
-                                g_free(command);
-                                if(ret)
-                                {
-                                        command = g_strconcat("mount ", mounts[i], NULL);
-                                        ret = system(command);
-                                        g_free(command);
-                                        if(ret != 0)
-                                        {
-                                                log_err("Mounting %s failed\n", mount);
-                                                usb_moded_send_error_signal(RE_MOUNT_FAILED);
-						g_free((gpointer *)mount);
-                                                mount = find_alt_mount();
-                                                if(mount)
-                                                {
-							/* check if it is already mounted, if not mount failure fallback */
-                                                        command = g_strconcat("mount | grep ", mount, NULL);
-                                                        ret = system(command);
-                                                        g_free(command);
-                                                        if(ret)
-                                                        {
-                                                                command = g_strconcat("mount -t tmpfs tmpfs -o ro --size=512K ", mount, NULL);
-								log_debug("Total failure, mount ro tmpfs as fallback\n");
-                                                                ret = system(command);
-                                                                g_free(command);
-                                                        }
 
-                                                }
-
-                                        }
-                                }
-
-				sprintf(command2, "echo \"\"  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", i);
-                		log_debug("usb lun = %s inactive\n", command2);
-                		system(command2);
-                        }
-                        g_strfreev(mounts);
-			g_free((gpointer *)mount);
-                }
-
+		unset_mass_storage_mode();
         }
 #ifdef N900
         if(!strcmp(module, MODULE_NETWORK))
@@ -470,6 +493,6 @@ int usb_moded_mode_cleanup(const char *module)
 	if(get_usb_mode_data())
 		unset_dynamic_mode();
 
-        return(ret);
+        return(0);
 }
 

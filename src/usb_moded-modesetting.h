@@ -26,7 +26,6 @@
 int find_number_of_mounts(void);
 #endif
 int write_to_file(const char *path, const char *text);
-int set_mass_storage_mode(void);
 int set_ovi_suite_mode(void);
 int set_mtp_mode(void);
 int set_dynamic_mode(void);
