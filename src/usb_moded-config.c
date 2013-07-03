@@ -384,7 +384,7 @@ int conf_file_merge(void)
   gchar *filename_full;
   GString *keyfile_string = NULL;
   GKeyFile *settingsfile;
-  int ret = 0, test = 0;
+  int ret = 0, test = 0, conffile_created = 0;
 #ifdef UDEV
   const gchar *udev = 0;
 #endif /* UDEV */
@@ -394,6 +394,7 @@ int conf_file_merge(void)
   {
       log_debug("No configuration. Creating defaults.\n");
       create_conf_file();
+      /* since there was no configuration at all there is no info to be merged */
       return (ret);
   }
 
@@ -401,6 +402,7 @@ int conf_file_merge(void)
   {
 	/* conf file not created yet, make default and merge all */
       	create_conf_file();
+	conffile_created = 1;
   }
 
   /* config file is created, so the dir must exists */
@@ -411,8 +413,12 @@ int conf_file_merge(void)
   to re-merge the config.
   */
   if(fileinfo.st_mtime == dir.st_mtime)
-	return 0;
-
+  {
+	/* if a conffile was created, the st_mtime would have been updated so this check will miss infomaxitrion that might be there already,
+	   like after a config file removal for example. So we run a merge anyway if we needed to create the conf file */
+	if(!conffile_created)
+		return 0;
+  }
   log_debug("Merging/creating configuration.\n");
   keyfile_string = g_string_new(NULL);
   /* check each ini file and get contents */
