@@ -1,5 +1,5 @@
 Name:     usb-moded
-Version:  0.62
+Version:  0.63
 Release:  0 
 Summary:  USB mode controller
 Group:    System/System Control
@@ -18,10 +18,9 @@ BuildRequires: pkgconfig(libkmod)
 BuildRequires: doxygen
 BuildRequires: GConf2
 
-Provides: nokia-usb-networking
 Requires: dbus-x11
 Requires: lsof
-Requires: buteo-mtp
+Requires: usb-moded-configs
 Requires(post): GConf2
 Requires(pre): GConf2
 Requires(preun): GConf2
@@ -58,6 +57,104 @@ system bus.
 
 This package contains the documentation.
 
+%package developer-mode
+Summary:  USB mode controller - developer mode config
+Group:  Config
+
+%description developer-mode
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains the developer mode config, which enables
+usb networking.
+
+%package mtp-mode
+Summary:  USB mode controller - mtp mode config
+Group:  Config
+Requires: buteo-mtp
+
+%description mtp-mode
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains the mtp mode config.
+
+%package mass-storage-mode
+Summary:  USB mode controller - mass-storage mode config
+Group:  Config
+
+%description mass-storage-mode
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains the mass-storage mode config.
+
+%package adb-mode
+Summary:  USB mode controller - android adb mode config
+Group:  Config
+
+%description adb-mode
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains the adb config for use with the android
+gadget driver.
+
+%package developer-mode-android
+Summary:  USB mode controller - android developer mode config
+Group:  Config
+
+%description developer-mode-android
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains the developer mode config for use with
+the android gadget. This will provide usb networking.
+
+%package mtp-mode-android
+Summary:  USB mode controller - android mtp mode config
+Group:  Config
+
+%description mtp-mode-android
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains the mtp mode config.
+
+%package usb-moded-defaults
+Summary: USB mode controller - default configuration
+Group: Config
+Provides: usb-moded-configs
+Requires: usb-moded-developer-mode
+
+%description usb-moded-defaults
+This package provides the default configuration for usb-moded, so
+basic functionality is provided (i.e. usb networking, ask and charging
+modes)
+
+%package usb-moded-defaults-android
+Summary: USB mode controller - default configuration
+Group: Config
+Provides: usb-moded-configs
+Requires: usb-moded-developer-mode-android
+
+%description usb-moded-defaults-android
+This package provides the default configuration for usb-moded, so
+basic functionality is provided (i.e. usb networking, ask and charging
+modes with the android gadget driver)
+
 %prep
 %setup -q
 
@@ -78,7 +175,12 @@ install -m 644 -D debian/%{name}.schemas %{buildroot}/%{_sysconfdir}/gconf/schem
 install -m 644 -D debian/manpage.1 %{buildroot}/%{_mandir}/man1/usb-moded.1
 install -m 644 -D debian/usb_moded.conf %{buildroot}/%{_sysconfdir}/dbus-1/system.d/usb_moded.conf
 install -m 644 -D %{SOURCE2} %{buildroot}/%{_sysconfdir}/modprobe.d/usb_moded.conf
-install -D -m 644 %{SOURCE1} %{buildroot}/lib/systemd/system/%{name}.service
+install -m 644 -D %{SOURCE1} %{buildroot}/lib/systemd/system/%{name}.service
+install -d %{buildroot}/%{_sysconfdir}/usb-moded
+install -d %{buildroot}/%{_sysconfdir}/usb-moded/run
+install -d %{buildroot}/%{_sysconfdir}/usb-moded/dyn-modes
+install -m 644 -D config/dyn-modes/* %{buildroot}/%{_sysconfdir}/usb-moded/dyn-modes/
+install -m 644 -D config/run/* %{buildroot}/%{_sysconfdir}/usb-moded/run/
 install -d $RPM_BUILD_ROOT/lib/systemd/system/multi-user.target.wants/
 ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/multi-user.target.wants/%{name}.service
 
@@ -127,4 +229,36 @@ systemctl daemon-reload
 %defattr(-,root,root,-)
 %doc debian/changelog debian/copyright LICENSE
 %{_docdir}/%{name}/html/*
+
+%files developer-mode
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/developer_mode.ini
+
+%files mtp-mode
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/mtp_mode.ini
+%{_sysconfdir}/usb-moded/run/mtp.ini
+
+%files mass-storage-mode
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/mass-storage.ini
+
+%files developer-mode-android
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/developer_mode-android.ini
+
+%files adb-mode
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/adb_mode.ini
+%{_sysconfdir}/usb-moded/run/adb.ini
+
+%files mtp-mode-android
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/mtp_mode-android.ini
+
+%files usb-moded-defaults
+%defattr(-,root,root,-)
+
+%files usb-moded-defaults-android
+%defattr(-,root,root,-)
 
