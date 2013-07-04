@@ -47,8 +47,9 @@
  */
 int usb_network_up(struct mode_list_elem *data)
 {
-   const char *ip, *interface, *gateway;
-   char command[128];
+  char *ip, *interface, *gateway;
+  char command[128];
+  const char default_interface[] = "usb0";
 
 #if CONNMAN
   DBusConnection *dbus_conn_connman = NULL;
@@ -83,30 +84,37 @@ int usb_network_up(struct mode_list_elem *data)
 	if(data->network_interface)
 	{	
 		interface = malloc(32*sizeof(char));
-		strncpy((char *)interface, data->network_interface, 32);
+		strncpy(interface, data->network_interface, 32);
 	}
   }
   else
   	interface = get_network_interface();
+
   ip = get_network_ip();
   gateway = get_network_gateway();
+
+  if(interface == NULL)
+  {
+	interface = malloc(sizeof(default_interface)*sizeof(char));
+	strncpy(interface, default_interface, sizeof(default_interface));
+  }
+
   if(ip == NULL)
   {
-  	system("ifconfig usb0 192.168.2.15");
-	return(0);
+	sprintf(command,"ifconfig %s 192.168.2.15", interface);
+	system(command);
+	goto clean;
   }
-  if(!strcmp(ip, "dhcp"))
+  else if(!strcmp(ip, "dhcp"))
   {
-  	if(interface == NULL)
-		sprintf(command, "dhclient -d usb0\n");
-	else
-		sprintf(command, "dhclient -d %s\n", interface);
+	sprintf(command, "dhclient -d %s\n", interface);
+	system(command);
   }
-  if(interface == NULL)
-	sprintf(command, "ifconfig usb0 %s\n", ip);	
   else
+  {
 	sprintf(command, "ifconfig %s %s\n", interface, ip);
-  system(command);
+	system(command);
+  }
 
   /* TODO: Check first if there is a gateway set */
   if(gateway)
@@ -115,6 +123,7 @@ int usb_network_up(struct mode_list_elem *data)
         system(command);
   }
 
+clean:
   free((char *)interface);
   free((char *)gateway);
   free((char *)ip);
