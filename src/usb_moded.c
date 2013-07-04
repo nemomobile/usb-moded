@@ -65,7 +65,6 @@ gboolean hw_fallback = FALSE;
 struct usb_mode current_mode;
 guint charging_timeout = 0;
 #ifdef NOKIA
-gboolean special_mode = FALSE;
 guint timeout_source = 0;
 #endif /* NOKIA */
 static GList *modelist;
@@ -86,17 +85,6 @@ static void usage(void);
  */
 void set_usb_connected(gboolean connected)
 {
-#ifdef NOKIA
-  if(special_mode)
-  {
-	/* Do nothing for the time being to leave currently loaded modules active.
-	   Set special_mode to false so next usb connect makes things work as they should.
-	*/
-	special_mode = FALSE;
-	log_debug("nsu active. Not doing anything before cable disconnect/reconnect\n");
-	return;
-  }
-#endif /* NOKIA */
 	
   if(connected)
   {
@@ -447,30 +435,12 @@ inline struct mode_list_elem * get_usb_mode_data(void)
 /* set default values for usb_moded */
 static void usb_moded_init(void)
 {
-#ifdef NOKIA_NSU
-  char readbuf[MAX_READ_BUF];
-  FILE *proc_fd;
-#endif /* NOKIA_NSU */
   extern struct kmod_ctx *ctx;
 
   current_mode.connected = FALSE;
   current_mode.mounted = FALSE;
   current_mode.mode = strdup(MODE_UNDEFINED);
   current_mode.module = strdup(MODULE_NONE);
-
-#ifdef NOKIA_NSU
-  proc_fd = fopen("/proc/cmdline", "r");
-  if(proc_fd)
-  {
-    fgets(readbuf, MAX_READ_BUF, proc_fd);
-    readbuf[strlen(readbuf)-1]=0;
-
-    if(strstr(readbuf, "nsu"))
-	special_mode = TRUE;
-    fclose(proc_fd);
-  }
-	
-#endif /* NOKIA_NSU */
 
   /* check config, merge or create if outdated */
   if(conf_file_merge() != 0)
