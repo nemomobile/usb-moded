@@ -41,7 +41,7 @@
 
 const char default_interface[] = "usb0";
 
-char* get_interface(struct mode_list_elem *data)
+static char* get_interface(struct mode_list_elem *data)
 {
   char *interface = NULL;
 
@@ -54,7 +54,7 @@ char* get_interface(struct mode_list_elem *data)
 	}
   }
   else
-  	interface = get_network_interface();
+  	interface = (char *)get_network_interface();
 
   if(interface == NULL)
   {
@@ -71,7 +71,7 @@ char* get_interface(struct mode_list_elem *data)
  */
 int usb_network_up(struct mode_list_elem *data)
 {
-  char *ip, *interface, *gateway;
+  const char *ip, *interface, *gateway;
   char command[128];
 
 #if CONNMAN
