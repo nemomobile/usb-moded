@@ -4,7 +4,7 @@ Release:  0
 Summary:  USB mode controller
 Group:    System/System Control
 License:  LGPLv2
-URL:      http://meego.gitorious.org/meego-middleware/usb_moded
+URL:      https://github.com/nemomobile/usb-moded
 Source0:  %{name}-%{version}.tar.bz2
 Source1:  %{name}.service
 Source2:  usb_moded.conf
