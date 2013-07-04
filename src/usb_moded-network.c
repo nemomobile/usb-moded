@@ -37,9 +37,33 @@
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
-
-
 #endif
+
+const char default_interface[] = "usb0";
+
+char* get_interface(struct mode_list_elem *data)
+{
+  char *interface = NULL;
+
+  if(data)
+  {
+	if(data->network_interface)
+	{	
+		interface = malloc(32*sizeof(char));
+		strncpy(interface, data->network_interface, 32);
+	}
+  }
+  else
+  	interface = get_network_interface();
+
+  if(interface == NULL)
+  {
+	interface = malloc(sizeof(default_interface)*sizeof(char));
+	strncpy(interface, default_interface, sizeof(default_interface));
+  }
+
+  return interface;
+}
 
 /**
  * Activate the network interface
@@ -49,7 +73,6 @@ int usb_network_up(struct mode_list_elem *data)
 {
   char *ip, *interface, *gateway;
   char command[128];
-  const char default_interface[] = "usb0";
 
 #if CONNMAN
   DBusConnection *dbus_conn_connman = NULL;
@@ -78,26 +101,10 @@ int usb_network_up(struct mode_list_elem *data)
   return(ret);
 
 #else
-  
-  if(data)
-  {
-	if(data->network_interface)
-	{	
-		interface = malloc(32*sizeof(char));
-		strncpy(interface, data->network_interface, 32);
-	}
-  }
-  else
-  	interface = get_network_interface();
 
+  interface = get_interface(data); 
   ip = get_network_ip();
   gateway = get_network_gateway();
-
-  if(interface == NULL)
-  {
-	interface = malloc(sizeof(default_interface)*sizeof(char));
-	strncpy(interface, default_interface, sizeof(default_interface));
-  }
 
   if(ip == NULL)
   {
@@ -143,21 +150,9 @@ int usb_network_down(struct mode_list_elem *data)
   const char *interface;
   char command[128];
 
-  if(data)
-  {
-	if(data->network_interface)
-	{
-		interface = malloc(32*sizeof(char));
-		strncpy((char *)interface, data->network_interface, 32);
-	}
-  }
-  else
-  	interface = get_network_interface();
+  interface = get_interface(data);
 
-  if(interface == NULL)
-	sprintf(command, "ifconfig usb0 down\n");	
-  else
-	sprintf(command, "ifconfig %s down\n", interface);
+  sprintf(command, "ifconfig %s down\n", interface);
   system(command);
 
   free((char *)interface);
