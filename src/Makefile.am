@@ -40,16 +40,6 @@ usb_moded_SOURCES += \
 	usb_moded-gconf.h 
 endif
 
-if HAL
-usb_moded_SOURCES += \
-	usb_moded-hal.c
-endif
-
-if BME
-usb_moded_SOURCES += \
-	usb_moded-chargerdetection.c 
-endif
-
 if UDEV
 usb_moded_SOURCES += \
 	usb_moded-udev.c \

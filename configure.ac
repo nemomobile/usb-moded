@@ -54,14 +54,6 @@ AC_ARG_ENABLE([n900], AS_HELP_STRING([--enable-n900], [Enable N900 extra's @<:@d
    esac],[n900=false])
 AM_CONDITIONAL([N900], [test x$n900 = xtrue])
 
-AC_ARG_ENABLE([bme], AS_HELP_STRING([--enable-bme], [Enable Nokia bme cable connection interface @<:@default=false@:>@]),
-  [case "${enableval}" in
-   yes) bme=true ; CFLAGS="-DBME $CFLAGS" ;;
-   no)  bme=false ;;
-   *) AC_MSG_ERROR([bad value ${enableval} for --enable-bme]) ;;
-   esac],[bme=false])
-AM_CONDITIONAL([BME], [test x$bme = xtrue])
-
 AC_ARG_ENABLE([gconf], AS_HELP_STRING([--enable-gconf], [Use GConf for configuration storage @<:@default=false@:>@]),
   [case "${enableval}" in
    yes) gconf=true ; CFLAGS="-DGCONF -I/usr/include/gconf/2 -I/usr/include/orbit-2.0 -lgconf-2 $CFLAGS" ;;
@@ -77,14 +69,6 @@ AC_ARG_ENABLE([app_sync], AS_HELP_STRING([--enable-app-sync], [Enable applicatio
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-app-sync]) ;;
    esac],[app_sync=false])
 AM_CONDITIONAL([APP_SYNC], [test x$app_sync = xtrue])
-
-AC_ARG_ENABLE([hal], AS_HELP_STRING([--enable-hal], [Enable deprecated hal interface (use --disable-udev also) @<:@default=false@:>@]),
-  [case "${enableval}" in
-   yes) hal=true ; CFLAGS="-DHAL -I/usr/include/hal -lhal $CFLAGS" ;;
-   no)  hal=false ;;
-   *) AC_MSG_ERROR([bad value ${enableval} for --enable-hal]) ;;
-   esac],[hal=false])
-AM_CONDITIONAL([HAL], [test x$hal = xtrue])
 
 AC_ARG_ENABLE([udev], AS_HELP_STRING([--enable-udev], [Enable udev interface @<:@default=true@:>@]),
   [case "${enableval}" in
