@@ -152,9 +152,15 @@ static void create_conf_file(void)
 {
   GKeyFile *settingsfile;
   gchar *keyfile;
+  int dir = 1;
 
-  mkdir(CONFIG_FILE_DIR, 0755);
-
+  dir = mkdir(CONFIG_FILE_DIR, 0755);
+  if(dir < 0)
+  {
+	log_warning("Could not create confdir, continuing without configuration!\n");
+	/* no point in trying to generate the config file if the dir cannot be created */
+	return;
+  }
   settingsfile = g_key_file_new();
 
   g_key_file_set_string(settingsfile, MODE_SETTING_ENTRY, MODE_SETTING_KEY, MODE_DEVELOPER );
@@ -406,7 +412,12 @@ int conf_file_merge(void)
   }
 
   /* config file is created, so the dir must exists */
-  stat(CONFIG_FILE_DIR, &dir);
+  if(stat(CONFIG_FILE_DIR, &dir))
+  {
+	log_warning("Directory still does not exists. FS might be ro/corrupted!\n");
+	ret = 1;
+	goto end;
+  }
 
   /* st_mtime is changed by file modifications, st_mtime of a directory is changed by the creation or deletion of files in that directory.
   So if the st_mtime of the config file is equal to the directory time we can be sure the config is untouched and we do not need 
@@ -478,7 +489,7 @@ next:
   if(udev)
 	free((void *)udev);
 #endif /* UDEV */
-
+end:
   g_dir_close(confdir);
   return(ret);
 }
