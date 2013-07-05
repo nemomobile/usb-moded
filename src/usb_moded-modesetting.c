@@ -359,7 +359,7 @@ int set_dynamic_mode(void)
   	activate_sync(data->mode_name);
 #endif
   /* make sure things are disabled before changing functionality */
-  if(data->softconnect)
+  if(data->softconnect_disconnect)
   {
 	write_to_file(data->softconnect_path, data->softconnect_disconnect);
   }
