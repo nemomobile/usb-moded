@@ -27,13 +27,19 @@
 static void random_ether_addr(unsigned char *addr)
 {
   FILE *random; 
+  size_t count = 0;
 
   random = fopen("/dev/urandom", "r");
-  fread(addr, 1, 6, random); 
+  count = fread(addr, 1, 6, random); 
   fclose(random);
 
-  addr [0] &= 0xfe;       /* clear multicast bit */
-  addr [0] |= 0x02;       /* set local assignment bit (IEEE802) */
+  if(count > 0 )
+  {
+	addr [0] &= 0xfe;       /* clear multicast bit */
+	addr [0] |= 0x02;       /* set local assignment bit (IEEE802) */
+  }
+  else
+	log_warning("MAC generation failed!\n");
 }
 
 void generate_random_mac (void)
