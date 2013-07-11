@@ -64,6 +64,8 @@ int systemd_control_service(const char *name, const char *method)
   DBusMessage *msg = NULL, *reply = NULL;
   int ret = 1;
 
+  log_debug("Launchung %s, with systemd\n", name);
+
   bus = get_systemd_dbus_connection();
 
   msg = dbus_message_new_method_call("org.freedesktop.systemd1", 
@@ -73,7 +75,10 @@ int systemd_control_service(const char *name, const char *method)
 	dbus_message_append_args (msg, DBUS_TYPE_STRING, &name, DBUS_TYPE_STRING, "isolate", DBUS_TYPE_INVALID);	
 	reply = dbus_connection_send_with_reply_and_block(bus, msg, -1, &error);
 	if(reply)
+ 	{
 		ret = 0;
+		log_debug("systemd launch succesful\n");
+	}
         dbus_message_unref(msg);	
   }
 
