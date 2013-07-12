@@ -54,7 +54,7 @@ static DBusConnection * get_systemd_dbus_connection(void)
   return conn;
 }
 
-//  mode = isolate
+//  mode = replace
 //  method = StartUnit or StopUnit
 int systemd_control_service(const char *name, const char *method) 
 {
@@ -63,8 +63,11 @@ int systemd_control_service(const char *name, const char *method)
   DBusError error;
   DBusMessage *msg = NULL, *reply = NULL;
   int ret = 1;
+  const char * replace = "replace";
 
-  log_debug("Launchung %s, with systemd\n", name);
+  dbus_error_init(&error);
+
+  log_debug("Launching %s, with systemd\n", name);
 
   bus = get_systemd_dbus_connection();
 
@@ -72,17 +75,21 @@ int systemd_control_service(const char *name, const char *method)
         "/org/freedesktop/systemd1", "org.freedesktop.systemd1.Manager", method);
   if(msg)
   {
-	dbus_message_append_args (msg, DBUS_TYPE_STRING, &name, DBUS_TYPE_STRING, "isolate", DBUS_TYPE_INVALID);	
+	if(!dbus_message_append_args (msg, DBUS_TYPE_STRING, &name, DBUS_TYPE_STRING, &replace, DBUS_TYPE_INVALID))
+	{
+		log_debug("error appending arguments\n");
+        	dbus_message_unref(msg);	
+		goto quit;
+	}
 	reply = dbus_connection_send_with_reply_and_block(bus, msg, -1, &error);
 	if(reply)
  	{
 		ret = 0;
-		log_debug("systemd launch succesful\n");
 	}
         dbus_message_unref(msg);	
   }
 
-  dbus_message_unref(msg);
+quit:
   dbus_connection_close(bus);
   dbus_connection_unref(bus);
 

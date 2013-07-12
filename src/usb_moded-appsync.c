@@ -97,6 +97,7 @@ cleanup:
 
   if( sync_list )
   {
+    log_debug("Sync list valid\n");
     usb_moded_app_sync_init_connection();
   }
 }
@@ -136,10 +137,12 @@ cleanup:
 	g_key_file_free(settingsfile);
   g_free(full_filename);
 
-  /* if not all the elements are filled in we discard the list_item */
-  if( list_item && !(list_item->launch && list_item->name && list_item->mode) )
+  /* if a minimum set of required elements is not filled in we discard the list_item */
+  if( list_item && !(list_item->name && list_item->mode) )
   {
-    free_elem(list_item), list_item = 0;
+    log_debug("Element invalid, discarding\n");
+    free_elem(list_item); 
+    list_item = 0;
   }
 
   return list_item;
@@ -149,6 +152,7 @@ int activate_sync(const char *mode)
 {
   GList *iter;
   int count = 0, count2 = 0;
+  int no_dbus = 0;
 
   log_debug("activate sync");
 
@@ -157,6 +161,7 @@ int activate_sync(const char *mode)
 
   if( sync_list == 0 )
   {
+    log_debug("No sync list! Enumerating\n");
     enumerate_usb(NULL);
     return 0;
   }
@@ -185,12 +190,11 @@ int activate_sync(const char *mode)
       return(1);
    }
 
-  /* add dbus filter. Use session bus for ready method call? */
+  /* check dbus initialisation, skip dbus activated services if this fails */
   if(!usb_moded_app_sync_init())
   {
-      log_debug("dbus setup failed => activate immediately \n");
-      enumerate_usb(NULL);
-      return(1);
+      log_debug("dbus setup failed => skipping dbus launched apps \n");
+      no_dbus = 1;
    }
 
   /* start timer */
@@ -203,23 +207,33 @@ int activate_sync(const char *mode)
     struct list_elem *data = iter->data;
     if(!strcmp(mode, data->mode))
     {
-      log_debug("launching app %s\n", data->launch);
+      log_debug("launching app %s\n", data->name);
       if(data->systemd)
       {
         if(!systemd_control_service(data->name, SYSTEMD_START))
 		mark_active(data->name);
+	goto end;
       }
 #ifdef UPSTART
       else if(data->upstart)
       {
 	if(!upstart_control_job(data->name, UPSTART_START))	
 		mark_active(data->name);
+	goto end;
       }
 #endif /* UPSTART */
-      else
-      	usb_moded_dbus_app_launch(data->launch);
+      else if(data->launch)
+	{
+		/* skipping if dbus session bus is not available */
+		if(no_dbus)
+			mark_active(data->name);
+		else
+      			usb_moded_dbus_app_launch(data->launch);
+	}
     }
   }
+
+end:
 
   return(0);
 }
