@@ -90,6 +90,8 @@ static struct mode_list_elem *read_mode_file(const gchar *filename)
   list_item->softconnect = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SOFTCONNECT, NULL);
   list_item->softconnect_disconnect = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SOFTCONNECT_DISCONNECT, NULL);
   list_item->softconnect_path = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SOFTCONNECT_PATH, NULL);
+  list_item->android_extra_sysfs_path = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_ANDROID_EXTRA_SYSFS_PATH, NULL);
+  list_item->android_extra_sysfs_value = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_ANDROID_EXTRA_SYSFS_VALUE, NULL);
   g_key_file_free(settingsfile);
   if(list_item->mode_name == NULL || list_item->mode_module == NULL)
   {

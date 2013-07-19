@@ -38,6 +38,10 @@
 #define MODE_SOFTCONNECT		"softconnect"
 #define MODE_SOFTCONNECT_DISCONNECT	"softconnec_disconnect"
 #define MODE_SOFTCONNECT_PATH		"softconnect_path"
+/* Instead of hard-coding values that never change or have only one option, 
+android engineers prefered to have sysfs entries... go figure... */
+#define MODE_ANDROID_EXTRA_SYSFS_PATH	"android_extra_sysfs_path"
+#define MODE_ANDROID_EXTRA_SYSFS_VALUE	"android_extra_sysfs_value"
 
 /**
  * Struct keeping all the data needed for the definition of a dynamic mode
@@ -45,17 +49,19 @@
 typedef struct mode_list_elem
 {
   /*@{ */
-  char *mode_name;		/* mode name */
-  char *mode_module;		/* needed module for given mode */
-  int appsync;			/* requires appsync or not */
-  int network;			/* bring up network or not */
-  char *network_interface;	/* Which network interface to bring up if network needs to be enabled */
-  char *sysfs_path;		/* path to set sysfs options */
-  char *sysfs_value;		/* option name/value to write to sysfs */
-  char *sysfs_reset_value;	/* value to reset the the sysfs to default */
-  char *softconnect;		/* value to be written to softconnect interface */
-  char *softconnect_disconnect; /* value to set on the softconnect interface to disable after disconnect */
-  char *softconnect_path;	/* path for the softconnect */
+  char *mode_name;		   /* mode name */
+  char *mode_module;		   /* needed module for given mode */
+  int appsync;			   /* requires appsync or not */
+  int network;			   /* bring up network or not */
+  char *network_interface;	   /* Which network interface to bring up if network needs to be enabled */
+  char *sysfs_path;		   /* path to set sysfs options */
+  char *sysfs_value;		   /* option name/value to write to sysfs */
+  char *sysfs_reset_value;	   /* value to reset the the sysfs to default */
+  char *softconnect;		   /* value to be written to softconnect interface */
+  char *softconnect_disconnect;    /* value to set on the softconnect interface to disable after disconnect */
+  char *softconnect_path;	   /* path for the softconnect */
+  char *android_extra_sysfs_path;  /* path for static value that never changes that needs to be set by sysfs :( */
+  char *android_extra_sysfs_value; /* static value that never changes that needs to be set by sysfs :( */
   /*@} */
 }mode_list_elem;
 
