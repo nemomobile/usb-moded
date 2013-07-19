@@ -1,3 +1,18 @@
+usb-moded (0.64) unstable; urgency=low
+
+  * Working android gadget support for diag and acm modes
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com> Fri, 19 Jul 2013 17:47:21 +0300
+
+usb-moded (0.63) unstable; urgency=low
+
+  * Major break with previous versions (new config dependencies needed)
+  * New mode configuration (only dynamic modes anymore)
+  * Support for the Android gadget is also available through dynamic modes
+  * Clean up and remove some old legacy code that will never be used anymore (HAL, ...)
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com> Thu, 12 Jul 2013 14:28:07 +0300
+
 usb-moded (0.62) unstable; urgency=low
 
   * Kernel command line parameters are now in sync with regular kernel command parameters
