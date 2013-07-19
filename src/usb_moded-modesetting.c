@@ -369,13 +369,13 @@ int set_dynamic_mode(void)
 	write_to_file(data->sysfs_path, data->sysfs_value);
 	log_debug("writing to file %s, value %s\n", data->sysfs_path, data->sysfs_value);
   }
-  if(data->softconnect)
-  {
-	write_to_file(data->softconnect_path, data->softconnect);
-  }
   if(data->android_extra_sysfs_value && data->android_extra_sysfs_path)
   {
 	write_to_file(data->android_extra_sysfs_path, data->android_extra_sysfs_value);
+  }
+  if(data->softconnect)
+  {
+	write_to_file(data->softconnect_path, data->softconnect);
   }
 
   /* functionality should be enabled, so we can enable the network now */
