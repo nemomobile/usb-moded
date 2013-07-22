@@ -213,20 +213,20 @@ ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/multi-user.target.wa
 rm %{buildroot}/etc/usb-moded/dyn-modes/sync_mode.ini
 
 %pre
-if [ "$1" -gt 1 ]; then
-  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-  gconftool-2 --makefile-uninstall-rule \
-    %{_sysconfdir}/gconf/schemas/usb-moded.schemas \
-    > /dev/null || :
-fi
+#if [ "$1" -gt 1 ]; then
+#  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
+#  gconftool-2 --makefile-uninstall-rule \
+#    %{_sysconfdir}/gconf/schemas/usb-moded.schemas \
+#    > /dev/null || :
+#fi
 
 %preun
-if [ "$1" -eq 0 ]; then
-  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-  gconftool-2 --makefile-uninstall-rule \
-    %{_sysconfdir}/gconf/schemas/usb-moded.schemas \
-    > /dev/null || :
-fi
+#if [ "$1" -eq 0 ]; then
+#  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
+#  gconftool-2 --makefile-uninstall-rule \
+#    %{_sysconfdir}/gconf/schemas/usb-moded.schemas \
+#    > /dev/null || :
+#fi
 systemctl daemon-reload
 
 %post
