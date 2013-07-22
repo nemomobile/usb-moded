@@ -1,5 +1,5 @@
 Name:     usb-moded
-Version:  0.63
+Version:  0.64
 Release:  0 
 Summary:  USB mode controller
 Group:    System/System Control
@@ -131,7 +131,33 @@ it loads unloads the relevant usb gadget modules, keeps track
 of the filesystem(s) and notifies about changes on the DBUS
 system bus.
 
-This package contains the mtp mode config.
+This package contains the mtp mode config for android.
+
+%package diag-mode-android
+Summary:  USB mode controller - android diag mode config
+Group:  Config
+
+%description diag-mode-android
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains the diag mode config for use with the
+android gadget.
+
+%package acm-mode-android
+Summary:  USB mode controller - android acm mode config
+Group:  Config
+
+%description acm-mode-android
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains the acm mode config for use with the android
+gadget.
 
 %package usb-moded-defaults
 Summary: USB mode controller - default configuration
@@ -187,20 +213,20 @@ ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/multi-user.target.wa
 rm %{buildroot}/etc/usb-moded/dyn-modes/sync_mode.ini
 
 %pre
-if [ "$1" -gt 1 ]; then
-  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-  gconftool-2 --makefile-uninstall-rule \
-    %{_sysconfdir}/gconf/schemas/usb-moded.schemas \
-    > /dev/null || :
-fi
+#if [ "$1" -gt 1 ]; then
+#  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
+#  gconftool-2 --makefile-uninstall-rule \
+#    %{_sysconfdir}/gconf/schemas/usb-moded.schemas \
+#    > /dev/null || :
+#fi
 
 %preun
-if [ "$1" -eq 0 ]; then
-  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-  gconftool-2 --makefile-uninstall-rule \
-    %{_sysconfdir}/gconf/schemas/usb-moded.schemas \
-    > /dev/null || :
-fi
+#if [ "$1" -eq 0 ]; then
+#  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
+#  gconftool-2 --makefile-uninstall-rule \
+#    %{_sysconfdir}/gconf/schemas/usb-moded.schemas \
+#    > /dev/null || :
+#fi
 systemctl daemon-reload
 
 %post
@@ -235,6 +261,7 @@ systemctl daemon-reload
 %files developer-mode
 %defattr(-,root,root,-)
 %{_sysconfdir}/usb-moded/dyn-modes/developer_mode.ini
+%{_sysconfdir}/usb-moded/dyn-modes/sync_mode.ini
 
 %files mtp-mode
 %defattr(-,root,root,-)
@@ -257,6 +284,15 @@ systemctl daemon-reload
 %files mtp-mode-android
 %defattr(-,root,root,-)
 %{_sysconfdir}/usb-moded/dyn-modes/mtp_mode-android.ini
+
+%files diag-mode-android
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/diag_mode.ini
+%{_sysconfdir}/usb-moded/run/adb-diag.ini
+
+%files acm-mode-android
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/android_acm.ini
 
 %files usb-moded-defaults
 %defattr(-,root,root,-)
