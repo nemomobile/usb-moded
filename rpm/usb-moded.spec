@@ -108,6 +108,32 @@ system bus.
 This package contains the adb config for use with the android
 gadget driver.
 
+%package diag-mode-android
+Summary:  USB mode controller - android diag mode config
+Group:  Config
+
+%description diag-mode-android
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains the diag config for use with the android
+gadget driver.
+
+%package acm-mode-android
+Summary:  USB mode controller - android acm mode config
+Group:  Config
+
+%description acm-mode-android
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains the acm config for use with the android
+gadget driver.
+
 %package developer-mode-android
 Summary:  USB mode controller - android developer mode config
 Group:  Config
@@ -244,6 +270,15 @@ systemctl daemon-reload
 %files mass-storage-mode
 %defattr(-,root,root,-)
 %{_sysconfdir}/usb-moded/dyn-modes/mass-storage.ini
+
+%files diag-mode-android
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/diag_mode.ini
+%{_sysconfdir}/usb-moded/run/adb-diag.ini
+
+%files acm-mode-android
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/android_acm.ini
 
 %files developer-mode-android
 %defattr(-,root,root,-)
