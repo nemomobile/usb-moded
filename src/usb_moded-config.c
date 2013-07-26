@@ -278,8 +278,8 @@ static const char * get_kcmdline_string(const char *entry)
     if (!g_ascii_strcasecmp(arg_tokens[0], "ip"))
     {
       network_tokens = g_strsplit(arg_tokens[1], ":", 7);
-      /* check if it is for the usb */
-      if(!strcmp(network_tokens[5], "usb0"))
+      /* check if it is for the usb or rndis interface */
+      if(g_strrstr(network_tokens[5], "usb")|| (g_strrstr(network_tokens[5], "rndis")))
       {
 	if(!strcmp(entry, NETWORK_IP_KEY))
 	{
