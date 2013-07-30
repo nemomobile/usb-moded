@@ -1,3 +1,9 @@
+usb-moded (0.64.1) unstable; urgency=low
+
+  * Fix bug in kernel command line handling so it works for all usb interfaces
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com> Tue, 30 Jul 2013 14:57:04 +0300
+
 usb-moded (0.64) unstable; urgency=low
 
   * Working android gadget support for diag and acm modes
