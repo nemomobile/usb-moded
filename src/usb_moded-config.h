@@ -53,6 +53,7 @@
 #define ANDROID_ENTRY			"android"
 #define ANDROID_MANUFACTURER_KEY	"manufacturer"
 #define ANDROID_VENDOR_KEY		"vendor"
+#define ANDROID_PRODUCT_KEY		"product"
 
 const char * find_mounts(void);
 int find_sync(void);
@@ -83,6 +84,7 @@ const char * get_soft_connect_path(void);
 
 const char * get_android_manufacturer(void);
 const char * get_android_vendor(void);
+const char * get_android_product(void);
 
 int check_android_section(void);
 

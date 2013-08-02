@@ -60,5 +60,11 @@ void android_init_values(void)
 	write_to_file("/sys/class/android_usb/android0/idVendor", text);
 	g_free((char *)text);
   }
+  text = get_android_product();
+  if(text)
+  {
+	write_to_file("/sys/class/android_usb/android0/iProduct", text);
+	g_free((char *)text);
+  }
   
 }

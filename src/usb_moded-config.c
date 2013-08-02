@@ -509,6 +509,11 @@ const char * get_android_vendor(void)
   return(get_conf_string(ANDROID_ENTRY, ANDROID_VENDOR_KEY));
 }
 
+const char * get_android_product(void)
+{
+  return(get_conf_string(ANDROID_ENTRY, ANDROID_PRODUCT_KEY));
+}
+
 int check_android_section(void)
 {
   GKeyFile *settingsfile;
