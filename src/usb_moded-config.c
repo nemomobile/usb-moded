@@ -203,7 +203,7 @@ static int get_conf_int(const gchar *entry, const gchar *key)
         }
         keys++;
   }
-  g_strfreev(keys);
+  //g_strfreev(keys);
   g_key_file_free(settingsfile);
   return(ret);
 
@@ -237,7 +237,7 @@ static const char * get_conf_string(const gchar *entry, const gchar *key)
         }
         keys++;
   }
-  g_strfreev(keys);
+  //g_strfreev(keys);
   g_key_file_free(settingsfile);
   return(g_strdup(tmp_char));
 
@@ -431,7 +431,7 @@ int conf_file_merge(void)
   */
   if(fileinfo.st_mtime == dir.st_mtime)
   {
-	/* if a conffile was created, the st_mtime would have been updated so this check will miss infomaxitrion that might be there already,
+	/* if a conffile was created, the st_mtime would have been updated so this check will miss information that might be there already,
 	   like after a config file removal for example. So we run a merge anyway if we needed to create the conf file */
 	if(!conffile_created)
 		return 0;
@@ -526,7 +526,7 @@ int check_android_section(void)
         return 0;
   }
 
-  g_strfreev(keys);
+  //g_strfreev(keys);
   g_key_file_free(settingsfile);
   return 1;
 }
