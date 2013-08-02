@@ -153,14 +153,21 @@ static void create_conf_file(void)
   GKeyFile *settingsfile;
   gchar *keyfile;
   int dir = 1;
+  struct stat dir_stat;
 
-  dir = mkdir(CONFIG_FILE_DIR, 0755);
-  if(dir < 0)
+  /* since this function can also be called when the dir exists we only create
+     it if it is missing */
+  if(stat(CONFIG_FILE_DIR, &dir_stat))
   {
-	log_warning("Could not create confdir, continuing without configuration!\n");
-	/* no point in trying to generate the config file if the dir cannot be created */
-	return;
+	dir = mkdir(CONFIG_FILE_DIR, 0755);
+	if(dir < 0)
+	{
+		log_warning("Could not create confdir, continuing without configuration!\n");
+		/* no point in trying to generate the config file if the dir cannot be created */
+		return;
+	}
   }
+
   settingsfile = g_key_file_new();
 
   g_key_file_set_string(settingsfile, MODE_SETTING_ENTRY, MODE_SETTING_KEY, MODE_DEVELOPER );
