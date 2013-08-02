@@ -1,5 +1,5 @@
 Name:     usb-moded
-Version:  0.63
+Version:  0.65
 Release:  0 
 Summary:  USB mode controller
 Group:    System/System Control
@@ -159,6 +159,18 @@ system bus.
 
 This package contains the mtp mode config.
 
+%package pc-suite-mode-android
+Summary:  USB mode controller - android pc suite  mode config
+Group:  Config
+
+%description pc-suite-mode-android
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains the android pc suite mode config.
+
 %package usb-moded-defaults
 Summary: USB mode controller - default configuration
 Group: Config
@@ -292,6 +304,10 @@ systemctl daemon-reload
 %files mtp-mode-android
 %defattr(-,root,root,-)
 %{_sysconfdir}/usb-moded/dyn-modes/mtp_mode-android.ini
+
+%files pc-suite-mode-android
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/pc_suite-android.ini
 
 %files usb-moded-defaults
 %defattr(-,root,root,-)
