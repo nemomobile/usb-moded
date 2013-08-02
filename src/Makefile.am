@@ -32,7 +32,9 @@ usb_moded_SOURCES = \
 	usb_moded-mac.h \
 	usb_moded-dyn-config.c \
 	usb_moded-dyn-config.h \
-	usb_moded-modules.c 
+	usb_moded-modules.c \
+	usb_moded-android.h \
+	usb_moded-android.c
 
 if GCONF
 usb_moded_SOURCES += \

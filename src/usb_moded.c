@@ -51,6 +51,7 @@
 #include "usb_moded-config-private.h"
 #include "usb_moded-network.h"
 #include "usb_moded-mac.h"
+#include "usb_moded-android.h"
 
 /* global definitions */
 
@@ -469,6 +470,9 @@ static void usb_moded_init(void)
   ctx = kmod_new(NULL, NULL);
   kmod_load_resources(ctx);
 
+  /* Android specific stuff */
+  if(android_settings())
+  	android_init_values();
   /* TODO: add more start-up clean-up and init here if needed */
 }	
 

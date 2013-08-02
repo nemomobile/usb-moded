@@ -196,6 +196,7 @@ static int get_conf_int(const gchar *entry, const gchar *key)
         }
         keys++;
   }
+  g_strfreev(keys);
   g_key_file_free(settingsfile);
   return(ret);
 
@@ -229,6 +230,7 @@ static const char * get_conf_string(const gchar *entry, const gchar *key)
         }
         keys++;
   }
+  g_strfreev(keys);
   g_key_file_free(settingsfile);
   return(g_strdup(tmp_char));
 
@@ -304,7 +306,6 @@ static const char * get_kcmdline_string(const char *entry)
   return(ret);
 }
 
-#ifndef GCONF
 const char * get_mode_setting(void)
 {
   const char * mode = get_kcmdline_string(MODE_SETTING_KEY);
@@ -379,8 +380,6 @@ int set_network_setting(const char *config, const char *setting)
   /* g_file_set_contents returns 1 on succes, since set_mode_settings returns 0 on succes we return the ! value */
   return(!ret);
 }
-
-#endif
 
 int conf_file_merge(void)
 {
@@ -493,3 +492,35 @@ end:
   g_dir_close(confdir);
   return(ret);
 }
+
+const char * get_android_manufacturer(void)
+{
+  return(get_conf_string(ANDROID_ENTRY, ANDROID_MANUFACTURER_KEY));
+}
+const char * get_android_vendor(void)
+{
+  return(get_conf_string(ANDROID_ENTRY, ANDROID_VENDOR_KEY));
+}
+
+int check_android_section(void)
+{
+  GKeyFile *settingsfile;
+  gboolean test = FALSE;
+  gchar **keys;
+
+  settingsfile = g_key_file_new();
+  test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
+  if(!test)
+	return 0;
+  keys = g_key_file_get_keys (settingsfile, ANDROID_ENTRY, NULL, NULL);
+  if(keys == NULL)
+  {  
+	g_key_file_free(settingsfile);
+        return 0;
+  }
+
+  g_strfreev(keys);
+  g_key_file_free(settingsfile);
+  return 1;
+}
+
