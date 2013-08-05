@@ -338,11 +338,6 @@ gchar *get_mode_list(void)
 
   modelist_str = g_string_new(NULL);
 
-#ifdef N900
-  asprintf(&modelist_str->str, "%s, %s, %s, %s, %s", MODE_MASS_STORAGE, MODE_OVI_SUITE, MODE_CHARGING, MODE_DEVELOPER, MODE_MTP);
-#else
-  asprintf(&modelist_str->str, "%s, %s, %s, %s", MODE_MASS_STORAGE, MODE_CHARGING, MODE_DEVELOPER, MODE_MTP);
-#endif /* N900 */
   {
     /* check dynamic modes */
     if(modelist)
@@ -357,6 +352,8 @@ gchar *get_mode_list(void)
       }
     }
   }
+  /* end with charging mode */
+  g_string_append(modelist_str, MODE_CHARGING);
   return(g_string_free(modelist_str, FALSE));
 }
 
