@@ -1,3 +1,11 @@
+usb-moded (0.65.1) unstable; urgency=low
+  
+  * Fix up pc_suite name and feedback string from usb_moded_util
+  * Fix missing charging only mode in usb modes query
+  * Update the usb-moded dbus config so the supported modes can be queried by a normal user
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com> Tue, 06 Aug 2013 17:28:18 +0300
+
 usb-moded (0.65) unstable; urgency=low
 
   * Fixed bug where config file merging does not work when removing the main config file
