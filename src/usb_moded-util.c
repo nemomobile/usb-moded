@@ -139,7 +139,7 @@ static int set_mode_config (char *mode)
   DBusMessage *req = NULL, *reply = NULL;
   char *ret = 0;
 
-  printf("Trying to set the following mode %s\n", mode);
+  printf("Trying to set the following mode %s in the config file\n", mode);
   if ((req = dbus_message_new_method_call(USB_MODE_SERVICE, USB_MODE_OBJECT, USB_MODE_INTERFACE, USB_MODE_CONFIG_SET)) != NULL)
   {
 	dbus_message_append_args (req, DBUS_TYPE_STRING, &mode, DBUS_TYPE_INVALID);
