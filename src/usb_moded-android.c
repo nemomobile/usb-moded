@@ -54,7 +54,7 @@ void android_init_values(void)
 	write_to_file("/sys/class/android_usb/android0/iManufacturer", text);
 	g_free((char *)text);
   }
-  text = get_android_vendor();
+  text = get_android_vendor_id();
   if(text)
   {
 	write_to_file("/sys/class/android_usb/android0/idVendor", text);
@@ -64,6 +64,12 @@ void android_init_values(void)
   if(text)
   {
 	write_to_file("/sys/class/android_usb/android0/iProduct", text);
+	g_free((char *)text);
+  }
+  text = get_android_product_id();
+  if(text)
+  {
+	write_to_file("/sys/class/android_usb/android0/idProduct", text);
 	g_free((char *)text);
   }
   

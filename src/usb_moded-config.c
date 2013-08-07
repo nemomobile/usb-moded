@@ -504,14 +504,20 @@ const char * get_android_manufacturer(void)
 {
   return(get_conf_string(ANDROID_ENTRY, ANDROID_MANUFACTURER_KEY));
 }
-const char * get_android_vendor(void)
+
+const char * get_android_vendor_id(void)
 {
-  return(get_conf_string(ANDROID_ENTRY, ANDROID_VENDOR_KEY));
+  return(get_conf_string(ANDROID_ENTRY, ANDROID_VENDOR_ID_KEY));
 }
 
 const char * get_android_product(void)
 {
   return(get_conf_string(ANDROID_ENTRY, ANDROID_PRODUCT_KEY));
+}
+
+const char * get_android_product_id(void)
+{
+  return(get_conf_string(ANDROID_ENTRY, ANDROID_PRODUCT_ID_KEY));
 }
 
 int check_android_section(void)

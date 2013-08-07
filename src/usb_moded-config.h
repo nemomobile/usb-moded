@@ -51,9 +51,10 @@
 #define SOFT_CONNECT_ENTRY		"soft_connect"
 #define SOFT_CONNECT_PATH_KEY		"soft_connect_path"
 #define ANDROID_ENTRY			"android"
-#define ANDROID_MANUFACTURER_KEY	"idManufacturer"
-#define ANDROID_VENDOR_KEY		"idVendor"
-#define ANDROID_PRODUCT_KEY		"idProduct"
+#define ANDROID_MANUFACTURER_KEY	"iManufacturer"
+#define ANDROID_VENDOR_ID_KEY		"idVendor"
+#define ANDROID_PRODUCT_KEY		"iProduct"
+#define ANDROID_PRODUCT_ID_KEY		"idProduct"
 
 const char * find_mounts(void);
 int find_sync(void);
@@ -83,8 +84,9 @@ const char * get_network_gateway(void);
 const char * get_soft_connect_path(void);
 
 const char * get_android_manufacturer(void);
-const char * get_android_vendor(void);
+const char * get_android_vendor_id(void);
 const char * get_android_product(void);
+const char * get_android_product_id(void);
 
 int check_android_section(void);
 
