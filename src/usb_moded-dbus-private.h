@@ -29,10 +29,3 @@ int usb_moded_send_signal(const char *state_ind);
 
 /* send error signal system bus */
 int usb_moded_send_error_signal(const char *error);
-
-#ifdef NOKIA
-/* track dsme shutdown indication signal */
-int usb_moded_dsme_listener(void);
-
-
-#endif

@@ -36,10 +36,6 @@
 #include "usb_moded-config-private.h"
 #include "usb_moded-log.h"
 
-#ifdef NOKIA
-static DBusHandlerResult usb_moded_dsme_cb(DBusConnection *conn, DBusMessage *msg, void *user_data);
-#endif
-
 static DBusConnection *dbus_connection_sys = NULL;
 extern gboolean rescue_mode;
 
@@ -353,62 +349,3 @@ EXIT:
 
   return result;
 }
-
-#ifdef NOKIA
-int usb_moded_dsme_listener(void)
-{
-  DBusError       err = DBUS_ERROR_INIT;
-  DBusConnection *dbus_conn_dsme = NULL;
-
-  if( (dbus_conn_dsme = dbus_bus_get(DBUS_BUS_SYSTEM, &err)) == 0 )
-  {
-         log_err("Could not connect to dbus for dsme\n");
-         goto cleanup;
-  }
-
-  dbus_bus_add_match(dbus_conn_dsme, "type='signal',interface='com.nokia.dsme.signal',path='/com/nokia/dsme/signal'", &err);
-  if( dbus_error_is_set(&err) )
-  {
-    goto cleanup;
-  }
-  if( !dbus_connection_add_filter(dbus_conn_dsme, usb_moded_dsme_cb , 0, 0) )
-  {
-        log_err("adding system dbus filter for dsme failed");
-    goto cleanup;
-  }
-  dbus_connection_setup_with_g_main(dbus_conn_dsme, NULL);
-
-cleanup:
-  dbus_error_free(&err);
-  return(1);
-}
-
-static DBusHandlerResult usb_moded_dsme_cb(DBusConnection *conn, DBusMessage *msg, void *user_data)
-{
-  DBusHandlerResult   result    = DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-  const char         *interface = dbus_message_get_interface(msg);
-  const char         *member    = dbus_message_get_member(msg);
-  const char         *object    = dbus_message_get_path(msg);
-  int                 type      = dbus_message_get_type(msg);
-
-  (void) user_data;
-
-  // sanity checks
-  if( !interface || !member || !object ) goto cleanup;
-  if( type != DBUS_MESSAGE_TYPE_SIGNAL ) goto cleanup;
-  if( strcmp(interface, "com.nokia.dsme.signal") ) goto cleanup;
-  if( strcmp(object, "/com/nokia/dsme/signal") )  goto cleanup;
-
-  // handle known signals
-  else if( !strcmp(member, "shutdown_ind") )
-  {
-        log_debug("Shutdown indication. Cleaning up.\n");
-	set_usb_mode(MODE_CHARGING);
-  }
-  result = DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-
-cleanup:
-  return result;
-}
-
-#endif /* NOKIA */

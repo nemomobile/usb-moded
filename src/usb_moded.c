@@ -61,7 +61,6 @@ extern int log_type;
 
 gboolean rescue_mode;
 
-gboolean runlevel_ignore = FALSE;
 gboolean hw_fallback = FALSE;
 struct usb_mode current_mode;
 guint charging_timeout = 0;
@@ -509,7 +508,6 @@ static void usage(void)
                   "  -h,  --help          display this help and exit\n"
 		  "  -r,  --rescue	  rescue mode\n"
                   "  -v,  --version       output version information and exit\n"
-		  "  -w,  --watch-off	  do not act on runlevel change\n"
                   "\n");
 }
 
@@ -533,7 +531,7 @@ int main(int argc, char* argv[])
 	log_name = basename(*argv);
 
 	 /* Parse the command-line options */
-        while ((opt = getopt_long(argc, argv, "fsTDhrvw", options, &opt_idx)) != -1) 
+        while ((opt = getopt_long(argc, argv, "fsTDhrv", options, &opt_idx)) != -1) 
 	{
                 switch (opt) 
 		{
@@ -564,10 +562,6 @@ int main(int argc, char* argv[])
 				printf("USB mode daemon version: %s\n", VERSION);
 				exit(0);
 
-			case 'w':
-				runlevel_ignore = TRUE;
-				printf("Ignore runlevel changes.\n");
-				break;
 	                default:
         	                usage();
 				exit(0);
@@ -608,8 +602,6 @@ int main(int argc, char* argv[])
 	}
 #ifdef MEEGOLOCK
 	start_devicelock_listener();
-	if(!runlevel_ignore)
-		usb_moded_dsme_listener();
 #endif /* MEEGOLOCK */
 
 	/* init succesful, run main loop */
