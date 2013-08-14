@@ -66,3 +66,28 @@ void generate_random_mac (void)
   fprintf(g_ether, "%02x\n",addr[i]);
   fclose(g_ether);
 }
+
+char * read_mac(void)
+{
+  FILE *g_ether;
+  char *mac = NULL, *ret = NULL;
+  size_t read = 0;
+
+  g_ether = fopen("/etc/modprobe.d/g_ether.conf", "r");
+  if(!g_ether)
+  {
+	log_warning("Failed to read mac address from /etc/modprobe.d/g_ether.conf\n");
+	return(NULL);
+  }
+  fseek(g_ether, 26, SEEK_SET);
+  mac = malloc(sizeof(char) *17);
+  if(mac)
+	read = fread(mac, 1, 17, g_ether);
+  log_debug("mac = %s, read = %d\n", mac, read);
+  if(read == 17)
+	ret = strndup(mac,17);
+  else
+	ret = 0;
+  free(mac);
+  return(ret);
+}

@@ -21,3 +21,4 @@
 */
 
 void generate_random_mac (void);
+char * read_mac(void);

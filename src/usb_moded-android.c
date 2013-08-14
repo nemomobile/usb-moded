@@ -27,6 +27,7 @@
 #include "usb_moded-log.h"
 #include "usb_moded-modesetting.h"
 #include "usb_moded-config.h"
+#include "usb_moded-mac.h"
 
 /** check if android settings are set
  *
@@ -72,5 +73,12 @@ void android_init_values(void)
 	write_to_file("/sys/class/android_usb/android0/idProduct", text);
 	g_free((char *)text);
   }
-  
+  text = read_mac();
+  if(text)
+  {
+	write_to_file("/sys/class/android_usb/f_rndis/ethaddr", text);
+	g_free((char *)text);
+  }
+}
+
 }
