@@ -451,7 +451,7 @@ int conf_file_merge(void)
 		/* store udev path (especially important for the upgrade path */
 		udev = find_udev_path();
 #endif /* UDEV */
-		break;
+		continue;
 	}
 	/* load contents of file, if it fails skip to next one */
 	settingsfile = g_key_file_new();
