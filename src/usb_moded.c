@@ -247,6 +247,9 @@ void set_usb_mode(const char *mode)
 	set_usb_module(MODULE_MASS_STORAGE);
 	/* MODULE_CHARGING has all the parameters defined, so it will not match the g_file_storage rule in usb_moded_load_module */
 	ret = usb_moded_load_module(MODULE_CHARGING);
+	/* if charging mode setting did not succeed we might be dealing with android */
+	if(ret)
+	  ret = set_android_charging_mode();
 	goto end;
   }
   else if(!strcmp(mode, MODE_ASK) || !strcmp(mode, MODE_CHARGER))

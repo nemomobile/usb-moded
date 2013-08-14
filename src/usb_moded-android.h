@@ -22,3 +22,4 @@
 
 int android_settings(void);
 void android_init_values(void);
+int set_android_charging_mode(void);
