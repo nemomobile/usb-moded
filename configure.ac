@@ -1,4 +1,4 @@
-AC_INIT([usb_moded], [0.65.1])
+AC_INIT([usb_moded], [0.66])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AM_CONFIG_HEADER([config.h])
@@ -62,12 +62,12 @@ AC_ARG_ENABLE([gconf], AS_HELP_STRING([--enable-gconf], [Use GConf for configura
    esac],[gconf=false])
 AM_CONDITIONAL([GCONF], [test x$gconf = xtrue])
 
-AC_ARG_ENABLE([app_sync], AS_HELP_STRING([--enable-app-sync], [Enable application syncing @<:@default=false@:>@]),
+AC_ARG_ENABLE([app_sync], AS_HELP_STRING([--enable-app-sync], [Enable application syncing @<:@default=true@:>@]),
   [case "${enableval}" in
    yes) app_sync=true ; CFLAGS="-DAPP_SYNC $CFLAGS" ;;
    no)  app_sync=false ;;
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-app-sync]) ;;
-   esac],[app_sync=false])
+   esac],[app_sync=true])
 AM_CONDITIONAL([APP_SYNC], [test x$app_sync = xtrue])
 
 AC_ARG_ENABLE([udev], AS_HELP_STRING([--enable-udev], [Enable udev interface @<:@default=true@:>@]),
