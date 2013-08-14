@@ -219,7 +219,7 @@ void set_usb_connected_state(void)
   }
   else
   {
-	/* gconf is corrupted or does not return a value, fallback to charging 
+	/* config is corrupted or we do not have a mode configured, fallback to charging
 	   We also fall back here in case the device is locked and we do not 
 	   export the system contents. Or if we are in acting dead mode.
 	*/
