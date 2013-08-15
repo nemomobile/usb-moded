@@ -83,7 +83,6 @@ char * read_mac(void)
   mac = malloc(sizeof(char) *17);
   if(mac)
 	read = fread(mac, 1, 17, g_ether);
-  log_debug("mac = %s, read = %d\n", mac, read);
   if(read == 17)
 	ret = strndup(mac,17);
   else
