@@ -462,7 +462,7 @@ int usb_moded_mode_cleanup(const char *module)
 
 	if(!module)
 	{
-		log_warn("No module found to unload. Skipping cleanup\n");
+		log_warning("No module found to unload. Skipping cleanup\n");
 		return 0;
 	}
 
