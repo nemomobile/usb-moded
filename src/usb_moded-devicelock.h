@@ -23,10 +23,10 @@
 
 /*============================================================================= */
 
-#define DEVICELOCK_SERVICE		"com.nokia.devicelock"
-#define DEVICELOCK_REQUEST_PATH		"/request"
-#define DEVICELOCK_REQUEST_IF		"com.nokia.devicelock"
-#define DEVICELOCK_STATE_REQ		"getState"
+#define DEVICELOCK_SERVICE		"org.nemomobile.lipstick"
+#define DEVICELOCK_REQUEST_PATH		"/devicelock"
+#define DEVICELOCK_REQUEST_IF		"org.nemomobile.lipstick.devicelock"
+#define DEVICELOCK_STATE_REQ		"state"
 
 #define DEVICELOCK_LOCKED		"Locked"
 
