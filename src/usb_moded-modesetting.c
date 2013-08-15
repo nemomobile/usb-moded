@@ -460,6 +460,12 @@ int usb_moded_mode_cleanup(const char *module)
 
 	log_debug("Cleaning up mode\n");
 
+	if(!module)
+	{
+		log_warn("No module found to unload. Skipping cleanup\n");
+		return 0;
+	}
+
 #ifdef APP_SYNC
 	appsync_stop();
 #endif /* APP_SYNC */
