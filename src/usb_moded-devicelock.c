@@ -110,7 +110,7 @@ static DBusHandlerResult devicelock_unlocked_cb(DBusConnection *conn, DBusMessag
   const char         *member    = dbus_message_get_member(msg);
   const char         *object    = dbus_message_get_path(msg);
   int                 type      = dbus_message_get_type(msg);
-  int ret=0, ret1 = 0;
+  int ret=0;
 
   (void) user_data;
 
@@ -123,7 +123,7 @@ static DBusHandlerResult devicelock_unlocked_cb(DBusConnection *conn, DBusMessag
   // handle known signals
   else if( !strcmp(member, "stateChanged") )
   {
-        dbus_message_get_args(msg, NULL, DBUS_TYPE_INT32, &ret1, DBUS_TYPE_INT32, &ret, DBUS_TYPE_INVALID);
+        dbus_message_get_args(msg, NULL, DBUS_TYPE_INT32, &ret, DBUS_TYPE_INVALID);
   	log_debug("Devicelock state changed. New state = %d\n", ret);
   	if(ret == 0 && get_usb_connection_state() == 1 )
   	{	
