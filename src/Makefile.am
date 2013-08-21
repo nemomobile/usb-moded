@@ -51,7 +51,9 @@ endif
 if MEEGOLOCK
 usb_moded_SOURCES += \
 	usb_moded-devicelock.h \
-	usb_moded-devicelock.c 
+	usb_moded-devicelock.c \
+	usb_moded-dsme.h \
+	usb_moded-dsme.c
 endif
 
 if APP_SYNC
