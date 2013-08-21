@@ -50,7 +50,6 @@ int usb_moded_get_export_permission(void)
   DBusMessage *msg = NULL, *reply = NULL;
   DBusError error;
   int ret = 2;
-  dbus_int32_t arg = 1;
 
   dbus_error_init(&error);
 
@@ -126,7 +125,7 @@ static DBusHandlerResult devicelock_unlocked_cb(DBusConnection *conn, DBusMessag
     log_debug("Devicelock state changed. New state = %d\n", ret);
   	if(ret == 0 && get_usb_connection_state() == 1 )
   	{	
-        log_debug("usb_mode %d\n", get_usb_mode());
+        log_debug("usb_mode %s\n", get_usb_mode());
             if(!strcmp(get_usb_mode(), MODE_UNDEFINED) || !strcmp(get_usb_mode(), MODE_CHARGING)) {
             log_debug("set_usb");
 			set_usb_connected_state();
