@@ -91,9 +91,11 @@ static struct mode_list_elem *read_mode_file(const gchar *filename)
   list_item->softconnect_disconnect = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SOFTCONNECT_DISCONNECT, NULL);
   list_item->softconnect_path = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SOFTCONNECT_PATH, NULL);
   list_item->android_extra_sysfs_path = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_ANDROID_EXTRA_SYSFS_PATH, NULL);
-  //log_debug("Android extra mode sysfs path = %s\n", list_item->android_extra_sysfs_path);
+  list_item->android_extra_sysfs_path2 = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_ANDROID_EXTRA_SYSFS_PATH2, NULL);
+  //log_debug("Android extra mode sysfs path2 = %s\n", list_item->android_extra_sysfs_path2);
   list_item->android_extra_sysfs_value = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_ANDROID_EXTRA_SYSFS_VALUE, NULL);
-  //log_debug("Android extra value = %s\n", list_item->android_extra_sysfs_value);
+  list_item->android_extra_sysfs_value2 = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_ANDROID_EXTRA_SYSFS_VALUE2, NULL);
+  //log_debug("Android extra value2 = %s\n", list_item->android_extra_sysfs_value2);
   g_key_file_free(settingsfile);
   if(list_item->mode_name == NULL || list_item->mode_module == NULL)
   {

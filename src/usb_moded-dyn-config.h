@@ -42,6 +42,9 @@
 android engineers prefered to have sysfs entries... go figure... */
 #define MODE_ANDROID_EXTRA_SYSFS_PATH	"android_extra_sysfs_path"
 #define MODE_ANDROID_EXTRA_SYSFS_VALUE	"android_extra_sysfs_value"
+/* in combined android gadgets we sometime need more than one extra sysfs path or value */
+#define MODE_ANDROID_EXTRA_SYSFS_PATH2	"android_extra_sysfs_path2"
+#define MODE_ANDROID_EXTRA_SYSFS_VALUE2	"android_extra_sysfs_value2"
 
 /**
  * Struct keeping all the data needed for the definition of a dynamic mode
@@ -62,6 +65,8 @@ typedef struct mode_list_elem
   char *softconnect_path;	   /* path for the softconnect */
   char *android_extra_sysfs_path;  /* path for static value that never changes that needs to be set by sysfs :( */
   char *android_extra_sysfs_value; /* static value that never changes that needs to be set by sysfs :( */
+  char *android_extra_sysfs_path2;  /* path for static value that never changes that needs to be set by sysfs :( */
+  char *android_extra_sysfs_value2; /* static value that never changes that needs to be set by sysfs :( */
   /*@} */
 }mode_list_elem;
 
