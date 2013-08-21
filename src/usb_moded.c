@@ -31,6 +31,10 @@
 #ifdef NOKIA
 #include <string.h>
 #endif
+#ifdef MEEGOLOCK
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib-lowlevel.h>
+#endif
 
 #include <libkmod.h>
 
@@ -77,6 +81,43 @@ static void usage(void);
 
 
 /* ============= Implementation starts here =========================================== */
+#ifdef MEEGOLOCK
+/** Checks if the device is is USER-state.
+ *
+ * @return 1 if it is in USER-state, 0 for not
+ *
+ */
+int isUserState(void)
+{
+  DBusConnection *dbus_conn = NULL;
+  DBusMessage *msg = NULL, *reply = NULL;
+  DBusError error;
+  int ret = 0;
+  char* buffer = NULL;
+
+  dbus_error_init(&error);
+
+  if( (dbus_conn = dbus_bus_get(DBUS_BUS_SYSTEM, &error)) == 0 )
+  {
+     log_err("Could not connect to dbus for isUserState()");
+  }
+
+  if ((msg = dbus_message_new_method_call("com.nokia.dsme", "/request", "com.nokia.dsme.request", "get_state")) != NULL)
+  {
+    if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn, msg, -1, NULL)) != NULL)
+    {
+       dbus_message_get_args(reply, &error, DBUS_TYPE_STRING, &buffer, DBUS_TYPE_INVALID);
+       dbus_message_unref(reply);
+    }
+     dbus_message_unref(msg);
+  }
+  dbus_connection_unref(dbus_conn);
+
+  log_debug("is user state = %s\n", buffer);
+  if (strcmp(buffer, "USER")==0) ret = 1;
+  return(ret);
+}
+#endif
 
 /** set the usb connection status 
  *
@@ -187,10 +228,8 @@ void set_usb_connected_state(void)
 	return;
   }
 #ifdef MEEGOLOCK
-  int act_dead = 0;
-  /* check if we are in acting dead or not, /tmp/USER will not exist in acting dead */
-  act_dead = access("/tmp/USER", R_OK);
-  if(mode_to_set && !export && !act_dead)
+  int user = isUserState(); // don't proceed on act_dead mode
+  if(mode_to_set && !export && user)
 #else
   if(mode_to_set)
 #endif /* MEEGOLOCK */

@@ -61,13 +61,12 @@ int usb_moded_get_export_permission(void)
 
   if ((msg = dbus_message_new_method_call(DEVICELOCK_SERVICE, DEVICELOCK_REQUEST_PATH, DEVICELOCK_REQUEST_IF, DEVICELOCK_STATE_REQ)) != NULL) 
   {
-	dbus_message_append_args (msg, DBUS_TYPE_INT32, &arg, DBUS_TYPE_INVALID);
-        if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_devicelock, msg, -1, NULL)) != NULL) 
+    if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_devicelock, msg, -1, NULL)) != NULL)
 	{
-            dbus_message_get_args(reply, NULL, DBUS_TYPE_INT32, &ret, DBUS_TYPE_INVALID);
-            dbus_message_unref(reply);
-        }
-        dbus_message_unref(msg);
+       dbus_message_get_args(reply, NULL, DBUS_TYPE_INT32, &ret, DBUS_TYPE_INVALID);
+       dbus_message_unref(reply);
+     }
+     dbus_message_unref(msg);
   } 
   dbus_connection_unref(dbus_conn_devicelock);
   
@@ -124,11 +123,14 @@ static DBusHandlerResult devicelock_unlocked_cb(DBusConnection *conn, DBusMessag
   else if( !strcmp(member, "stateChanged") )
   {
         dbus_message_get_args(msg, NULL, DBUS_TYPE_INT32, &ret, DBUS_TYPE_INVALID);
-  	log_debug("Devicelock state changed. New state = %d\n", ret);
+    log_debug("Devicelock state changed. New state = %d\n", ret);
   	if(ret == 0 && get_usb_connection_state() == 1 )
   	{	
-         	if(!strcmp(get_usb_mode(), MODE_UNDEFINED) || !strcmp(get_usb_mode(), MODE_CHARGING))
+        log_debug("usb_mode %d\n", get_usb_mode());
+            if(!strcmp(get_usb_mode(), MODE_UNDEFINED) || !strcmp(get_usb_mode(), MODE_CHARGING)) {
+            log_debug("set_usb");
 			set_usb_connected_state();
+        }
   	}
   }
   result = DBUS_HANDLER_RESULT_NOT_YET_HANDLED;

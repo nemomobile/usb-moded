@@ -210,7 +210,7 @@ modes with the android gadget driver)
 
 %build
 %autogen
-%configure --enable-app-sync --enable-udev --enable-n900
+%configure --enable-app-sync --enable-udev --enable-n900 --enable-meegodevlock 
 make all doc %{?_smp_mflags}
 
 %install
