@@ -1,5 +1,5 @@
 Name:     usb-moded
-Version:  0.66
+Version:  0.67
 Release:  0 
 Summary:  USB mode controller
 Group:    System/System Control

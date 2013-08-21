@@ -1,3 +1,10 @@
+usb-moded (0.67) unstable; urgency=low
+
+  * Add devicelock support for lipstick
+  * Support more sysfs paths for android (for composite gadgets with several functions)
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com> Wed, 21 Aug 2013 14:41:57 +0300
+
 usb-moded (0.66) unstable; urgency=low
 
   * Fix bug with configuration merging.
