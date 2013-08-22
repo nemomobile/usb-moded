@@ -1,3 +1,9 @@
+usb-moded (0.67.1) unstable; urgency=low
+
+  * Use mass_storage also as fake charging mode with android gadget
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com> Thu, 22 Aug 2013 16:37:12 +0300
+
 usb-moded (0.67) unstable; urgency=low
 
   * Add devicelock support for lipstick
