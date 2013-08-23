@@ -40,6 +40,7 @@
 #include "usb_moded-modesetting.h"
 #include "usb_moded-network.h"
 #include "usb_moded-upstart.h"
+#include "usb_moded-android.h"
 
 static void report_mass_storage_blocker(const char *mountpoint, int try);
 
@@ -377,6 +378,12 @@ int set_dynamic_mode(void)
 	write_to_file(data->sysfs_path, data->sysfs_value);
 	log_debug("writing to file %s, value %s\n", data->sysfs_path, data->sysfs_value);
   }
+  if(data->idProduct)
+  {
+	/* only works for android since the idProduct is a module parameter */
+	set_android_productid(data->idProduct);
+  }
+  /* enable the device */
   if(data->softconnect)
   {
 	write_to_file(data->softconnect_path, data->softconnect);

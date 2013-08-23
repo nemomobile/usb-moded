@@ -91,8 +91,25 @@ int set_android_charging_mode(void)
 
    /* disable, set functions to "mass_storage", re-enable */
    write_to_file("/sys/class/android_usb/android0/enable", "0");
+   write_to_file("/sys/class/android_usb/android0/idProduct", "9999");
    write_to_file("/sys/class/android_usb/android0/functions", "mass_storage");
    ret = write_to_file("/sys/class/android_usb/android0/enable", "1");
+   if(ret < 0)
+	return(1);
+   else
+	return(ret);
+}
+
+/* Set a product id for the android gadget
+ *
+ * @return 0 if successful, 1 on failure
+ */
+int set_android_productid(char *id)
+{
+   int ret = 0;
+
+   /* disable, set functions to "mass_storage", re-enable */
+   write_to_file("/sys/class/android_usb/android0/idProduct", id);
    if(ret < 0)
 	return(1);
    else

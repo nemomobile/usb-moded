@@ -45,6 +45,8 @@ android engineers prefered to have sysfs entries... go figure... */
 /* in combined android gadgets we sometime need more than one extra sysfs path or value */
 #define MODE_ANDROID_EXTRA_SYSFS_PATH2	"android_extra_sysfs_path2"
 #define MODE_ANDROID_EXTRA_SYSFS_VALUE2	"android_extra_sysfs_value2"
+/* For windows different modes/usb profiles need their own idProduct */
+#define MODE_IDPRODUCT			"idProduct"
 
 /**
  * Struct keeping all the data needed for the definition of a dynamic mode
@@ -52,21 +54,22 @@ android engineers prefered to have sysfs entries... go figure... */
 typedef struct mode_list_elem
 {
   /*@{ */
-  char *mode_name;		   /* mode name */
-  char *mode_module;		   /* needed module for given mode */
-  int appsync;			   /* requires appsync or not */
-  int network;			   /* bring up network or not */
-  char *network_interface;	   /* Which network interface to bring up if network needs to be enabled */
-  char *sysfs_path;		   /* path to set sysfs options */
-  char *sysfs_value;		   /* option name/value to write to sysfs */
-  char *sysfs_reset_value;	   /* value to reset the the sysfs to default */
-  char *softconnect;		   /* value to be written to softconnect interface */
-  char *softconnect_disconnect;    /* value to set on the softconnect interface to disable after disconnect */
-  char *softconnect_path;	   /* path for the softconnect */
-  char *android_extra_sysfs_path;  /* path for static value that never changes that needs to be set by sysfs :( */
-  char *android_extra_sysfs_value; /* static value that never changes that needs to be set by sysfs :( */
-  char *android_extra_sysfs_path2;  /* path for static value that never changes that needs to be set by sysfs :( */
-  char *android_extra_sysfs_value2; /* static value that never changes that needs to be set by sysfs :( */
+  char *mode_name;			/* mode name */
+  char *mode_module;			/* needed module for given mode */
+  int appsync;				/* requires appsync or not */
+  int network;				/* bring up network or not */
+  char *network_interface;		/* Which network interface to bring up if network needs to be enabled */
+  char *sysfs_path;			/* path to set sysfs options */
+  char *sysfs_value;			/* option name/value to write to sysfs */
+  char *sysfs_reset_value;		/* value to reset the the sysfs to default */
+  char *softconnect;			/* value to be written to softconnect interface */
+  char *softconnect_disconnect;		/* value to set on the softconnect interface to disable after disconnect */
+  char *softconnect_path;		/* path for the softconnect */
+  char *android_extra_sysfs_path;	/* path for static value that never changes that needs to be set by sysfs :( */
+  char *android_extra_sysfs_value;	/* static value that never changes that needs to be set by sysfs :( */
+  char *android_extra_sysfs_path2;	/* path for static value that never changes that needs to be set by sysfs :( */
+  char *android_extra_sysfs_value2;	/* static value that never changes that needs to be set by sysfs :( */
+  char *idProduct;			/* product id to assign to a specific profile */
   /*@} */
 }mode_list_elem;
 
