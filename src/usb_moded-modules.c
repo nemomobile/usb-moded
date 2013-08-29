@@ -54,7 +54,6 @@ struct kmod_ctx *ctx;
 int usb_moded_load_module(const char *module)
 {
 	int ret = 0;
-	const char * softconnect;
 
 #ifdef NO_KMOD
 	gchar *command; 
@@ -125,12 +124,6 @@ int usb_moded_load_module(const char *module)
 	free(load);
 #endif /* NO_KMOD */
 
-	softconnect = get_soft_connect_path();
-	if(softconnect)	
-	{
-		write_to_file(softconnect, "connect");
-		free((void *)softconnect);
-	}
 	if( ret == 0)
 		log_info("Module %s loaded successfully\n", module);
 	else
@@ -147,7 +140,6 @@ int usb_moded_load_module(const char *module)
 int usb_moded_unload_module(const char *module)
 {
 	int ret = 0;
-	const char * softconnect;
 
 
 #ifdef NO_KMOD
@@ -170,12 +162,6 @@ int usb_moded_unload_module(const char *module)
 	kmod_module_unref(mod);
 
 #endif /* NO_KMOD */
-	softconnect = get_soft_connect_path();
-	if(softconnect)	
-	{
-		write_to_file(softconnect, "disconnect");
-		free((void *)softconnect);
-	}
 
 	return(ret);
 }
