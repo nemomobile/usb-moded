@@ -40,6 +40,7 @@
 #define USB_MODE_STATE_SET	"set_mode"	/* set a mode (only works when connected) */
 #define USB_MODE_CONFIG_SET	"set_config"	/* set the mode that needs to be activated in the config file */
 #define USB_MODE_NETWORK_SET	"net_config"    /* set the network config in the config file */
+#define USB_MODE_NETWORK_GET	"get_net_config"    /* get the network config from the config file */
 
 /* state definitions for signals and method parameters */
 #define USB_CONNECTED			"USB connected"

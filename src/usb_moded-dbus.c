@@ -137,7 +137,7 @@ error_reply:
         		reply = dbus_message_new_error(msg, DBUS_ERROR_INVALID_ARGS, member);
 		else
 		{
-			/* error checking is done when setting the GConf key */
+			/* error checking is done when setting configuration */
 			if(!set_network_setting(config, setting))
 			{
  				if((reply = dbus_message_new_method_return(msg)))
@@ -147,6 +147,29 @@ error_reply:
        				reply = dbus_message_new_error(msg, DBUS_ERROR_INVALID_ARGS, config);
 		}
 		dbus_error_free(&err);	
+	}
+	else if(!strcmp(member, USB_MODE_NETWORK_GET))
+	{
+		char *config = 0;
+		const char *setting = 0;
+		DBusError   err = DBUS_ERROR_INIT;
+
+		if(!dbus_message_get_args(msg, &err, DBUS_TYPE_STRING, &config, DBUS_TYPE_INVALID))
+		{
+			reply = dbus_message_new_error(msg, DBUS_ERROR_INVALID_ARGS, member);
+		}
+		else
+		{
+			setting = get_network_setting(config);
+			if(setting)
+			{
+				if((reply = dbus_message_new_method_return(msg)))
+				dbus_message_append_args (reply, DBUS_TYPE_STRING, &config, DBUS_TYPE_STRING, &setting, DBUS_TYPE_INVALID);
+				free((void *)setting);
+			}
+			else
+				reply = dbus_message_new_error(msg, DBUS_ERROR_INVALID_ARGS, config);
+		}
 	}
 	else if(!strcmp(member, USB_MODE_CONFIG_GET))
 	{

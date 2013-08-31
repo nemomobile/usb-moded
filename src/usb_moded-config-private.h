@@ -18,7 +18,7 @@
   02110-1301 USA
 */
 /*
- * Gets information from Gconf/ini file for the usb modes
+ * Gets/sets information for the usb modes from dbus
 */
 
 /*============================================================================= */
@@ -26,3 +26,4 @@
 const char * get_mode_setting(void);
 int set_mode_setting(const char *mode);
 int set_network_setting(const char *config, const char *setting);
+const char *get_network_setting(const char *config);

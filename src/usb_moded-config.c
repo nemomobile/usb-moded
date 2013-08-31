@@ -383,6 +383,31 @@ int set_network_setting(const char *config, const char *setting)
   return(!ret);
 }
 
+const char * get_network_setting(const char *config)
+{
+  const char * ret = 0;
+
+  if(!strcmp(config, NETWORK_IP_KEY))
+  {
+	ret = get_network_ip();
+	if(!ret)
+		ret = strdup("192.168.2.15");
+  }
+  else if(!strcmp(config, NETWORK_INTERFACE_KEY))
+  {
+
+	ret = get_network_interface();
+	if(!ret)
+		ret = strdup("usb0");
+  }
+  else if(!strcmp(config, NETWORK_GATEWAY_KEY))
+	return(get_network_gateway());
+  else
+	/* no matching keys, return error */
+	return(NULL);
+   return(ret);
+}
+
 int conf_file_merge(void)
 {
   GDir *confdir;
