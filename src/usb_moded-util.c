@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <unistd.h>
+#include <string.h>
 #include <dbus/dbus.h>
 
 #include "usb_moded-dbus.h"
@@ -161,6 +162,78 @@ static int set_mode_config (char *mode)
   return 1;
 }
 
+static int handle_network(char *network)
+{
+  char *operation = 0, *setting = 0, *value = 0;
+  DBusMessage *req = NULL, *reply = NULL;
+  char *ret = 0;
+
+  operation = strtok(network, ":");
+  printf("Operation = %s\n", operation);
+  setting =  strtok(NULL, ",");
+  printf("Setting = %s\n", setting);
+  value =  strtok(NULL, ",");
+  printf("Value = %s\n", value);
+#if 0
+  if(!strtok(NULL, ","))
+	/* too many arguments! */
+	return(1);
+#endif
+  if(operation == NULL || setting == NULL )
+  {
+	printf("Argument list is wrong. Please use get:$setting or set:$setting,$value\n");
+	return(1);
+  }
+  if(!strcmp(operation, "set"))
+  {
+	if(value == NULL)
+	{
+		printf("Argument list is wrong. Please use set:$setting,$value\n");
+		return(1);
+	}
+	if ((req = dbus_message_new_method_call(USB_MODE_SERVICE, USB_MODE_OBJECT, USB_MODE_INTERFACE, USB_MODE_NETWORK_SET)) != NULL)
+	{
+		dbus_message_append_args (req, DBUS_TYPE_STRING, &setting, DBUS_TYPE_STRING, &value, DBUS_TYPE_INVALID);
+		if ((reply = dbus_connection_send_with_reply_and_block(conn, req, -1, NULL)) != NULL)
+		{
+			dbus_message_get_args(reply, NULL, DBUS_TYPE_STRING, &setting, DBUS_TYPE_STRING, &ret, DBUS_TYPE_INVALID);
+			dbus_message_unref(reply);
+		}
+		dbus_message_unref(req);
+	}
+
+	if(ret)
+	{
+		printf("The following USB network setting %s = %s has been set\n", setting, ret);
+		return 0;
+	}
+  }
+  else if(!strcmp(operation, "get"))
+  {
+
+	if ((req = dbus_message_new_method_call(USB_MODE_SERVICE, USB_MODE_OBJECT, USB_MODE_INTERFACE, USB_MODE_NETWORK_GET)) != NULL)
+	{
+		dbus_message_append_args (req, DBUS_TYPE_STRING, &setting, DBUS_TYPE_INVALID);
+		if ((reply = dbus_connection_send_with_reply_and_block(conn, req, -1, NULL)) != NULL)
+		{
+			dbus_message_get_args(reply, NULL, DBUS_TYPE_STRING, &setting, DBUS_TYPE_STRING, &ret, DBUS_TYPE_INVALID);
+			dbus_message_unref(reply);
+		}
+		dbus_message_unref(req);
+	}
+
+	if(ret)
+	{
+		printf("USB network setting %s = %s\n", setting, ret);
+		return 0;
+	}
+  }
+  else
+	/* unknown operation */
+	return(1);
+}
+
+
 int main (int argc, char *argv[])
 {
   int query = 0, network = 0, setmode = 0, config = 0;
@@ -236,7 +309,7 @@ int main (int argc, char *argv[])
   else if (config)
 	res = set_mode_config(option);
   else if (network)
-	printf("Not implemented yet sorry. \n");
+	res = handle_network(option);
 
   /* subfunctions will return 1 if an error occured, print message */
   if(res)
