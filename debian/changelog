@@ -1,3 +1,12 @@
+usb-moded (0.68) unstable; urgency=low
+
+  * Add network querying over dbus
+  * Network setting/querying added to usb_moded_util
+  * Set per mode idProduct for android
+  * Documentation update to reflect the current mode config
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com> Mon, 02 Sep 2013 12:48:45 +0300
+
 usb-moded (0.67.1) unstable; urgency=low
 
   * Use mass_storage also as fake charging mode with android gadget
