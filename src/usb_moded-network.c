@@ -49,8 +49,11 @@ static char* get_interface(struct mode_list_elem *data)
   {
 	if(data->network_interface)
 	{	
+		/*
 		interface = malloc(32*sizeof(char));
 		strncpy(interface, data->network_interface, 32);
+		*/
+		strdup(data->network_interface);
 	}
   }
   else

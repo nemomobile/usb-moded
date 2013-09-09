@@ -34,6 +34,7 @@
 #include <glib/gkeyfile.h>
 #include <glib/gstdio.h>
 */
+#include "usb_moded.h"
 #include "usb_moded-config.h"
 #include "usb_moded-config-private.h"
 #include "usb_moded-log.h"
@@ -386,6 +387,7 @@ int set_network_setting(const char *config, const char *setting)
 const char * get_network_setting(const char *config)
 {
   const char * ret = 0;
+  struct mode_list_elem *data;
 
   if(!strcmp(config, NETWORK_IP_KEY))
   {
@@ -395,7 +397,15 @@ const char * get_network_setting(const char *config)
   }
   else if(!strcmp(config, NETWORK_INTERFACE_KEY))
   {
-
+	data = get_usb_mode_data();
+	if(data)
+	{
+		if(data->network_interface)
+		{
+			ret = strdup(data->network_interface);
+			goto end;
+		}
+	}
 	ret = get_network_interface();
 	if(!ret)
 		ret = strdup("usb0");
@@ -405,6 +415,7 @@ const char * get_network_setting(const char *config)
   else
 	/* no matching keys, return error */
 	return(NULL);
+end:
    return(ret);
 }
 
