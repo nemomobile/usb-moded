@@ -20,7 +20,6 @@
   02110-1301 USA
 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
@@ -282,7 +281,7 @@ int main (int argc, char *argv[])
                    \t-c to set a mode in the config file,\n \
                    \t-d to get the default mode set in the configuration, \n \
                    \t-h to get this help, \n \
-                   \t-n to set network configuration in the config,\n \
+                   \t-n to get/set network configuration. Use get:${config}/set:${config},${value}\n \
                    \t-m to get the list of supported modes, \n \
                    \t-q to query the current mode,\n \
                    \t-s to set/activate a mode\n",
