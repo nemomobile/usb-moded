@@ -177,19 +177,19 @@ static int handle_network(char *network)
 #if 0
   if(!strtok(NULL, ","))
 	/* too many arguments! */
-	return(1);
+	return 1;
 #endif
   if(operation == NULL || setting == NULL )
   {
 	printf("Argument list is wrong. Please use get:$setting or set:$setting,$value\n");
-	return(1);
+	return 1;
   }
   if(!strcmp(operation, "set"))
   {
 	if(value == NULL)
 	{
 		printf("Argument list is wrong. Please use set:$setting,$value\n");
-		return(1);
+		return 1;
 	}
 	if ((req = dbus_message_new_method_call(USB_MODE_SERVICE, USB_MODE_OBJECT, USB_MODE_INTERFACE, USB_MODE_NETWORK_SET)) != NULL)
 	{
@@ -207,6 +207,8 @@ static int handle_network(char *network)
 		printf("The following USB network setting %s = %s has been set\n", setting, ret);
 		return 0;
 	}
+	else
+		return 1;
   }
   else if(!strcmp(operation, "get"))
   {
@@ -227,10 +229,12 @@ static int handle_network(char *network)
 		printf("USB network setting %s = %s\n", setting, ret);
 		return 0;
 	}
+	else
+		return 1;
   }
   else
 	/* unknown operation */
-	return(1);
+	return 1;
 }
 
 
