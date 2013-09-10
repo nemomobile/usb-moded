@@ -597,7 +597,9 @@ int main(int argc, char* argv[])
 		freopen("/dev/null", "a", stdout);
 		freopen("/dev/null", "a", stderr);
 	}
+#if !GLIB_CHECK_VERSION(2, 36, 0)
         g_type_init();
+#endif
 #if !GLIB_CHECK_VERSION(2, 31, 0)
 	g_thread_init(NULL);
 #endif
