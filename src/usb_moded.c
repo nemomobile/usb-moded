@@ -62,9 +62,10 @@ extern const char *log_name;
 extern int log_level;
 extern int log_type;
 
-gboolean rescue_mode;
-
+gboolean rescue_mode = FALSE;
+gboolean diag_mode = FALSE;
 gboolean hw_fallback = FALSE;
+
 struct usb_mode current_mode;
 guint charging_timeout = 0;
 #ifdef NOKIA
@@ -186,6 +187,17 @@ void set_usb_connected_state(void)
   {
 	log_debug("Entering rescue mode!\n");
 	set_usb_mode(MODE_DEVELOPER);
+	return;
+  }
+  if(diag_mode)
+  {
+	log_debug("Entering diagnostic mode!\n");
+	if(modelist)
+	{
+		GList *iter = modelist;
+		struct mode_list_elem *data = iter->data;
+		set_usb_mode(data->mode_name);
+	}
 	return;
   }
 #ifdef MEEGOLOCK
@@ -454,7 +466,7 @@ static void usb_moded_init(void)
 #ifdef APP_SYNC
   readlist();
 #endif /* APP_SYNC */
-  modelist = read_mode_list();
+  modelist = read_mode_list(diag_mode);
 
 #ifdef UDEV
   if(check_trigger())
@@ -510,6 +522,7 @@ static void usage(void)
                   "  -s,  --force-syslog  log to syslog\n"
                   "  -T,  --force-stderr  log to stderr\n"
                   "  -D,  --debug	  turn on debug printing\n"
+		  "  -d,  --diag	  turn on diag mode\n"
                   "  -h,  --help          display this help and exit\n"
 		  "  -r,  --rescue	  rescue mode\n"
                   "  -v,  --version       output version information and exit\n"
@@ -527,6 +540,7 @@ int main(int argc, char* argv[])
                 { "force-syslog", no_argument, 0, 's' },
                 { "force-stderr", no_argument, 0, 'T' },
                 { "debug", no_argument, 0, 'D' },
+                { "diag", no_argument, 0, 'd' },
                 { "help", no_argument, 0, 'h' },
 		{ "rescue", no_argument, 0, 'r' },
                 { "version", no_argument, 0, 'v' },
@@ -536,7 +550,7 @@ int main(int argc, char* argv[])
 	log_name = basename(*argv);
 
 	 /* Parse the command-line options */
-        while ((opt = getopt_long(argc, argv, "fsTDhrv", options, &opt_idx)) != -1) 
+        while ((opt = getopt_long(argc, argv, "fsTDdhrv", options, &opt_idx)) != -1) 
 	{
                 switch (opt) 
 		{
@@ -554,6 +568,10 @@ int main(int argc, char* argv[])
                 	case 'D':
                         	log_level = LOG_DEBUG;
                         	break;
+
+			case 'd':
+				diag_mode = TRUE;
+				break;
 
                 	case 'h':
                         	usage();

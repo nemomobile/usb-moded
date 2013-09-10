@@ -24,6 +24,7 @@
 
 
 #define MODE_DIR_PATH	"/etc/usb-moded/dyn-modes"
+#define DIAG_DIR_PATH	"/etc/usb-moded/diag"
 
 #define MODE_ENTRY			"mode"
 #define MODE_NAME_KEY			"name"
@@ -74,6 +75,6 @@ typedef struct mode_list_elem
 }mode_list_elem;
 
 
-GList *read_mode_list(void);
+GList *read_mode_list(int diag);
 
 #endif /* USB_MODED_DYN_CONFIG_H_ */

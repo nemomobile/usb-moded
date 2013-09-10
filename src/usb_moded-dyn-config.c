@@ -33,14 +33,17 @@
 
 static struct mode_list_elem *read_mode_file(const gchar *filename);
 
-GList *read_mode_list(void)
+GList *read_mode_list(int diag)
 {
   GDir *confdir;
   GList *modelist = NULL;
   const gchar *dirname;
   struct mode_list_elem *list_item;
 
-  confdir = g_dir_open(MODE_DIR_PATH, 0, NULL);
+  if(diag)
+	confdir = g_dir_open(DIAG_DIR_PATH, 0, NULL);
+  else
+	confdir = g_dir_open(MODE_DIR_PATH, 0, NULL);
   if(confdir)
   {
     while((dirname = g_dir_read_name(confdir)) != NULL)
