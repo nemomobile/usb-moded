@@ -91,7 +91,7 @@ int set_android_charging_mode(void)
 
    /* disable, set functions to "mass_storage", re-enable */
    write_to_file("/sys/class/android_usb/android0/enable", "0");
-   write_to_file("/sys/class/android_usb/android0/idProduct", "9999");
+   write_to_file("/sys/class/android_usb/android0/idProduct", "0AFE"); /* TODO: make configurable */
    write_to_file("/sys/class/android_usb/android0/functions", "mass_storage");
    ret = write_to_file("/sys/class/android_usb/android0/enable", "1");
    if(ret < 0)
