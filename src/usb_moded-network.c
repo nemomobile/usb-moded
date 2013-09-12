@@ -32,6 +32,7 @@
 
 #include "usb_moded-network.h"
 #include "usb_moded-config.h"
+#include "usb_moded-log.h"
 
 #if CONNMAN
 #include <dbus/dbus.h>
@@ -49,11 +50,7 @@ static char* get_interface(struct mode_list_elem *data)
   {
 	if(data->network_interface)
 	{	
-		/*
-		interface = malloc(32*sizeof(char));
-		strncpy(interface, data->network_interface, 32);
-		*/
-		strdup(data->network_interface);
+		interface = strdup(data->network_interface);
 	}
   }
   else
@@ -65,6 +62,7 @@ static char* get_interface(struct mode_list_elem *data)
 	strncpy(interface, default_interface, sizeof(default_interface));
   }
 
+  log_debug("interface = %s\n", interface);
   return interface;
 }
 
