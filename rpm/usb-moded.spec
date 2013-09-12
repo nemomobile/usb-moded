@@ -1,5 +1,5 @@
 Name:     usb-moded
-Version:  0.67.1
+Version:  0.68
 Release:  0 
 Summary:  USB mode controller
 Group:    System/System Control
@@ -205,6 +205,14 @@ This package provides the default configuration for usb-moded, so
 basic functionality is provided (i.e. usb networking, ask and charging
 modes with the android gadget driver)
 
+%package usb-moded-diagnostics-config
+Summary: USB mode controller - config data for diagnostics mode
+Group: Config
+
+%description usb-moded-diagnostics-config
+This package contains the diagnostics info needed to configure a
+diagnotic mode
+
 %prep
 %setup -q
 
@@ -229,7 +237,9 @@ install -m 644 -D %{SOURCE1} %{buildroot}/lib/systemd/system/%{name}.service
 install -d %{buildroot}/%{_sysconfdir}/usb-moded
 install -d %{buildroot}/%{_sysconfdir}/usb-moded/run
 install -d %{buildroot}/%{_sysconfdir}/usb-moded/dyn-modes
+install -d %{buildroot}/%{_sysconfdir}/usb-moded/diag
 install -m 644 -D config/dyn-modes/* %{buildroot}/%{_sysconfdir}/usb-moded/dyn-modes/
+install -m 644 -D config/diag/* %{buildroot}/%{_sysconfdir}/usb-moded/diag/
 install -m 644 -D config/run/* %{buildroot}/%{_sysconfdir}/usb-moded/run/
 install -d $RPM_BUILD_ROOT/lib/systemd/system/multi-user.target.wants/
 ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/multi-user.target.wants/%{name}.service
@@ -331,3 +341,7 @@ systemctl daemon-reload
 %files usb-moded-defaults-android
 %defattr(-,root,root,-)
 
+%files usb-moded-diagnostics-config
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/diag/qa_diag_mode.ini
+%{_sysconfdir}/usb-moded/run/qa-diag.ini

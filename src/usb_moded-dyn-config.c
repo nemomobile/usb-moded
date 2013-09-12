@@ -39,6 +39,7 @@ GList *read_mode_list(int diag)
   GList *modelist = NULL;
   const gchar *dirname;
   struct mode_list_elem *list_item;
+  gchar *full_filename = NULL;
 
   if(diag)
 	confdir = g_dir_open(DIAG_DIR_PATH, 0, NULL);
@@ -49,7 +50,13 @@ GList *read_mode_list(int diag)
     while((dirname = g_dir_read_name(confdir)) != NULL)
 	{
 		log_debug("Read file %s\n", dirname);
-		list_item = read_mode_file(dirname);
+		if(diag)
+			full_filename = g_strconcat(DIAG_DIR_PATH, "/", dirname, NULL);
+		else
+			full_filename = g_strconcat(MODE_DIR_PATH, "/", dirname, NULL);
+		list_item = read_mode_file(full_filename);
+		/* free full_filename immediately as we do not use it anymore */
+		free(full_filename);
 		if(list_item)
 			modelist = g_list_append(modelist, list_item);
 	}
@@ -65,14 +72,9 @@ static struct mode_list_elem *read_mode_file(const gchar *filename)
   GKeyFile *settingsfile;
   gboolean test = FALSE;
   struct mode_list_elem *list_item = NULL;
-  gchar *full_filename = NULL;
-
-  full_filename = g_strconcat(MODE_DIR_PATH, "/", filename, NULL);
 
   settingsfile = g_key_file_new();
-  test = g_key_file_load_from_file(settingsfile, full_filename, G_KEY_FILE_NONE, NULL);
-  /* free full_filename immediately as we do not use it anymore */
-  free(full_filename);
+  test = g_key_file_load_from_file(settingsfile, filename, G_KEY_FILE_NONE, NULL);
   if(!test)
   {
       return(NULL);
