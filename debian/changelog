@@ -1,3 +1,13 @@
+usb-moded (0.69) unstable; urgency=low
+
+  * Add .gitignore
+  * Fix warning for obsolete g_type_init
+  * Add support for diagnostic mode
+  * Always return correct network interface when queried (only valid when connected though!)
+  * Add network query/setting to usb_moded_util
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com> Thu, 12 Sep 2013 16:55:16 +0300
+
 usb-moded (0.68) unstable; urgency=low
 
   * Add network querying over dbus
