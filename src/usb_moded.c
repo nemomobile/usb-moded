@@ -179,10 +179,7 @@ void set_usb_connected_state(void)
   log_debug("usb connected\n");
   usb_moded_send_signal(USB_CONNECTED);
   mode_to_set = get_mode_setting();
-#ifdef MEEGOLOCK
-  /* check if we are allowed to export system contents 0 is unlocked */
-  export = usb_moded_get_export_permission();
-#endif
+
   if(rescue_mode)
   {
 	log_debug("Entering rescue mode!\n");
@@ -201,6 +198,8 @@ void set_usb_connected_state(void)
 	return;
   }
 #ifdef MEEGOLOCK
+  /* check if we are allowed to export system contents 0 is unlocked */
+  export = usb_moded_get_export_permission();
   /* We check also if the device is in user state or not.
      If not we do not export anything. We presume ACT_DEAD charging */
   if(mode_to_set && !export && is_in_user_state())
