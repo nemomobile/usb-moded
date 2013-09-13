@@ -1,5 +1,5 @@
 Name:     usb-moded
-Version:  0.68
+Version:  0.68.2
 Release:  0 
 Summary:  USB mode controller
 Group:    System/System Control
@@ -183,33 +183,33 @@ system bus.
 
 This package contains the android at modem port mode config.
 
-%package usb-moded-defaults
+%package defaults
 Summary: USB mode controller - default configuration
 Group: Config
 Provides: usb-moded-configs
 Requires: usb-moded-developer-mode
 
-%description usb-moded-defaults
+%description defaults
 This package provides the default configuration for usb-moded, so
 basic functionality is provided (i.e. usb networking, ask and charging
 modes)
 
-%package usb-moded-defaults-android
+%package defaults-android
 Summary: USB mode controller - default configuration
 Group: Config
 Provides: usb-moded-configs
 Requires: usb-moded-developer-mode-android
 
-%description usb-moded-defaults-android
+%description defaults-android
 This package provides the default configuration for usb-moded, so
 basic functionality is provided (i.e. usb networking, ask and charging
 modes with the android gadget driver)
 
-%package usb-moded-diagnostics-config
+%package diagnostics-config
 Summary: USB mode controller - config data for diagnostics mode
 Group: Config
 
-%description usb-moded-diagnostics-config
+%description diagnostics-config
 This package contains the diagnostics info needed to configure a
 diagnotic mode
 
@@ -335,13 +335,13 @@ systemctl daemon-reload
 %defattr(-,root,root,-)
 %{_sysconfdir}/usb-moded/dyn-modes/android_at.ini
 
-%files usb-moded-defaults
+%files defaults
 %defattr(-,root,root,-)
 
-%files usb-moded-defaults-android
+%files defaults-android
 %defattr(-,root,root,-)
 
-%files usb-moded-diagnostics-config
+%files diagnostics-config
 %defattr(-,root,root,-)
-%{_sysconfdir}/usb-moded/diag/qa_diag_mode.ini
-%{_sysconfdir}/usb-moded/run/qa-diag.ini
+%{_sysconfdir}/usb-moded/diag/qa_diagnostic_mode.ini
+%{_sysconfdir}/usb-moded/run/qa-diagnostic.ini
