@@ -18,7 +18,6 @@ BuildRequires: pkgconfig(libkmod)
 BuildRequires: doxygen
 BuildRequires: GConf2
 
-Requires: dbus-x11
 Requires: lsof
 Requires: usb-moded-configs
 Requires: usb-moded-diagnostics-config
