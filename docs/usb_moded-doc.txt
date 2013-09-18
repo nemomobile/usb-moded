@@ -212,7 +212,7 @@ for a certain mode. This also means that if you change the files or add/remove s
 you need to restart usb_moded. Later when the mode is activated, usb_moded will start 
 each of them after the module has been loaded and keep track if they have been started.
 It will warn you if that failed. This works together with an optional softconnect option
-that will need kernel support. (Nokia only atm)
+that will need kernel support.
 
 Dynamic modes
 -------------
@@ -242,6 +242,9 @@ Only the mode name and module are mandatory. In case you do not use modules, use
 for module (as for the android gadget for example. See the android section for more info)
 
 If appsync or network is not defined, or explicitly set to 0, it will not be used.
+To use the mass_storage functions you need to define mass_storage = 1. The needed info for
+mass_storage data need to be defined in the config file. (other approaches are possible so this is not
+mandatory for all kinds of mass_storage support)
 
 Trigger support
 ---------------

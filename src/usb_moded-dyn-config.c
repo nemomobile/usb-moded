@@ -85,6 +85,7 @@ static struct mode_list_elem *read_mode_file(const gchar *filename)
   list_item->mode_module = g_key_file_get_string(settingsfile, MODE_ENTRY, MODE_MODULE_KEY, NULL);
   log_debug("Dynamic mode module = %s\n", list_item->mode_module);
   list_item->appsync = g_key_file_get_integer(settingsfile, MODE_ENTRY, MODE_NEEDS_APPSYNC_KEY, NULL);
+  list_item->mass_storage = g_key_file_get_integer(settingsfile, MODE_ENTRY, MODE_MASS_STORAGE, NULL);
   list_item->network = g_key_file_get_integer(settingsfile, MODE_ENTRY, MODE_NETWORK_KEY, NULL);
   list_item->network_interface = g_key_file_get_string(settingsfile, MODE_ENTRY, MODE_NETWORK_INTERFACE_KEY, NULL);
   list_item->sysfs_path = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_SYSFS_PATH, NULL);

@@ -31,6 +31,7 @@
 #define MODE_MODULE_KEY			"module"
 #define MODE_NEEDS_APPSYNC_KEY		"appsync"
 #define MODE_NETWORK_KEY		"network"
+#define MODE_MASS_STORAGE		"mass_storage"
 #define MODE_NETWORK_INTERFACE_KEY	"network_interface"
 #define MODE_OPTIONS_ENTRY		"options"
 #define MODE_SYSFS_PATH			"sysfs_path"
@@ -59,6 +60,7 @@ typedef struct mode_list_elem
   char *mode_module;			/* needed module for given mode */
   int appsync;				/* requires appsync or not */
   int network;				/* bring up network or not */
+  int mass_storage;			/* Use mass-storage functions */
   char *network_interface;		/* Which network interface to bring up if network needs to be enabled */
   char *sysfs_path;			/* path to set sysfs options */
   char *sysfs_value;			/* option name/value to write to sysfs */
@@ -74,7 +76,7 @@ typedef struct mode_list_elem
   /*@} */
 }mode_list_elem;
 
-
+/* diag is used to select a secondary configuration location for diagnostic purposes */
 GList *read_mode_list(int diag);
 
 #endif /* USB_MODED_DYN_CONFIG_H_ */

@@ -350,7 +350,7 @@ int set_dynamic_mode(void)
   if(!data)
 	return 1;
 
-  if(!strcmp(data->mode_name, MODE_MASS_STORAGE))
+  if(data->mass_storage)
   {
 	return set_mass_storage_mode();
   }
