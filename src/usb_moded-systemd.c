@@ -67,7 +67,7 @@ int systemd_control_service(const char *name, const char *method)
 
   dbus_error_init(&error);
 
-  log_debug("Launching %s, with systemd\n", name);
+  log_debug("Handling %s, with systemd, method %s\n", name, method);
 
   bus = get_systemd_dbus_connection();
 

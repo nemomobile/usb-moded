@@ -324,7 +324,7 @@ int appsync_stop(void)
     if(data->systemd)
     {
         if(!systemd_control_service(data->name, SYSTEMD_STOP))
-		mark_active(data->name);
+		log_debug("Failed to stop %s\n", data->name);
     }
 #ifdef UPSTART
     else if(data->upstart)
