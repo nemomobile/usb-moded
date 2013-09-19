@@ -1,3 +1,16 @@
+usb-moded (0.70) unstable; urgency=low
+
+  * Close file pointer to avoid resource leak. CID#1090411
+  * Make unreachable code, reachable. CID#1090412
+  * Fix unchecked return value. CID#1090413
+  * Support mass_storage mode without forcing it to be named mass_storage
+  * Remove legacy dbus-x11 dependency
+  * Fix up dbus config for better usability of usb-moded-util
+  * Make systemd actions more clear, and do not mark apps active when stopping
+  * Remove old buteo hack
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com> Thu, 12 Sep 2013 16:55:16 +0300
+
 usb-moded (0.69) unstable; urgency=low
 
   * Add .gitignore
