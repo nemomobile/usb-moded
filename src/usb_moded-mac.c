@@ -89,5 +89,6 @@ char * read_mac(void)
   else
 	ret = 0;
   free(mac);
+  fclose(g_ether);
   return(ret);
 }
