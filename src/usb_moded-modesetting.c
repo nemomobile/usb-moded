@@ -295,18 +295,6 @@ static void report_mass_storage_blocker(const char *mountpoint, int try)
 
 }
 
-#if 0
-/* NOT NEEDED ANYMORE?  : clean up buteo-mtp hack */
-int set_mtp_mode(void)
-{
-  mkdir("/dev/mtp", S_IRWXO|S_IRWXU);
-  system("mount -t functionfs mtp  -o gid=10000,mode=0770 /dev/mtp\n");	
-  system("buteo-mtp start\n");
-
-  return 0;
-}
-#endif
-
 #ifdef N900
 int set_ovi_suite_mode(void)
 {
@@ -504,12 +492,6 @@ int usb_moded_mode_cleanup(const char *module)
 		system("killall -SIGTERM acm");
         }
 #endif /* N900 */
-	if(!strcmp(module, MODULE_MTP))
-	{
-		/* stop service before umounting ;) */
-  		system("buteo-mtp stop\n");
-		system("umount /dev/mtp");
-	}
 
 	if(get_usb_mode_data())
 		unset_dynamic_mode();
