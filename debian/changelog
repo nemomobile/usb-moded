@@ -1,3 +1,9 @@
+usb-moded (0.70.1) unstable; urgency=low
+
+  * Enable wecis for android so EvilOS can detect the rndis easily
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Fri, 20 Sep 2013 22:09:24 +0300
+
 usb-moded (0.70) unstable; urgency=low
 
   * Close file pointer to avoid resource leak. CID#1090411
@@ -9,7 +15,7 @@ usb-moded (0.70) unstable; urgency=low
   * Make systemd actions more clear, and do not mark apps active when stopping
   * Remove old buteo hack
 
- -- Philippe De Swert <philippe.deswert@jollamobile.com> Thu, 12 Sep 2013 16:55:16 +0300
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Thu, 19 Sep 2013 14:35:12 +0300
 
 usb-moded (0.69) unstable; urgency=low
 
