@@ -181,6 +181,12 @@ void set_usb_connected_state(void)
   usb_moded_send_signal(USB_CONNECTED);
   mode_to_set = get_mode_setting();
 
+  /* This is safe to do here as the starting condition is
+     MODE_UNDEFINED, and having a devicelock being activated when
+     a mode is set will not interrupt it */
+  if(!strcmp(mode_to_set, current_mode.mode))
+	return;
+
   if(rescue_mode)
   {
 	log_debug("Entering rescue mode!\n");
