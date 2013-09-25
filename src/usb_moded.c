@@ -159,6 +159,7 @@ void set_charger_connected(gboolean state)
   }
   else
   {
+    current_mode.connected = FALSE;
     usb_moded_send_signal(CHARGER_DISCONNECTED);
     set_usb_mode(MODE_UNDEFINED);
   }
