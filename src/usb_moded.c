@@ -111,6 +111,9 @@ void set_usb_connected(gboolean connected)
 		charging_timeout = 0;
 	}
   	current_mode.connected = TRUE;
+	/* signal usb connected */
+	log_debug("usb connected\n");
+	usb_moded_send_signal(USB_CONNECTED);
 	set_usb_connected_state();
   }
   else
@@ -176,9 +179,6 @@ void set_usb_connected_state(void)
   int export = 1; /* assume locked */
 #endif /* MEEGOLOCK */
 
-  /* signal usb connected */
-  log_debug("usb connected\n");
-  usb_moded_send_signal(USB_CONNECTED);
   mode_to_set = get_mode_setting();
 
   /* This is safe to do here as the starting condition is
