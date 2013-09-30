@@ -69,7 +69,10 @@ int write_to_file(const char *path, const char *text)
 {
   int err = -1;
   int fd = -1;
-  size_t todo = strlen(text);
+  size_t todo = 0;
+
+  if(text)
+	todo  = strlen(text);
 
   /* no O_CREAT -> writes only to already existing files */
   if( (fd = TEMP_FAILURE_RETRY(open(path, O_WRONLY))) == -1 )
