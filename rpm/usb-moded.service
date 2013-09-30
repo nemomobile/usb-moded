@@ -1,5 +1,8 @@
 [Unit]
 Description=usb-moded USB gadget controller
+DefaultDependencies=no
+After=local-fs.target syslog.target
+Conflicts=shutdown.target
 
 [Service]
 Type=simple
