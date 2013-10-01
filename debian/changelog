@@ -1,3 +1,12 @@
+usb-moded (0.71) unstable; urgency=low
+
+  * Avoid crash when passing empty text/non valid data to write_to_file
+  * [systemd] make usb-moded to start a bit earlier in bootup.
+  * Update documentation for kernel command line ip.
+  * [usb-moded] No disconnects between devicelock status changes
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Tue, 01 Oct 2013 09:33:03 +0300
+
 usb-moded (0.70.1) unstable; urgency=low
 
   * Enable wecis for android so EvilOS can detect the rndis easily
