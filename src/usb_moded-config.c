@@ -280,7 +280,7 @@ static const char * get_kcmdline_string(const char *entry)
   for (i=0; i < argc; i++) 
   {
     arg_tokens = g_strsplit(argv[i], "=", 2);
-    if (!g_ascii_strcasecmp(arg_tokens[0], "ip"))
+    if (!g_ascii_strcasecmp(arg_tokens[0], "usb_moded_ip"))
     {
       network_tokens = g_strsplit(arg_tokens[1], ":", 7);
       /* check if it is for the usb or rndis interface */
