@@ -1,5 +1,11 @@
 usb-moded (0.71) unstable; urgency=low
 
+  * Minor release to fix issue with 12s kernel timeout due to bug in ip= parameter handling
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Wed, 02 Oct 2013 14:25:26 +0300
+
+usb-moded (0.71) unstable; urgency=low
+
   * Avoid crash when passing empty text/non valid data to write_to_file
   * [systemd] make usb-moded to start a bit earlier in bootup.
   * Update documentation for kernel command line ip.
