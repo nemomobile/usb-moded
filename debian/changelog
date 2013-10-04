@@ -1,4 +1,10 @@
-usb-moded (0.71) unstable; urgency=low
+usb-moded (0.71.2) unstable; urgency=low
+
+  * Minor fix to diag mode (only export 1 port)
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Fri, 04 Oct 2013 11:23:06 +0300
+
+usb-moded (0.71.1) unstable; urgency=low
 
   * Minor release to fix issue with 12s kernel timeout due to bug in ip= parameter handling
 
