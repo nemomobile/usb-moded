@@ -241,8 +241,8 @@ install -d %{buildroot}/%{_sysconfdir}/usb-moded/diag
 install -m 644 -D config/dyn-modes/* %{buildroot}/%{_sysconfdir}/usb-moded/dyn-modes/
 install -m 644 -D config/diag/* %{buildroot}/%{_sysconfdir}/usb-moded/diag/
 install -m 644 -D config/run/* %{buildroot}/%{_sysconfdir}/usb-moded/run/
-install -d $RPM_BUILD_ROOT/lib/systemd/system/multi-user.target.wants/
-ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/multi-user.target.wants/%{name}.service
+install -d $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/
+ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/%{name}.service
 # Sync mode not packaged for now.
 rm %{buildroot}/etc/usb-moded/dyn-modes/sync_mode.ini
 
