@@ -279,7 +279,7 @@ systemctl daemon-reload
 %{_sbindir}/usb_moded_util
 %{_mandir}/man1/usb-moded.1.gz
 /lib/systemd/system/%{name}.service
-/lib/systemd/system/multi-user.target.wants/%{name}.service
+/lib/systemd/system/basic.target.wants/%{name}.service
 
 %files devel
 %defattr(-,root,root,-)
