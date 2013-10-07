@@ -69,7 +69,14 @@ int write_to_file(const char *path, const char *text)
 {
   int err = -1;
   int fd = -1;
-  size_t todo = strlen(text);
+  size_t todo = 0;
+
+  /* if either path or the text to be written are not there
+     we return an error */
+  if(!text || !path)
+	return err;
+
+  todo  = strlen(text);
 
   /* no O_CREAT -> writes only to already existing files */
   if( (fd = TEMP_FAILURE_RETRY(open(path, O_WRONLY))) == -1 )
@@ -295,18 +302,6 @@ static void report_mass_storage_blocker(const char *mountpoint, int try)
 
 }
 
-#if 0
-/* NOT NEEDED ANYMORE?  : clean up buteo-mtp hack */
-int set_mtp_mode(void)
-{
-  mkdir("/dev/mtp", S_IRWXO|S_IRWXU);
-  system("mount -t functionfs mtp  -o gid=10000,mode=0770 /dev/mtp\n");	
-  system("buteo-mtp start\n");
-
-  return 0;
-}
-#endif
-
 #ifdef N900
 int set_ovi_suite_mode(void)
 {
@@ -350,7 +345,7 @@ int set_dynamic_mode(void)
   if(!data)
 	return 1;
 
-  if(!strcmp(data->mode_name, MODE_MASS_STORAGE))
+  if(data->mass_storage)
   {
 	return set_mass_storage_mode();
   }
@@ -504,12 +499,6 @@ int usb_moded_mode_cleanup(const char *module)
 		system("killall -SIGTERM acm");
         }
 #endif /* N900 */
-	if(!strcmp(module, MODULE_MTP))
-	{
-		/* stop service before umounting ;) */
-  		system("buteo-mtp stop\n");
-		system("umount /dev/mtp");
-	}
 
 	if(get_usb_mode_data())
 		unset_dynamic_mode();

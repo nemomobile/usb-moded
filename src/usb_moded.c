@@ -111,6 +111,9 @@ void set_usb_connected(gboolean connected)
 		charging_timeout = 0;
 	}
   	current_mode.connected = TRUE;
+	/* signal usb connected */
+	log_debug("usb connected\n");
+	usb_moded_send_signal(USB_CONNECTED);
 	set_usb_connected_state();
   }
   else
@@ -159,6 +162,7 @@ void set_charger_connected(gboolean state)
   }
   else
   {
+    current_mode.connected = FALSE;
     usb_moded_send_signal(CHARGER_DISCONNECTED);
     set_usb_mode(MODE_UNDEFINED);
   }
@@ -175,10 +179,13 @@ void set_usb_connected_state(void)
   int export = 1; /* assume locked */
 #endif /* MEEGOLOCK */
 
-  /* signal usb connected */
-  log_debug("usb connected\n");
-  usb_moded_send_signal(USB_CONNECTED);
   mode_to_set = get_mode_setting();
+
+  /* This is safe to do here as the starting condition is
+     MODE_UNDEFINED, and having a devicelock being activated when
+     a mode is set will not interrupt it */
+  if(!strcmp(mode_to_set, current_mode.mode))
+	return;
 
   if(rescue_mode)
   {

@@ -1,3 +1,43 @@
+usb-moded (0.71.2) unstable; urgency=low
+
+  * Minor fix to diag mode (only export 1 port)
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Fri, 04 Oct 2013 11:23:06 +0300
+
+usb-moded (0.71.1) unstable; urgency=low
+
+  * Minor release to fix issue with 12s kernel timeout due to bug in ip= parameter handling
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Wed, 02 Oct 2013 14:25:26 +0300
+
+usb-moded (0.71) unstable; urgency=low
+
+  * Avoid crash when passing empty text/non valid data to write_to_file
+  * [systemd] make usb-moded to start a bit earlier in bootup.
+  * Update documentation for kernel command line ip.
+  * [usb-moded] No disconnects between devicelock status changes
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Tue, 01 Oct 2013 09:33:03 +0300
+
+usb-moded (0.70.1) unstable; urgency=low
+
+  * Enable wecis for android so EvilOS can detect the rndis easily
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Fri, 20 Sep 2013 22:09:24 +0300
+
+usb-moded (0.70) unstable; urgency=low
+
+  * Close file pointer to avoid resource leak. CID#1090411
+  * Make unreachable code, reachable. CID#1090412
+  * Fix unchecked return value. CID#1090413
+  * Support mass_storage mode without forcing it to be named mass_storage
+  * Remove legacy dbus-x11 dependency
+  * Fix up dbus config for better usability of usb-moded-util
+  * Make systemd actions more clear, and do not mark apps active when stopping
+  * Remove old buteo hack
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Thu, 19 Sep 2013 14:35:12 +0300
+
 usb-moded (0.69) unstable; urgency=low
 
   * Add .gitignore

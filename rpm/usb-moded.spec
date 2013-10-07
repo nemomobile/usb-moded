@@ -1,5 +1,5 @@
 Name:     usb-moded
-Version:  0.68.2
+Version:  0.70
 Release:  0 
 Summary:  USB mode controller
 Group:    System/System Control
@@ -18,9 +18,9 @@ BuildRequires: pkgconfig(libkmod)
 BuildRequires: doxygen
 BuildRequires: GConf2
 
-Requires: dbus-x11
 Requires: lsof
 Requires: usb-moded-configs
+Requires: usb-moded-diagnostics-config
 Requires(post): GConf2
 Requires(pre): GConf2
 Requires(preun): GConf2

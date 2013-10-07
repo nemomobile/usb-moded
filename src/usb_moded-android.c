@@ -79,6 +79,8 @@ void android_init_values(void)
 	write_to_file("/sys/class/android_usb/f_rndis/ethaddr", text);
 	g_free((char *)text);
   }
+  /* For rndis to be discovered correctly in M$ Windows (vista and later) */
+  write_to_file("/sys/class/android_usb/f_rndis/wceis", "1");
 }
 
 /* Set a charging mode for the android gadget
@@ -109,7 +111,7 @@ int set_android_productid(char *id)
    int ret = 0;
 
    /* disable, set functions to "mass_storage", re-enable */
-   write_to_file("/sys/class/android_usb/android0/idProduct", id);
+   ret = write_to_file("/sys/class/android_usb/android0/idProduct", id);
    if(ret < 0)
 	return(1);
    else
