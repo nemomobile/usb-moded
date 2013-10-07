@@ -1,3 +1,9 @@
+usb-moded (0.71.3) unstable; urgency=low
+
+  * Change start-up for usb_moded, so it starts asap during boot.
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Tue, 08 Oct 2013 00:41:41 +0300
+
 usb-moded (0.71.2) unstable; urgency=low
 
   * Minor fix to diag mode (only export 1 port)
