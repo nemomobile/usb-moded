@@ -413,7 +413,7 @@ void unset_dynamic_mode(void)
 
   if(!strcmp(data->mode_name, MODE_MASS_STORAGE))
   {
-	set_mass_storage_mode();
+	unset_mass_storage_mode();
 	return;
   }
 
@@ -486,7 +486,7 @@ int usb_moded_mode_cleanup(const char *module)
 		unset_mass_storage_mode();
         }
 #ifdef N900
-        if(!strcmp(module, MODULE_NETWORK))
+        else if(!strcmp(module, MODULE_NETWORK))
         {
                 /* preventive sync in case of bad quality mtp clients */
                 sync();
@@ -500,7 +500,7 @@ int usb_moded_mode_cleanup(const char *module)
         }
 #endif /* N900 */
 
-	if(get_usb_mode_data())
+	else if(get_usb_mode_data())
 		unset_dynamic_mode();
 
         return(0);
