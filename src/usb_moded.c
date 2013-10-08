@@ -118,6 +118,8 @@ void set_usb_connected(gboolean connected)
   }
   else
   {
+	if(current_mode.connected == FALSE)
+		return;
 	current_mode.connected = FALSE;
 	set_disconnected(NULL);
   }		
@@ -138,7 +140,7 @@ static gboolean set_disconnected(gpointer data)
 #else
   		/* signal usb disconnected */
 		usb_moded_send_signal(USB_DISCONNECTED);
-		/* unload modules and general cleanup */
+		/* unload modules and general cleanup if not charging */
 		if(strcmp(get_usb_mode(), MODE_CHARGING))
 			usb_moded_mode_cleanup(get_usb_module());
 		/* Nothing else as we do not need to do anything for cleaning up charging mode */
