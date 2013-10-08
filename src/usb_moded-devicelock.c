@@ -60,8 +60,9 @@ int usb_moded_get_export_permission(void)
 
   if ((msg = dbus_message_new_method_call(DEVICELOCK_SERVICE, DEVICELOCK_REQUEST_PATH, DEVICELOCK_REQUEST_IF, DEVICELOCK_STATE_REQ)) != NULL) 
   {
-    if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_devicelock, msg, -1, NULL)) != NULL)
-	{
+     /* default dbus timeout is too long, timeout after 1,5 seconds */
+     if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_devicelock, msg, 1500, NULL)) != NULL)
+     {
        dbus_message_get_args(reply, NULL, DBUS_TYPE_INT32, &ret, DBUS_TYPE_INVALID);
        dbus_message_unref(reply);
      }
