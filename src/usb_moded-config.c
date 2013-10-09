@@ -423,7 +423,7 @@ int conf_file_merge(void)
 {
   GDir *confdir;
   struct stat fileinfo, dir;
-  const gchar *filename, *mode = 0;
+  const gchar *filename, *mode = 0, *ip = 0, *gateway = 0;
   gchar *filename_full;
   GString *keyfile_string = NULL;
   GKeyFile *settingsfile;
@@ -482,6 +482,8 @@ int conf_file_merge(void)
 		/* store udev path (especially important for the upgrade path */
 		udev = find_udev_path();
 #endif /* UDEV */
+		ip = get_conf_string(NETWORK_ENTRY, NETWORK_IP_KEY);
+		gateway = get_conf_string(NETWORK_ENTRY, NETWORK_GATEWAY_KEY);
 		continue;
 	}
 	/* load contents of file, if it fails skip to next one */
@@ -516,16 +518,30 @@ next:
 	{
 		set_config_setting(UDEV_PATH_ENTRY, UDEV_PATH_KEY, udev);
 	}
+	/* check if no network data came from an ini file */
+	if( get_conf_string(NETWORK_ENTRY, NETWORK_IP_KEY))
+		goto cleanup;
+	if(ip) 
+		set_network_setting(ip, NETWORK_IP_KEY);
+	if(gateway)
+		set_network_setting(gateway, NETWORK_GATEWAY_KEY);
+		
 #endif /* UDEV */
   }
   else
 	ret = 1;
+cleanup:
   if(mode)
   	free((void *)mode);
 #ifdef UDEV
   if(udev)
 	free((void *)udev);
 #endif /* UDEV */
+  if(ip)
+	free((void *)ip);
+  if(gateway)
+	free((void *)gateway);
+	
 end:
   g_dir_close(confdir);
   return(ret);

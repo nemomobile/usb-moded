@@ -100,7 +100,9 @@ The other settings and config dirs will be handled later in the appsync and dyna
 (This is optional and can be compiled out)
 
 There is also an optional network configuration. The default ip set for usb networking is 192.168.2.15 
-(for Meego/Nemo). However this can be configured by hand in the ini file also.
+(for Meego/Nemo). However this can be configured by hand in the ini file also (optionally in a separate
+ini file which is possible due to config file merging).
+
 For example:
 
 [network]
