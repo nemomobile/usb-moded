@@ -181,21 +181,13 @@ void set_usb_connected_state(void)
   int export = 1; /* assume locked */
 #endif /* MEEGOLOCK */
 
-  mode_to_set = get_mode_setting();
-
-  /* This is safe to do here as the starting condition is
-     MODE_UNDEFINED, and having a devicelock being activated when
-     a mode is set will not interrupt it */
-  if(!strcmp(mode_to_set, current_mode.mode))
-	return;
-
   if(rescue_mode)
   {
 	log_debug("Entering rescue mode!\n");
 	set_usb_mode(MODE_DEVELOPER);
 	return;
   }
-  if(diag_mode)
+  else if(diag_mode)
   {
 	log_debug("Entering diagnostic mode!\n");
 	if(modelist)
@@ -206,6 +198,20 @@ void set_usb_connected_state(void)
 	}
 	return;
   }
+
+  mode_to_set = get_mode_setting();
+  if(!mode_to_set)
+  {
+	set_usb_mode(MODE_CHARGING);
+	return;
+  }
+
+  /* This is safe to do here as the starting condition is
+     MODE_UNDEFINED, and having a devicelock being activated when
+     a mode is set will not interrupt it */
+  if(!strcmp(mode_to_set, current_mode.mode))
+	return;
+
 #ifdef MEEGOLOCK
   /* check if we are allowed to export system contents 0 is unlocked */
   export = usb_moded_get_export_permission();
