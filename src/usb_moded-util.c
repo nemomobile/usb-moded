@@ -107,6 +107,31 @@ static int get_mode_configured (void)
   return 1;
 }
 
+static int unset_rescue (void)
+{
+  DBusMessage *req = NULL, *reply = NULL;
+  int ret = 0;
+
+  if ((req = dbus_message_new_method_call(USB_MODE_SERVICE, USB_MODE_OBJECT, USB_MODE_INTERFACE, USB_MODE_RESCUE_OFF)) != NULL)
+  {
+        if ((reply = dbus_connection_send_with_reply_and_block(conn, req, -1, NULL)) != NULL)
+        {
+	    if(reply)
+		ret = 1;
+            dbus_message_unref(reply);
+        }
+        dbus_message_unref(req);
+  }
+
+  if(ret)
+  {
+	printf("Rescue mode is off\n");
+	return 0;
+  }
+  else
+	return 1;
+}
+
 static int set_mode (char *mode)
 {
   DBusMessage *req = NULL, *reply = NULL;
@@ -241,7 +266,7 @@ int main (int argc, char *argv[])
 {
   int query = 0, network = 0, setmode = 0, config = 0;
   int modelist = 0, mode_configured = 0;
-  int res = 1, opt;
+  int res = 1, opt, rescue = 0;
   char *option = 0;
 
   if(argc == 1)
@@ -250,7 +275,7 @@ int main (int argc, char *argv[])
     exit(1);
   }
 
-  while ((opt = getopt(argc, argv, "c:dhmn:qs:")) != -1)
+  while ((opt = getopt(argc, argv, "c:dhmn:qrs:")) != -1)
   {
 	switch (opt) {
 		case 'c':
@@ -270,6 +295,9 @@ int main (int argc, char *argv[])
 		case 'q':
 			query = 1;
 			break;
+		case 'r':
+			rescue = 1;
+			break;
 		case 's':
 			setmode = 1;
 			option = optarg;
@@ -284,6 +312,7 @@ int main (int argc, char *argv[])
                    \t-n to get/set network configuration. Use get:${config}/set:${config},${value}\n \
                    \t-m to get the list of supported modes, \n \
                    \t-q to query the current mode,\n \
+		   \t-r turn rescue mode off,\n \
                    \t-s to set/activate a mode\n",
                    argv[0]); 
                    exit(1);
@@ -313,6 +342,8 @@ int main (int argc, char *argv[])
 	res = set_mode_config(option);
   else if (network)
 	res = handle_network(option);
+  else if (rescue)
+	res = unset_rescue();
 
   /* subfunctions will return 1 if an error occured, print message */
   if(res)
