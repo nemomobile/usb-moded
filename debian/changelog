@@ -1,3 +1,19 @@
+usb-moded (0.72) unstable; urgency=low
+
+  * Potential fix for CID #1103635
+  * If there is no mode to set, fallback to charging  
+  * Also re-order code a bit so we fix a potential null dereference. 
+    Fixes: CID #1103634
+  * Save network settings if they are defined in the main ini, update
+    the documentation related to networking configuration.
+  * Avoid multiple runs of the disconnect routine in case we get multiple
+    disconnect signals. Improve the comments in the disconnect handling.
+  * Improvements to mode clean-up. Also fixes mass-storage clean-up.
+  * Don't block for too long on device lock query, 1,5s should be ample time.
+    We don't want to block usb functionality for 20-30s
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Thu, 10 Oct 2013 10:06:50 +0300
+
 usb-moded (0.71.3) unstable; urgency=low
 
   * Change start-up for usb_moded, so it starts asap during boot.
