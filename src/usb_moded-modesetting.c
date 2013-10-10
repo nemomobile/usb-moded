@@ -418,7 +418,7 @@ void unset_dynamic_mode(void)
   }
 
   /* disconnect before changing functionality */
-  if(data->softconnect)
+  if(data->softconnect_disconnect)
   {
 	write_to_file(data->softconnect_path, data->softconnect_disconnect);
   }
