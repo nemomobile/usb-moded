@@ -190,6 +190,7 @@ error_reply:
 	else if(!strcmp(member, USB_MODE_RESCUE_OFF))
 	{
 		rescue_mode = FALSE;
+		log_debug("Rescue mode off\n ");
 		reply = dbus_message_new_method_return(msg);
 	}
   	else
