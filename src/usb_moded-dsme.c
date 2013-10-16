@@ -53,13 +53,16 @@ int is_in_user_state(void)
     {
        dbus_message_get_args(reply, &error, DBUS_TYPE_STRING, &buffer, DBUS_TYPE_INVALID);
        dbus_message_unref(reply);
-       log_debug("user state = %s\n", buffer);
     }
      dbus_message_unref(msg);
   }
   dbus_connection_unref(dbus_conn);
 
-  if (strcmp(buffer, "USER")==0) ret = 1;
+  if(buffer)
+  {
+	log_debug("user state = %s\n", buffer);
+	if (strcmp(buffer, "USER")==0) ret = 1;
+  }
   return(ret);
 }
 
