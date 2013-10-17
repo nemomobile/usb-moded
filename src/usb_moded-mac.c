@@ -80,7 +80,10 @@ char * read_mac(void)
 	return(NULL);
   }
   if(!fseek(g_ether, 26, SEEK_SET))
+  {
+	fclose(g_ether);
 	return 0;
+  }
   mac = malloc(sizeof(char) *17);
   if(mac)
 	read = fread(mac, 1, 17, g_ether);
