@@ -170,6 +170,7 @@ static void create_conf_file(void)
   keyfile = g_key_file_to_data (settingsfile, NULL, NULL);
   if(g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile, -1, NULL) == 0)
 	log_debug("Conffile creation failed. Continuing without configuration!\n");
+  free(keyfile);
   g_key_file_free(settingsfile);
 }
 
@@ -209,18 +210,20 @@ static const char * get_conf_string(const gchar *entry, const gchar *key)
 {
   GKeyFile *settingsfile;
   gboolean test = FALSE;
-  gchar **keys, *tmp_char = NULL;
-  const char *ret = NULL;
+  gchar **keys, **origkeys, *tmp_char = NULL;
   settingsfile = g_key_file_new();
   test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
   if(!test)
   {
       log_debug("No conffile. Creating\n");
       create_conf_file();
+      /* should succeed now */
+      g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
   }
   keys = g_key_file_get_keys (settingsfile, entry, NULL, NULL);
   if(keys == NULL)
-        return ret;
+        goto end;
+  origkeys = keys;
   while (*keys != NULL)
   {
         if(!strcmp(*keys, key))
@@ -233,9 +236,10 @@ static const char * get_conf_string(const gchar *entry, const gchar *key)
         }
         keys++;
   }
-  //g_strfreev(keys);
+  g_strfreev(origkeys);
+end:
   g_key_file_free(settingsfile);
-  return(g_strdup(tmp_char));
+  return(tmp_char);
 
 }
 
@@ -302,8 +306,9 @@ static const char * get_kcmdline_string(const char *entry)
 	}
       } 
     }
+    g_strfreev(arg_tokens);
   }
-  g_strfreev(arg_tokens);
+  g_strfreev(argv);
   g_strfreev(network_tokens);
 
   return(ret);
@@ -465,7 +470,7 @@ int conf_file_merge(void)
 	/* if a conffile was created, the st_mtime would have been updated so this check will miss information that might be there already,
 	   like after a config file removal for example. So we run a merge anyway if we needed to create the conf file */
 	if(!conffile_created)
-		return 0;
+		goto end;
   }
   log_debug("Merging/creating configuration.\n");
   keyfile_string = g_string_new(NULL);
@@ -572,20 +577,25 @@ int check_android_section(void)
   GKeyFile *settingsfile;
   gboolean test = FALSE;
   gchar **keys;
+  int ret = 1;
 
   settingsfile = g_key_file_new();
   test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
   if(!test)
-	return 0;
+  {
+	ret = 0;
+	goto cleanup;
+  }
   keys = g_key_file_get_keys (settingsfile, ANDROID_ENTRY, NULL, NULL);
   if(keys == NULL)
   {  
-	g_key_file_free(settingsfile);
-        return 0;
+        ret =  0;
+	goto cleanup;
   }
 
-  //g_strfreev(keys);
+  g_strfreev(keys);
+cleanup:
   g_key_file_free(settingsfile);
-  return 1;
+  return(ret);
 }
 

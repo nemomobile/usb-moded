@@ -493,7 +493,7 @@ static void usb_moded_init(void)
     generate_random_mac();  	
   }
 
-  /* kmod init */
+  /* kmod init TODO: should be cleaned-up on exit */
   ctx = kmod_new(NULL, NULL);
   kmod_load_resources(ctx);
 
