@@ -1,3 +1,13 @@
+usb-moded (0.73) unstable; urgency=low
+
+    * [usb-moded] Fix a number of memory leaks. Fixes: JB#11317
+    * [usb-moded] Fix possible crash if dsme is not running. Really fix CID #1103635
+    * Update dbus config file for including rescue_off method
+    * Log that we turn off rescue mode
+    * [usb-moded-util] Add support to turn of rescue mode
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Thu, 17 Oct 2013 14:10:05 +0300
+
 usb-moded (0.72) unstable; urgency=low
 
   * Potential fix for CID #1103635
