@@ -48,6 +48,7 @@ static DBusConnection * get_systemd_dbus_connection(void)
             log_err("Cannot connect to systemd: %s", error.message);
      else
             log_err("Cannot connect to systemd");
+     dbus_error_free(&error);
      return 0;
   }
 
@@ -70,6 +71,8 @@ int systemd_control_service(const char *name, const char *method)
   log_debug("Handling %s, with systemd, method %s\n", name, method);
 
   bus = get_systemd_dbus_connection();
+  if(!bus)
+	return(ret);
 
   msg = dbus_message_new_method_call("org.freedesktop.systemd1", 
         "/org/freedesktop/systemd1", "org.freedesktop.systemd1.Manager", method);
