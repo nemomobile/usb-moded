@@ -55,10 +55,11 @@ static void free_elem(gpointer aptr)
   struct list_elem *elem = aptr;
   free(elem->name);
   free(elem->launch);
+  free(elem->mode);
   free(elem);
 }
 
-static void free_list(void)
+void free_appsync_list(void)
 {
   if( sync_list != 0 )
   {
@@ -66,6 +67,7 @@ static void free_list(void)
     g_list_foreach (sync_list, (GFunc) free_elem, NULL);
     g_list_free (sync_list);
     sync_list = 0;
+    log_debug("Appsync list freed\n");
   }
 }
 
@@ -76,7 +78,7 @@ void readlist(void)
   const gchar *dirname;
   struct list_elem *list_item;
 
-  free_list();
+  free_appsync_list();
 
   if( !(confdir = g_dir_open(CONF_DIR_PATH, 0, NULL)) )
     goto cleanup;

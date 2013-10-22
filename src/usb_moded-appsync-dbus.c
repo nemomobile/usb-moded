@@ -274,8 +274,10 @@ gboolean usb_moded_app_sync_init_connection(void)
   /* Make sure we do not get forced to exit if dbus session dies or stops */
   dbus_connection_set_exit_on_disconnect(dbus_connection_ses, FALSE);
 
-  /* Connect D-Bus to the mainloop */
+  /* Connect D-Bus to the mainloop (Seems it is only needed once and is done at the main
+     D-Bus init
   dbus_connection_setup_with_g_main(dbus_connection_ses, NULL);
+  */
 
   /* Request service name */
   if( !usb_moded_app_sync_obtain_name() )
@@ -318,6 +320,7 @@ EXIT:
  */
 void usb_moded_appsync_cleanup(void)
 {
+  usb_moded_app_sync_cleanup_connection();
   // NOP
 }
 

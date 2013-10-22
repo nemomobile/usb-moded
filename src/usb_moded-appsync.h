@@ -47,3 +47,5 @@ void readlist(void);
 int activate_sync(const char *mode);
 int mark_active(const gchar *name);
 int appsync_stop(void);
+void free_appsync_list(void);
+void usb_moded_appsync_cleanup(void);
