@@ -149,7 +149,7 @@ cleanup:
 
   return list_item;
 }
-
+/* @return 0 on succes, 1 if there is a failure */
 int activate_sync(const char *mode)
 {
   GList *iter;
@@ -189,7 +189,7 @@ int activate_sync(const char *mode)
   {
       log_debug("Nothing to launch.\n");
       enumerate_usb(NULL);
-      return(1);
+      return(0);
    }
 
   /* check dbus initialisation, skip dbus activated services if this fails */
@@ -214,30 +214,37 @@ int activate_sync(const char *mode)
       {
         if(!systemd_control_service(data->name, SYSTEMD_START))
 		mark_active(data->name);
-	goto end;
+	else
+		goto error;
       }
 #ifdef UPSTART
       else if(data->upstart)
       {
 	if(!upstart_control_job(data->name, UPSTART_START))	
 		mark_active(data->name);
-	goto end;
+	else
+		goto error;
       }
 #endif /* UPSTART */
       else if(data->launch)
-	{
+      {
 		/* skipping if dbus session bus is not available */
 		if(no_dbus)
 			mark_active(data->name);
 		else
-      			usb_moded_dbus_app_launch(data->launch);
-	}
+			if(usb_moded_dbus_app_launch(data->launch))
+				mark_active(data->name);
+			else
+				goto error;
+      }
     }
   }
 
-end:
-
   return(0);
+
+error:
+  log_warning("Error launching a service!\n");
+  return(1);
 }
 
 int mark_active(const gchar *name)

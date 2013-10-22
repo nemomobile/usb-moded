@@ -352,7 +352,8 @@ int set_dynamic_mode(void)
 
 #ifdef APP_SYNC
   if(data->appsync)
-  	activate_sync(data->mode_name);
+	if(activate_sync(data->mode_name)) /* returns 1 on error */
+		return(1);
 #endif
   /* make sure things are disabled before changing functionality */
   if(data->softconnect_disconnect)
