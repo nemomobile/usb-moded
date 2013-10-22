@@ -74,10 +74,11 @@ static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessa
   	
     	if(!strcmp(member, USB_MODE_STATE_REQUEST))
     	{
-      		const char *mode = get_usb_mode();
+		const char *mode = strdup(get_usb_mode());
 
       		if((reply = dbus_message_new_method_return(msg)))
         		dbus_message_append_args (reply, DBUS_TYPE_STRING, &mode, DBUS_TYPE_INVALID);
+		free((void *)mode);
     	}
     	else if(!strcmp(member, USB_MODE_STATE_SET))
     	{
