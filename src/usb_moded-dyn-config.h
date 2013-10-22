@@ -78,5 +78,8 @@ typedef struct mode_list_elem
 
 /* diag is used to select a secondary configuration location for diagnostic purposes */
 GList *read_mode_list(int diag);
+void list_item_free(mode_list_elem *list_item);
+void free_mode_list(GList *modelist);
+
 
 #endif /* USB_MODED_DYN_CONFIG_H_ */

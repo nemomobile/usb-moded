@@ -33,6 +33,35 @@
 
 static struct mode_list_elem *read_mode_file(const gchar *filename);
 
+void list_item_free(mode_list_elem *list_item)
+{
+  free(list_item->mode_name);
+  free(list_item->mode_module);
+  free(list_item->network_interface);
+  free(list_item->sysfs_path);
+  free(list_item->sysfs_value);
+  free(list_item->sysfs_reset_value);
+  free(list_item->softconnect);
+  free(list_item->softconnect_disconnect);
+  free(list_item->softconnect_path);
+  free(list_item->android_extra_sysfs_path);
+  free(list_item->android_extra_sysfs_value);
+  free(list_item->android_extra_sysfs_path2);
+  free(list_item->android_extra_sysfs_value2);
+  free(list_item->idProduct);
+  free(list_item);
+}
+
+void free_mode_list(GList *modelist)
+{
+  if(modelist)
+  {
+	g_list_foreach(modelist, (GFunc) list_item_free, NULL);
+	g_list_free(modelist);
+	modelist = 0;
+  }
+}
+
 GList *read_mode_list(int diag)
 {
   GDir *confdir;
@@ -108,25 +137,25 @@ static struct mode_list_elem *read_mode_file(const gchar *filename)
   if(list_item->mode_name == NULL || list_item->mode_module == NULL)
   {
 	/* free list_item as it will not be used */
-	free(list_item);
+	list_item_free(list_item);
 	return NULL;
   }
   if(list_item->network && list_item->network_interface == NULL)
   {
 	/* free list_item as it will not be used */
-	free(list_item);
+	list_item_free(list_item);
 	return NULL;
   }
   if(list_item->sysfs_path && list_item->sysfs_value == NULL)
   {
 	/* free list_item as it will not be used */
-	free(list_item);
+	list_item_free(list_item);
 	return NULL;
   }
   if(list_item->softconnect &&  list_item->softconnect_path == NULL)
   {
 	/* free list_item as it will not be used */
-	free(list_item);
+	list_item_free(list_item);
 	return NULL;
   }
   else
