@@ -305,7 +305,9 @@ void set_usb_mode(const char *mode)
 	/* set data before calling any of the dynamic mode functions
 	   as they will use the get_usb_mode_data function */
 	set_usb_mode_data(data);
-        ret = set_dynamic_mode();
+	/* check if modules are ok before continuing */
+	if(!ret)
+		ret = set_dynamic_mode();
       }
     }
   }
@@ -319,6 +321,7 @@ end:
 	  mode = MODE_UNDEFINED;
 	  unset_dynamic_mode();
 	  set_usb_mode_data(NULL);
+	  log_debug("mode setting failed, mode = %s\n", mode);
   }
   if(net)
     log_debug("Network setting failed!\n");
