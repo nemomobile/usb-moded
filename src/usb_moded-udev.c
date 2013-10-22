@@ -87,7 +87,7 @@ gboolean hwal_init(void)
   }
   else
   {
-    dev_name = udev_device_get_sysname(dev);
+    dev_name = strdup(udev_device_get_sysname(dev));
     log_debug("device name = %s\n", dev_name);
   } 
   mon = udev_monitor_new_from_netlink (udev, "udev");
@@ -124,6 +124,7 @@ gboolean hwal_init(void)
   watch_id = g_io_add_watch_full(iochannel, 0, G_IO_IN, monitor_udev, NULL,notify_issue);
 
   /* everything went well */
+  udev_device_unref(dev);
   return TRUE;
 }
 
@@ -140,7 +141,10 @@ static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition c
     {
       /* check if it is the actual device we want to check */
       if(strcmp(dev_name, udev_device_get_sysname(dev)))
+      {
+        udev_device_unref(dev);
 	return TRUE;
+      }
        
       if(!strcmp(udev_device_get_action(dev), "change"))
       {
@@ -169,13 +173,14 @@ void hwal_cleanup(void)
     g_io_channel_unref(iochannel);
     iochannel = NULL;
   }
+  free((void *) dev_name);
   udev_monitor_unref(mon);
   udev_unref(udev);
 }
 
 static void udev_parse(struct udev_device *dev)
 {
-  const char *tmp;
+  const char *tmp, *tmp2;
   static int cable = 0, charger = 0; /* track if cable was connected as we cannot distinguish charger and cable disconnects */
 
   /* Check for present first as some drivers use online for when charging is enabled */
@@ -196,8 +201,8 @@ static void udev_parse(struct udev_device *dev)
   {
     /* log_debug("UDEV:power supply present\n"); */
     /* power supply type might not exist */
-    tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE");
-    if(!tmp)
+    tmp2 = udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE");
+    if(!tmp2)
     {
       /* power supply type might not exist also :( Send connected event but this will not be able
       to discriminate between charger/cable */
@@ -206,18 +211,20 @@ static void udev_parse(struct udev_device *dev)
       set_usb_connected(TRUE);
       return;
     }
-    if(!strcmp(tmp, "USB")||!strcmp(tmp, "USB_CDP"))
+    if(!strcmp(tmp2, "USB")||!strcmp(tmp2, "USB_CDP"))
     {
       log_debug("UDEV:USB cable connected\n");
       cable = 1;
       set_usb_connected(TRUE);
     }
-    if(!strcmp(tmp, "USB_DCP"))
+    if(!strcmp(tmp2, "USB_DCP"))
     {
       log_debug("UDEV:USB dedicated charger connected\n");
       charger = 1;
       set_charger_connected(TRUE);
     }
+    free((void *) tmp);
+    free((void *) tmp2);
   }
   else if(cable)
   {
