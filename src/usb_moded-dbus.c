@@ -290,6 +290,7 @@ void usb_moded_dbus_cleanup(void)
   /* clean up system bus connection */
   if (dbus_connection_sys != NULL) 
   {
+	  dbus_bus_release_name(dbus_connection_sys, USB_MODE_SERVICE, NULL);
 	  dbus_connection_remove_filter(dbus_connection_sys, msg_handler, NULL);
 	  dbus_connection_unref(dbus_connection_sys);
           dbus_connection_sys = NULL;
