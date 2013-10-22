@@ -38,6 +38,8 @@
 #include "usb_moded-modes.h"
 
 static DBusHandlerResult devicelock_unlocked_cb(DBusConnection *conn, DBusMessage *msg, void *user_data);
+
+DBusConnection *dbus_conn_devicelock = NULL;
 	
 /** Checks if the device is locked.
  * 
@@ -77,7 +79,6 @@ int usb_moded_get_export_permission(void)
 int start_devicelock_listener(void)
 {
   DBusError       err = DBUS_ERROR_INIT;
-  DBusConnection *dbus_conn_devicelock = NULL;
 
   if( (dbus_conn_devicelock = dbus_bus_get(DBUS_BUS_SYSTEM, &err)) == 0 )
   {
@@ -95,11 +96,23 @@ int start_devicelock_listener(void)
         log_err("adding system dbus filter for devicelock failed");
     goto cleanup;
   }
-  dbus_connection_setup_with_g_main(dbus_conn_devicelock, NULL);
+  //dbus_connection_setup_with_g_main(dbus_conn_devicelock, NULL);
 
 cleanup:
   dbus_error_free(&err);
   return(1);
+}
+
+int stop_devicelock_listener(void)
+{
+  if(dbus_conn_devicelock)
+  {
+	dbus_connection_remove_filter(dbus_conn_devicelock, devicelock_unlocked_cb, NULL);
+	dbus_bus_remove_match(dbus_conn_devicelock, MATCH_DEVICELOCK_SIGNALS, NULL);
+	dbus_connection_unref(dbus_conn_devicelock);
+  }
+
+  return 0;
 }
 
 static DBusHandlerResult devicelock_unlocked_cb(DBusConnection *conn, DBusMessage *msg, void *user_data)

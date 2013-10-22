@@ -25,4 +25,4 @@
 /*============================================================================= */
 int usb_moded_get_export_permission(void);
 int start_devicelock_listener(void);
-
+int stop_devicelock_listener(void);
