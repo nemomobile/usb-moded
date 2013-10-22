@@ -28,6 +28,7 @@
 
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <signal.h>
 #ifdef NOKIA
 #include <string.h>
 #endif
@@ -58,6 +59,7 @@
 
 /* global definitions */
 
+GMainLoop *mainloop = NULL;
 extern const char *log_name;
 extern int log_level;
 extern int log_type;
@@ -493,7 +495,7 @@ static void usb_moded_init(void)
     generate_random_mac();  	
   }
 
-  /* kmod init TODO: should be cleaned-up on exit */
+  /* kmod init */
   ctx = kmod_new(NULL, NULL);
   kmod_load_resources(ctx);
 
@@ -525,6 +527,42 @@ static gboolean charging_fallback(gpointer data)
   return(FALSE);
 }
 
+static void handle_exit(void)
+{
+  extern struct kmod_ctx *ctx;
+
+  /* exiting and clean-up when mainloop ended */
+  hwal_cleanup();
+  usb_moded_dbus_cleanup();
+  stop_devicelock_listener();
+
+  free_mode_list(modelist);
+  kmod_unref(ctx);
+
+#ifdef APP_SYNC
+  free_appsync_list();
+  usb_moded_appsync_cleanup();
+#endif
+
+  dbus_shutdown();
+
+  /* If the mainloop is initialised, unreference it */
+  if (mainloop != NULL)
+  {
+	g_main_loop_quit(mainloop);
+	g_main_loop_unref(mainloop);
+  }
+  free((void *)current_mode.mode);
+  free((void *)current_mode.module);
+
+  exit(0);
+}
+
+static void sigint_handler(int signum)
+{
+  handle_exit();
+}
+
 /* Display usage information */
 static void usage(void)
 {
@@ -547,7 +585,6 @@ int main(int argc, char* argv[])
 {
 	int result = EXIT_FAILURE;
         int opt = 0, opt_idx = 0;
-	GMainLoop *mainloop = NULL;
 
 	struct option const options[] = {
                 { "fallback", no_argument, 0, 'd' },
@@ -643,17 +680,14 @@ int main(int argc, char* argv[])
 	start_devicelock_listener();
 #endif /* MEEGOLOCK */
 
+	/* signal handling */
+	signal(SIGINT, sigint_handler);
+
 	/* init succesful, run main loop */
 	result = EXIT_SUCCESS;  
 	g_main_loop_run(mainloop);
 EXIT:
-	/* exiting and clean-up when mainloop ended */
-	hwal_cleanup();
-	usb_moded_dbus_cleanup();
-
-	/* If the mainloop is initialised, unreference it */
-        if (mainloop != NULL)
-                g_main_loop_unref(mainloop);
+	handle_exit();
 
 	return result;
 }
