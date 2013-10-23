@@ -180,7 +180,7 @@ void hwal_cleanup(void)
 
 static void udev_parse(struct udev_device *dev)
 {
-  const char *tmp, *tmp2;
+  const char *tmp;
   static int cable = 0, charger = 0; /* track if cable was connected as we cannot distinguish charger and cable disconnects */
 
   /* Check for present first as some drivers use online for when charging is enabled */
@@ -201,8 +201,8 @@ static void udev_parse(struct udev_device *dev)
   {
     /* log_debug("UDEV:power supply present\n"); */
     /* power supply type might not exist */
-    tmp2 = udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE");
-    if(!tmp2)
+    tmp = udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE");
+    if(!tmp)
     {
       /* power supply type might not exist also :( Send connected event but this will not be able
       to discriminate between charger/cable */
@@ -211,20 +211,18 @@ static void udev_parse(struct udev_device *dev)
       set_usb_connected(TRUE);
       return;
     }
-    if(!strcmp(tmp2, "USB")||!strcmp(tmp2, "USB_CDP"))
+    if(!strcmp(tmp, "USB")||!strcmp(tmp, "USB_CDP"))
     {
       log_debug("UDEV:USB cable connected\n");
       cable = 1;
       set_usb_connected(TRUE);
     }
-    if(!strcmp(tmp2, "USB_DCP"))
+    if(!strcmp(tmp, "USB_DCP"))
     {
       log_debug("UDEV:USB dedicated charger connected\n");
       charger = 1;
       set_charger_connected(TRUE);
     }
-    free((void *) tmp);
-    free((void *) tmp2);
   }
   else if(cable)
   {
