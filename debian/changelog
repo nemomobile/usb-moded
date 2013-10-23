@@ -1,10 +1,28 @@
+usb-moded (0.74) unstable; urgency=low
+
+  * We do not want to free the contents of the udev_device struct, this will happen anyway when we unref it
+  * Fix some memory leaks in the udev handler.
+  * Handle mode change failures more reliably.
+  * Improve dbus clean-up.
+  * Clean up mode tracking to avoid a small memory leak.
+  * Clean up dbus, lists etc and exit cleanly when interrupted.
+  * Avoid leaking memory when something goes wrong launching services over systemd dbus.
+  * Clean-up dynamic config list
+  * Clean up the devicelock DBUS
+  * Actually report an error if something goes wrong with the appsync, and at the same time allow for more 
+    than program to be launched. Check for the appsync errors in the mode setting too.
+  * Clean up appsync list and dbus correctly
+  * [usb-moded] Fix resource leak. CID#1090411
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Wed, 23 Oct 2013 14:01:23 +0300
+
 usb-moded (0.73) unstable; urgency=low
 
-    * [usb-moded] Fix a number of memory leaks. Fixes: JB#11317
-    * [usb-moded] Fix possible crash if dsme is not running. Really fix CID #1103635
-    * Update dbus config file for including rescue_off method
-    * Log that we turn off rescue mode
-    * [usb-moded-util] Add support to turn of rescue mode
+  * [usb-moded] Fix a number of memory leaks. Fixes: JB#11317
+  * [usb-moded] Fix possible crash if dsme is not running. Really fix CID #1103635
+  * Update dbus config file for including rescue_off method
+  * Log that we turn off rescue mode
+  * [usb-moded-util] Add support to turn of rescue mode
 
  -- Philippe De Swert <philippe.deswert@jollamobile.com>  Thu, 17 Oct 2013 14:10:05 +0300
 
