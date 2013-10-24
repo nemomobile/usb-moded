@@ -30,6 +30,7 @@
 
 #include <glib.h>
 
+#include "usb_moded.h"
 #include "usb_moded-network.h"
 #include "usb_moded-config.h"
 #include "usb_moded-log.h"
@@ -160,4 +161,27 @@ int usb_network_down(struct mode_list_elem *data)
   
   return(0);
 #endif /* CONNMAN */
+}
+
+/**
+ * Update the network interface with the new setting if connected.
+ * 
+*/
+int usb_network_update(void)
+{
+  struct mode_list_elem * data;
+
+  if(!get_usb_connection_state())
+	return(0);
+
+  data = get_usb_mode_data();
+  if(data->network)
+  {
+	usb_network_down(data);	
+	usb_network_up(data);	
+	return(0);
+  }
+  else
+	return(0);
+
 }
