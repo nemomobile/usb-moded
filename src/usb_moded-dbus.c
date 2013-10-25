@@ -42,6 +42,7 @@ extern gboolean rescue_mode;
 
 static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessage *const msg, gpointer const user_data)
 {
+  const char *mode		= NULL;
   DBusHandlerResult   status    = DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   DBusMessage        *reply     = 0;
   const char         *interface = dbus_message_get_interface(msg);
@@ -64,7 +65,6 @@ static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessa
     			"  </interface>\n"
     			"	</node>\n";
 
- 
   (void)user_data;
 
   if(!interface || !member || !object) goto EXIT;
@@ -75,11 +75,10 @@ static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessa
   	
     	if(!strcmp(member, USB_MODE_STATE_REQUEST))
     	{
-		const char *mode = strdup(get_usb_mode());
+		mode = strdup(get_usb_mode());
 
       		if((reply = dbus_message_new_method_return(msg)))
         		dbus_message_append_args (reply, DBUS_TYPE_STRING, &mode, DBUS_TYPE_INVALID);
-		free((void *)mode);
     	}
     	else if(!strcmp(member, USB_MODE_STATE_SET))
     	{
@@ -119,7 +118,7 @@ error_reply:
         		reply = dbus_message_new_error(msg, DBUS_ERROR_INVALID_ARGS, member);
 		else
 		{
-			/* error checking is done when setting the GConf key */
+			/* error checking is done when setting configuration */
 			if(!set_mode_setting(config))
 			{
  				if((reply = dbus_message_new_method_return(msg)))
@@ -228,6 +227,9 @@ EXIT:
       	}
     	dbus_message_unref(reply);
   }
+
+  if(mode)
+	free((void *)mode);
 
   return status;
 }
