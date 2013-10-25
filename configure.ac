@@ -1,4 +1,4 @@
-AC_INIT([usb_moded], [0.74])
+AC_INIT([usb_moded], [0.75])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AM_CONFIG_HEADER([config.h])

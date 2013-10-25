@@ -1,3 +1,11 @@
+usb-moded (0.75) unstable; urgency=low
+
+  * [usb-moded] Fix network settings disappearing on a config file merge. Fixes: JB#10917
+  * [usb-moded] Avoid potential crash in the dbus message handling
+  * [usb-moded] When network settings are updated, apply the configuration when connected.
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Sat, 26 Oct 2013 00:45:37 +0300
+
 usb-moded (0.74) unstable; urgency=low
 
   * We do not want to free the contents of the udev_device struct, this will happen anyway when we unref it
