@@ -527,9 +527,9 @@ next:
 	if( get_conf_string(NETWORK_ENTRY, NETWORK_IP_KEY))
 		goto cleanup;
 	if(ip) 
-		set_network_setting(ip, NETWORK_IP_KEY);
+		set_network_setting(NETWORK_IP_KEY, ip);
 	if(gateway)
-		set_network_setting(gateway, NETWORK_GATEWAY_KEY);
+		set_network_setting(NETWORK_GATEWAY_KEY, gateway);
 		
 #endif /* UDEV */
   }
