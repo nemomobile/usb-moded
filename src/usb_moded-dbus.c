@@ -75,7 +75,7 @@ static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessa
   	
     	if(!strcmp(member, USB_MODE_STATE_REQUEST))
     	{
-		mode = strdup(get_usb_mode());
+		mode = strdup(get_usb_mode()); /* freed at the end after sending the message */
 
       		if((reply = dbus_message_new_method_return(msg)))
         		dbus_message_append_args (reply, DBUS_TYPE_STRING, &mode, DBUS_TYPE_INVALID);
