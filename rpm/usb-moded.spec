@@ -218,7 +218,7 @@ diagnotic mode
 
 %build
 %autogen
-%configure --enable-app-sync --enable-udev --enable-n900 --enable-meegodevlock 
+%configure --enable-app-sync --enable-udev --enable-n900 --enable-meegodevlock --enable-debug
 make all doc %{?_smp_mflags}
 
 %install
