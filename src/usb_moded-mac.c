@@ -72,6 +72,7 @@ char * read_mac(void)
   FILE *g_ether;
   char *mac = NULL, *ret = NULL;
   size_t read = 0;
+  int test = 0;
 
   g_ether = fopen("/etc/modprobe.d/g_ether.conf", "r");
   if(!g_ether)
@@ -79,7 +80,8 @@ char * read_mac(void)
 	log_warning("Failed to read mac address from /etc/modprobe.d/g_ether.conf\n");
 	return(NULL);
   }
-  if(!fseek(g_ether, 26, SEEK_SET))
+  test = fseek(g_ether, 26, SEEK_SET);
+  if(test == -1)
   {
 	fclose(g_ether);
 	return 0;
@@ -91,6 +93,7 @@ char * read_mac(void)
 	ret = strndup(mac,17);
   else
 	ret = 0;
+
   free(mac);
   fclose(g_ether);
   return(ret);
