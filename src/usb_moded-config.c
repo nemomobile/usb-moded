@@ -380,6 +380,7 @@ int set_network_setting(const char *config, const char *setting)
      	Just a precaution. */
   	g_key_file_free(settingsfile);
   	ret = g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile, -1, NULL);
+	free(keyfile);
   }
   else
   {
