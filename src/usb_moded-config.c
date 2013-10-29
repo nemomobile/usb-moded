@@ -345,6 +345,7 @@ int set_config_setting(const char *entry, const char *key, const char *value)
      Just a precaution. */
   g_key_file_free(settingsfile);
   ret = g_file_set_contents(FS_MOUNT_CONFIG_FILE, keyfile, -1, NULL);
+  g_free(keyfile);
   
   /* g_file_set_contents returns 1 on succes, since set_mode_settings returns 0 on succes we return the ! value */
   return(!ret);
