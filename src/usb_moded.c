@@ -325,7 +325,8 @@ end:
   }
   if(net)
     log_debug("Network setting failed!\n");
-  current_mode.mode = mode;
+  free(current_mode.mode);
+  current_mode.mode = strdup(mode);
   usb_moded_send_signal(get_usb_mode());
 }
 
@@ -408,8 +409,8 @@ inline const char * get_usb_mode(void)
  */
 void set_usb_module(const char *module)
 {
-  //free(current_mode.module);
-  current_mode.module = module;
+  free(current_mode.module);
+  current_mode.module = strdup(module);
 }
 
 /** get the supposedly loaded module
@@ -471,8 +472,8 @@ static void usb_moded_init(void)
 
   current_mode.connected = FALSE;
   current_mode.mounted = FALSE;
-  current_mode.mode = MODE_UNDEFINED;
-  current_mode.module = MODULE_NONE;
+  current_mode.mode = strdup(MODE_UNDEFINED);
+  current_mode.module = strdup(MODULE_NONE);
 
   /* check config, merge or create if outdated */
   if(conf_file_merge() != 0)
@@ -520,7 +521,8 @@ static gboolean charging_fallback(gpointer data)
   /* since this is the fallback, we keep an indication
      for the UI, as we are not really in charging mode.
   */
-  current_mode.mode = MODE_ASK;
+  free(current_mode.mode);
+  current_mode.mode = strdup(MODE_ASK);
   current_mode.data = NULL;
   charging_timeout = 0;
   log_info("Falling back on charging mode.\n");
