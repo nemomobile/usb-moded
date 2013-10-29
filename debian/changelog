@@ -1,3 +1,12 @@
+usb-moded (0.76) unstable; urgency=low
+
+  * Fix possible memory leak when setting the network config.
+  * Make sure the trigger does not get restarted when we clean up.
+  * Fix leak when setting the default mode configuration setting.
+  * [usb-moded] Fix memory corruption issue
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Tue, 29 Oct 2013 16:37:15 +0200
+
 usb-moded (0.75) unstable; urgency=low
 
   * [usb-moded] Fix network settings disappearing on a config file merge. Fixes: JB#10917

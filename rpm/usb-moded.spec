@@ -11,19 +11,14 @@ Source2:  usb_moded.conf
 
 BuildRequires: pkgconfig(dbus-1)
 BuildRequires: pkgconfig(dbus-glib-1)
-BuildRequires: pkgconfig(gconf-2.0)
 BuildRequires: pkgconfig(glib-2.0)
 BuildRequires: pkgconfig(udev)
 BuildRequires: pkgconfig(libkmod)
 BuildRequires: doxygen
-BuildRequires: GConf2
 
 Requires: lsof
 Requires: usb-moded-configs
 Requires: usb-moded-diagnostics-config
-Requires(post): GConf2
-Requires(pre): GConf2
-Requires(preun): GConf2
 Requires(post): systemd
 Requires(postun): systemd
 
@@ -246,27 +241,10 @@ ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/%
 # Sync mode not packaged for now.
 rm %{buildroot}/etc/usb-moded/dyn-modes/sync_mode.ini
 
-%pre
-if [ "$1" -gt 1 ]; then
-  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-  gconftool-2 --makefile-uninstall-rule \
-    %{_sysconfdir}/gconf/schemas/usb-moded.schemas \
-    > /dev/null || :
-fi
-
 %preun
-if [ "$1" -eq 0 ]; then
-  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-  gconftool-2 --makefile-uninstall-rule \
-    %{_sysconfdir}/gconf/schemas/usb-moded.schemas \
-    > /dev/null || :
-fi
 systemctl daemon-reload
 
 %post
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-install-rule \
-    %{_sysconfdir}/gconf/schemas/usb-moded.schemas  > /dev/null || :
 systemctl daemon-reload
 
 %files
