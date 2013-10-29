@@ -43,6 +43,7 @@ static struct udev_monitor *mon;
 static GIOChannel *iochannel;
 static guint watch_id; 
 static const char *dev_name;
+static int cleanup = 0;
 
 /* static function definitions */
 static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition cond,
@@ -51,6 +52,9 @@ static void udev_parse(struct udev_device *dev);
 
 static void notify_issue (gpointer data)
 {
+	/* we do not want to restart when we try to clean up */
+	if(cleanup)
+		return;
         log_debug("USB connection watch destroyed, restarting it\n!");
         /* restart trigger */
         hwal_cleanup();
@@ -62,6 +66,8 @@ gboolean hwal_init(void)
   const gchar *udev_path = NULL, *udev_subsystem = NULL;
   struct udev_device *dev;
   int ret = 0;
+
+  cleanup = 0;
 	
   /* Create the udev object */
   udev = udev_new();
@@ -163,6 +169,10 @@ static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition c
 
 void hwal_cleanup(void)
 {
+  cleanup = 1;
+
+  log_debug("HWhal cleanup\n");
+
   if(watch_id != 0)
   {
     g_source_remove(watch_id);
