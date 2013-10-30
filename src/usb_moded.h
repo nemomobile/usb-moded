@@ -65,5 +65,7 @@ struct mode_list_elem * get_usb_mode_data(void);
 gboolean get_usb_connection_state(void);
 void set_usb_connection_state(gboolean state);
 void set_charger_connected(gboolean state);
+gchar *get_mode_list(void);
+int valid_mode(const char *mode);
 
 #endif /* USB_MODED_H */
