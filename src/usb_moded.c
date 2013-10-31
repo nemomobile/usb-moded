@@ -333,7 +333,7 @@ end:
 /** check if a given usb_mode exists
  *
  * @param mode The mode to look for
- * @return 0 if mode exits, 1 if it does not exist
+ * @return 0 if mode exists, 1 if it does not exist
  *
  */
 int valid_mode(const char *mode)
