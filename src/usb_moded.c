@@ -563,7 +563,14 @@ static void handle_exit(void)
 
 static void sigint_handler(int signum)
 {
-  handle_exit();
+  if(signum == SIGINT)
+	handle_exit();
+  if(signum == SIGHUP)
+  {
+	/* free and read in modelist again */
+	free_mode_list(modelist);
+	modelist = read_mode_list(0);
+  }
 }
 
 /* Display usage information */
@@ -685,6 +692,7 @@ int main(int argc, char* argv[])
 
 	/* signal handling */
 	signal(SIGINT, sigint_handler);
+	signal(SIGHUP, sigint_handler);
 
 	/* init succesful, run main loop */
 	result = EXIT_SUCCESS;  
