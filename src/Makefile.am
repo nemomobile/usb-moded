@@ -60,10 +60,14 @@ if APP_SYNC
 usb_moded_SOURCES += \
 	usb_moded-appsync.c \
 	usb_moded-appsync.h \
+	usb_moded-systemd.c \
+	usb_moded-systemd.h
+endif
+
+if APP_SYNC_DBUS
+usb_moded_SOURCES += \
 	usb_moded-appsync-dbus.c \
 	usb_moded-appsync-dbus.h \
-	usb_moded-systemd.c \
-	usb_moded-systemd.h \
 	usb_moded-appsync-dbus-private.h 
 endif
 

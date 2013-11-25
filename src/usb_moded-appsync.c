@@ -49,6 +49,12 @@ static GList *sync_list = NULL;
 static unsigned sync_tag = 0;
 static unsigned enum_tag = 0;
 static struct timeval sync_tv;
+#ifdef APP_SYNC_DBUS
+static  int no_dbus = 0;
+#else
+static  int no_dbus = 0;
+#endif /* APP_SYNC_DBUS */
+
 
 static void free_elem(gpointer aptr)
 {
@@ -100,7 +106,9 @@ cleanup:
   if( sync_list )
   {
     log_debug("Sync list valid\n");
+#ifdef APP_SYN_DBUS
     usb_moded_app_sync_init_connection();
+#endif
   }
 }
 
@@ -154,7 +162,6 @@ int activate_sync(const char *mode)
 {
   GList *iter;
   int count = 0, count2 = 0;
-  int no_dbus = 0;
 
   log_debug("activate sync");
 
@@ -192,12 +199,14 @@ int activate_sync(const char *mode)
       return(0);
    }
 
+#ifdef APP_SYNC_DBUS
   /* check dbus initialisation, skip dbus activated services if this fails */
   if(!usb_moded_app_sync_init())
   {
       log_debug("dbus setup failed => skipping dbus launched apps \n");
       no_dbus = 1;
    }
+#endif /* APP_SYNC_DBUS */
 
   /* start timer */
   log_debug("Starting appsync timer\n");
@@ -228,14 +237,17 @@ int activate_sync(const char *mode)
 #endif /* UPSTART */
       else if(data->launch)
       {
-		/* skipping if dbus session bus is not available */
+		/* skipping if dbus session bus is not available,
+		   or not compiled in */
 		if(no_dbus)
 			mark_active(data->name);
+#ifdef APP_SYNC_DBUS
 		else
 			if(usb_moded_dbus_app_launch(data->launch))
 				mark_active(data->name);
 			else
 				goto error;
+#endif /* APP_SYNC_DBUS */
       }
     }
   }
@@ -315,8 +327,10 @@ static gboolean enumerate_usb(gpointer data)
     timersub(&tv, &sync_tv, &tv);
     log_debug("sync to enum: %.3f seconds", tv.tv_sec + tv.tv_usec * 1e-6);
 
+#ifdef APP_SYNC_DBUS
     /* remove dbus service */
     usb_moded_appsync_cleanup();
+#endif /* APP_SYNC_DBUS */
   }
   /* return false to stop the timer from repeating */
   return FALSE;

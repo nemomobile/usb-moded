@@ -70,6 +70,14 @@ AC_ARG_ENABLE([app_sync], AS_HELP_STRING([--enable-app-sync], [Enable applicatio
    esac],[app_sync=true])
 AM_CONDITIONAL([APP_SYNC], [test x$app_sync = xtrue])
 
+AC_ARG_ENABLE([app_sync_dbus], AS_HELP_STRING([--enable-app-sync-dbus], [Enable application syncing with dbus @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) app_sync_dbus=true ; CFLAGS="-DAPP_SYNC_DBUS $CFLAGS" ;;
+   no)  app_sync_dbus=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-app-sync-dbus]) ;;
+   esac],[app_sync_dbus=false])
+AM_CONDITIONAL([APP_SYNC_DBUS], [test x$app_sync_dbus = xtrue])
+
 AC_ARG_ENABLE([udev], AS_HELP_STRING([--enable-udev], [Enable udev interface @<:@default=true@:>@]),
   [case "${enableval}" in
    yes) udev=true ; CFLAGS="-DUDEV -ludev $CFLAGS" ;;

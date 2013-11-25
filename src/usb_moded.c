@@ -544,9 +544,10 @@ static void handle_exit(void)
 
 #ifdef APP_SYNC
   free_appsync_list();
+#ifdef APP_SYNC_DBUS
   usb_moded_appsync_cleanup();
-#endif
-
+#endif /* APP_SYNC_DBUS */
+#endif /* APP_SYNC */
   dbus_shutdown();
 
   /* If the mainloop is initialised, unreference it */
