@@ -138,6 +138,16 @@ for example : usb_moded_ip=192.168.3.100::192.168.3.1:255.255.255.0::usb0:off
 
 NOTE: The device must be usb0! The autoconf value is ignored.
 
+Ip forwarding or nat can also be set up by usb_moded. This is in case you want to use an interface
+on the device to route traffic coming from your pc/laptop. The best use case example would be connecting
+to the internet over USB using the data connection of your smartphone.
+
+To enable this you need to add the following lines to your network config (the example expects rmnet0 to be
+your internet facing interface). When a nat_interface is defined it will be enabled.
+
+nat_interface = rmnet0
+
+
 Functional overview
 --------------------
 
@@ -238,7 +248,7 @@ sysfs_value = /* the values */
 sysfs_reset_value = /* in case a reset value needs to be written */
 softconnect_path = /* a path in case the module needs activation with a softconnect option */
 softconnect = /* value to be written to enable */
-softconneci_disconnect = /* value to be written for disable */
+softconnect_disconnect = /* value to be written for disable */
 
 Only the mode name and module are mandatory. In case you do not use modules, use none as the value 
 for module (as for the android gadget for example. See the android section for more info)

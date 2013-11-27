@@ -48,6 +48,7 @@
 #define NETWORK_IP_KEY			"ip"
 #define NETWORK_INTERFACE_KEY		"interface"
 #define NETWORK_GATEWAY_KEY		"gateway"
+#define NETWORK_NAT_INTERFACE_KEY	"nat_interface"
 #define ANDROID_ENTRY			"android"
 #define ANDROID_MANUFACTURER_KEY	"iManufacturer"
 #define ANDROID_VENDOR_ID_KEY		"idVendor"
@@ -79,6 +80,7 @@ const char * get_trigger_value(void);
 const char * get_network_ip(void);
 const char * get_network_interface(void);
 const char * get_network_gateway(void);
+const char * get_network_nat_interface(void);
 
 const char * get_android_manufacturer(void);
 const char * get_android_vendor_id(void);

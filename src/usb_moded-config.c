@@ -143,6 +143,11 @@ const char * get_network_gateway(void)
   return(get_conf_string(NETWORK_ENTRY, NETWORK_GATEWAY_KEY));
 }
 
+const char * get_network_nat_interface(void)
+{
+  return(get_conf_string(NETWORK_ENTRY, NETWORK_NAT_INTERFACE_KEY));
+}
+
 /* create basic conffile with sensible defaults */
 static void create_conf_file(void)
 {
