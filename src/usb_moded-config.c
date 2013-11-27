@@ -143,6 +143,11 @@ const char * get_network_gateway(void)
   return(get_conf_string(NETWORK_ENTRY, NETWORK_GATEWAY_KEY));
 }
 
+int get_network_nat(void)
+{
+  return(get_conf_int(NETWORK_ENTRY, NETWORK_NAT_KEY));
+}
+
 const char * get_network_nat_interface(void)
 {
   return(get_conf_string(NETWORK_ENTRY, NETWORK_NAT_INTERFACE_KEY));

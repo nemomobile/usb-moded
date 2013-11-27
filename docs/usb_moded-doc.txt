@@ -143,8 +143,9 @@ on the device to route traffic coming from your pc/laptop. The best use case exa
 to the internet over USB using the data connection of your smartphone.
 
 To enable this you need to add the following lines to your network config (the example expects rmnet0 to be
-your internet facing interface). When a nat_interface is defined it will be enabled.
+your internet facing interface). When a nat is set to 1 it will set up the forwarding.
 
+nat = 1
 nat_interface = rmnet0
 
 

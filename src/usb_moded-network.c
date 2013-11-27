@@ -34,6 +34,7 @@
 #include "usb_moded-network.h"
 #include "usb_moded-config.h"
 #include "usb_moded-log.h"
+#include "usb_moded-modesetting.h"
 
 #if CONNMAN
 #include <dbus/dbus.h>
@@ -65,6 +66,31 @@ static char* get_interface(struct mode_list_elem *data)
 
   log_debug("interface = %s\n", interface);
   return interface;
+}
+
+/**
+ * Turn on ip forwarding on the usb interface
+ */
+static void set_usb_ip_forward(struct mode_list_elem *data)
+{
+  const char *interface, *nat_interface;
+  char command[128];
+
+  interface = get_interface(data);
+  nat_interface = get_network_nat_interface();
+
+  write_to_file("/proc/sys/net/ipv4/ip_forward", "1");
+  snprintf(command, 128, "/sbin/iptables -t nat -A POSTROUTING -o %s -j MASQUERADE", nat_interface);
+  system(command);
+
+  snprintf(command, 128, "/sbin/iptables -A FORWARD -i %s -o %s  -m state  --state RELATED,ESTABLISHED -j ACCEPT", nat_interface, interface);
+  system(command);
+
+  snprintf(command, 128, "/sbin/iptables -A FORWARD -i %s -o %s -j ACCEPT", interface, nat_interface);
+  system(command);
+
+  free((char *)interface);
+  free((char *)nat_interface);
 }
 
 /**
@@ -131,6 +157,9 @@ int usb_network_up(struct mode_list_elem *data)
 	sprintf(command, "route add default gw %s\n", gateway);
         system(command);
   }
+
+  if(get_network_nat())
+	set_usb_ip_forward(data);
 
 clean:
   free((char *)interface);
