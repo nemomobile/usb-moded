@@ -136,14 +136,14 @@ static DBusHandlerResult devicelock_unlocked_cb(DBusConnection *conn, DBusMessag
   else if( !strcmp(member, "stateChanged") )
   {
         dbus_message_get_args(msg, NULL, DBUS_TYPE_INT32, &ret, DBUS_TYPE_INVALID);
-    log_debug("Devicelock state changed. New state = %d\n", ret);
+	log_debug("Devicelock state changed. New state = %d\n", ret);
   	if(ret == 0 && get_usb_connection_state() == 1 )
   	{	
-        log_debug("usb_mode %s\n", get_usb_mode());
+	    log_debug("usb_mode %s\n", get_usb_mode());
             if(!strcmp(get_usb_mode(), MODE_UNDEFINED) || !strcmp(get_usb_mode(), MODE_CHARGING)) {
             log_debug("set_usb");
 			set_usb_connected_state();
-        }
+	    }
   	}
   }
   result = DBUS_HANDLER_RESULT_NOT_YET_HANDLED;

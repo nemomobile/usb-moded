@@ -278,8 +278,10 @@ void set_usb_mode(const char *mode)
 	ret = usb_moded_load_module(MODULE_CHARGING);
 	/* if charging mode setting did not succeed we might be dealing with android */
 	if(ret)
-	set_usb_module(MODULE_NONE);
+	{
+	  set_usb_module(MODULE_NONE);
 	  ret = set_android_charging_mode();
+	}
 	goto end;
   }
   else if(!strcmp(mode, MODE_ASK) || !strcmp(mode, MODE_CHARGER))
