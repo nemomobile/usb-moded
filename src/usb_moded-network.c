@@ -158,7 +158,7 @@ int usb_network_up(struct mode_list_elem *data)
         system(command);
   }
 
-  if(get_network_nat())
+  if(data->nat)
 	set_usb_ip_forward(data);
 
 clean:
