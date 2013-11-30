@@ -188,7 +188,7 @@ static int get_conf_int(const gchar *entry, const gchar *key)
 {
   GKeyFile *settingsfile;
   gboolean test = FALSE;
-  gchar **keys;
+  gchar **keys, **origkeys;
   int ret = 0;
 
   settingsfile = g_key_file_new();
@@ -201,6 +201,7 @@ static int get_conf_int(const gchar *entry, const gchar *key)
   keys = g_key_file_get_keys (settingsfile, entry, NULL, NULL);
   if(keys == NULL)
         return ret;
+  origkeys = keys;
   while (*keys != NULL)
   {
         if(!strcmp(*keys, key))
@@ -210,7 +211,7 @@ static int get_conf_int(const gchar *entry, const gchar *key)
         }
         keys++;
   }
-  //g_strfreev(keys);
+  g_strfreev(origkeys);
   g_key_file_free(settingsfile);
   return(ret);
 
