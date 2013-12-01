@@ -101,6 +101,7 @@ int usb_network_up(struct mode_list_elem *data)
 {
   const char *ip, *interface, *gateway;
   char command[128];
+  int ret = -1;
 
 #if CONNMAN
   DBusConnection *dbus_conn_connman = NULL;
@@ -143,7 +144,13 @@ int usb_network_up(struct mode_list_elem *data)
   else if(!strcmp(ip, "dhcp"))
   {
 	sprintf(command, "dhclient -d %s\n", interface);
-	system(command);
+	ret = system(command);
+	if(ret != 0)
+	{	
+		sprintf(command, "udhcpc -i %s\n", interface);
+		system(command);
+	}
+
   }
   else
   {
@@ -185,6 +192,8 @@ int usb_network_down(struct mode_list_elem *data)
 
   sprintf(command, "ifconfig %s down\n", interface);
   system(command);
+
+  /* TODO: Do dhcp client shutdown */
 
   free((char *)interface);
   
