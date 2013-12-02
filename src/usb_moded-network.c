@@ -103,7 +103,7 @@ int usb_network_up(struct mode_list_elem *data)
   char command[128];
   int ret = -1;
 
-#if CONNMAN
+#if CONNMAN_IS_EVER_FIXED_FOR_USB
   DBusConnection *dbus_conn_connman = NULL;
   DBusMessage *msg = NULL, *reply = NULL;
   DBusError error;
@@ -174,7 +174,7 @@ clean:
   free((char *)ip);
 
   return(0);
-#endif /* CONNMAN */
+#endif /* CONNMAN_IS_EVER_FIXED_FOR_USB */
 }
 
 /**
@@ -183,7 +183,7 @@ clean:
  */
 int usb_network_down(struct mode_list_elem *data)
 {
-#if CONNMAN
+#if CONNMAN_IS_EVER_FIXED_FOR_USB
 #else
   const char *interface;
   char command[128];
@@ -198,7 +198,7 @@ int usb_network_down(struct mode_list_elem *data)
   free((char *)interface);
   
   return(0);
-#endif /* CONNMAN */
+#endif /* CONNMAN_IS_EVER_FIXED_FOR_USB */
 }
 
 /**

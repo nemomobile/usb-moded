@@ -7,3 +7,7 @@ dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /
 security extra:
 aegis-exec -a usb-moded::USBControl
 
+#connman mess
+dbus-send --system --type=method_call --print-reply --dest=net.connman / net.connman.Manager.GetProperties
+dbus-send --system --type=method_call --print-reply --dest=net.connman / net.connman.Manager.GetService /* get all network connections */
+dbus-send --system --type=method_call --print-reply --dest=net.connman /service_path/from/previous/command/ net.connman.Service.GetProperties
