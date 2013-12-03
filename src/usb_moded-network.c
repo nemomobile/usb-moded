@@ -114,20 +114,19 @@ static int resolv_conf_dns(ipforward_data *ipforward)
  */
 static const char * connman_parse_manager_reply(DBusMessage *reply)
 {
-  DBusMessageIter iter, subiter;
+  DBusMessageIter iter, subiter, origiter;
   int type;
   char *service;
   
-  log_debug("trying to get connman services\n");
   dbus_message_iter_init(reply, &iter);
   type = dbus_message_iter_get_arg_type(&iter);
+  dbus_message_iter_recurse(&iter, &subiter);
+  type = dbus_message_iter_get_arg_type(&subiter);
+  origiter = subiter;
+  iter = subiter;
   while(type != DBUS_TYPE_INVALID)
   {
-	if(type == DBUS_TYPE_ARRAY)
-	{
-	  dbus_message_iter_recurse(&iter, &subiter);
-	  type = dbus_message_iter_get_arg_type(&subiter);
-	  iter = subiter;
+
 	  if(type == DBUS_TYPE_STRUCT)
 	  {
 		dbus_message_iter_recurse(&iter, &subiter);
@@ -138,7 +137,58 @@ static const char * connman_parse_manager_reply(DBusMessage *reply)
 			dbus_message_iter_get_basic(&iter, &service);
 			log_debug("service = %s\n", service);
 			if(strstr(service, "cellular"))
-				return(service);
+				return(strdup(service));
+			iter = origiter;
+		}
+	   }
+	dbus_message_iter_next(&iter);
+	type = dbus_message_iter_get_arg_type(&iter);
+  }
+  return(0);
+}
+
+static void connman_fill_connection_data(DBusMessage *reply, struct ipforward_data *ipforward)
+{
+  DBusMessageIter iter, subiter;
+  int type;
+  char *string;
+  
+  dbus_message_iter_init(reply, &iter);
+  type = dbus_message_iter_get_arg_type(&iter);
+  while(type != DBUS_TYPE_INVALID)
+  {
+	if(type == DBUS_TYPE_ARRAY)
+	{
+	  dbus_message_iter_recurse(&iter, &subiter);
+	  type = dbus_message_iter_get_arg_type(&subiter);
+	  iter = subiter;
+	  if(type == DBUS_TYPE_DICT_ENTRY)
+	  {
+		dbus_message_iter_recurse(&iter, &subiter);
+		type = dbus_message_iter_get_arg_type(&subiter);
+		iter = subiter;
+		if(type == DBUS_TYPE_STRING)
+		{
+			dbus_message_iter_get_basic(&iter, &string);
+			log_debug("string = %s\n", string);
+			if(!strcmp(string, "Nameservers"))
+			{
+				dbus_message_iter_recurse(&iter, &subiter);
+				iter = subiter;
+				dbus_message_iter_recurse(&iter, &subiter);
+				type = dbus_message_iter_get_arg_type(&subiter);
+				if(type == DBUS_TYPE_STRING)
+				{
+					dbus_message_iter_get_basic(&iter, &string);
+					log_debug("dns = %s\n", string);
+					ipforward->dns1 = strdup(string);
+					dbus_message_iter_next (&iter);
+					dbus_message_iter_get_basic(&iter, &string);
+					log_debug("dns2 = %s\n", string);
+					ipforward->dns2 = strdup(string);
+					return;
+				}
+			}
 			break;
 		}
 	   }
@@ -146,7 +196,7 @@ static const char * connman_parse_manager_reply(DBusMessage *reply)
 	dbus_message_iter_next (&iter);
 	type = dbus_message_iter_get_arg_type(&iter);
   }
-  return(0);
+
 }
 
 /**
@@ -196,6 +246,19 @@ static int connman_get_connection_data(struct ipforward_data *ipforward)
             dbus_message_unref(reply);
         }
         dbus_message_unref(msg);
+  }
+  
+  if(service)
+  {
+	if ((msg = dbus_message_new_method_call("net.connman", service, "net.connman.Manager", "GetProperties")) != NULL)
+	{
+		if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_connman, msg, -1, NULL)) != NULL)
+		{
+			connman_fill_connection_data(reply, ipforward);
+			dbus_message_unref(reply);
+		}
+		dbus_message_unref(msg);
+	}
   }
   dbus_connection_unref(dbus_conn_connman);
   dbus_error_free(&error);
