@@ -86,13 +86,21 @@ AC_ARG_ENABLE([udev], AS_HELP_STRING([--enable-udev], [Enable udev interface @<:
    esac],[udev=true CFLAGS="-DUDEV -ludev $CFLAGS" ])
 AM_CONDITIONAL([UDEV], [test x$udev = xtrue])
 
-AC_ARG_ENABLE([upstart], AS_HELP_STRING([--enable-upstart], [Enable upstart interface for appsync @<:@default=true@:>@]),
+AC_ARG_ENABLE([upstart], AS_HELP_STRING([--enable-upstart], [Enable upstart interface for appsync @<:@default=false@:>@]),
   [case "${enableval}" in
    yes) upstart=true ; CFLAGS="-DUPSTART $CFLAGS" ;;
    no)  upstart=false ;;
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-upstart]) ;;
    esac],[upstart=false])
 AM_CONDITIONAL([UPSTART], [test x$upstart = xtrue])
+
+AC_ARG_ENABLE([connman], AS_HELP_STRING([--enable-connman], [Enable connman support for usb tethering @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) connman=true ; CFLAGS="-DCONNMAN $CFLAGS" ;;
+   no)  connman=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-connman]) ;;
+   esac],[connman=false])
+AM_CONDITIONAL([CONNMAN], [test x$connman = xtrue])
 
 #TODO: Figure out how to check for this depending on the gconf flag
 # gconf-2.0 >= 2.16.0

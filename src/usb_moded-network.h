@@ -27,3 +27,4 @@
 int usb_network_up(struct mode_list_elem *data);
 int usb_network_down(struct mode_list_elem *data);
 int usb_network_update(void);
+int usb_network_set_up_dhcpd(struct mode_list_elem *data);
