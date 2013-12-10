@@ -108,6 +108,62 @@ static int resolv_conf_dns(ipforward_data *ipforward)
   return(0);
 }
 
+/** 
+  * Write udhcpd.conf
+  * TODO: make this conditional ip could not have changed
+  */
+static int write_udhcpd_conf(ipforward_data *ipforward, struct mode_list_elem *data)
+{
+  FILE *conffile;
+  const char *ip; 
+  char *ipstart, *ipend;
+  int dot = 0, i = 0;
+
+  conffile = fopen("/etc/udhcpd.conf", "w");
+  if(conffile == NULL)
+  {
+	log_debug("Error creating /etc/udhcpd.conf!\n");
+	return(1);
+  }
+
+  /* generate start and end ip based on the setting */
+  ip = get_network_ip();
+  ipstart = malloc(sizeof(char)*15);
+  ipend = malloc(sizeof(char)*15);
+  while(i < 15)
+  {
+        if(dot < 3)
+        {
+                if(ip[i] == '.')
+                        dot ++;
+                ipstart[i] = ip[i];
+                ipend[i] = ip[i];
+        }
+        else
+        {
+                ipstart[i] = '\0';
+                ipend[i] = '\0';
+                break;
+        }
+        i++;
+  }
+  strcat(ipstart,"1");
+  strcat(ipend, "10");
+
+  /* print all data in the file */
+  fprintf(conffile, "start\t%s\n", ipstart);
+  fprintf(conffile, "end\t%s\n", ipend);
+  fprintf(conffile, "interface\t%s\n", get_interface(data));
+  fprintf(conffile, "opt\tdns\t%s %s\n", ipforward->dns1, ipforward->dns2);
+  fprintf(conffile, "opt\trouter\t%s\n", ip);
+
+  free(ipstart);
+  free(ipend);
+  free((char*)ip);
+  fclose(conffile);
+  return(0);
+}
+
 #ifdef CONNMAN
 /**
  * Connman message handling
@@ -137,7 +193,10 @@ static const char * connman_parse_manager_reply(DBusMessage *reply)
 			dbus_message_iter_get_basic(&iter, &service);
 			log_debug("service = %s\n", service);
 			if(strstr(service, "cellular"))
+			{
+				log_debug("cellular service found!\n");
 				return(strdup(service));
+			}
 			iter = origiter;
 		}
 	   }
@@ -147,25 +206,25 @@ static const char * connman_parse_manager_reply(DBusMessage *reply)
   return(0);
 }
 
-static void connman_fill_connection_data(DBusMessage *reply, struct ipforward_data *ipforward)
+static int connman_fill_connection_data(DBusMessage *reply, struct ipforward_data *ipforward)
 {
-  DBusMessageIter iter, subiter;
+  DBusMessageIter iter, subiter, origiter, subiter2;
   int type;
   char *string;
   
+  log_debug("Filling in dns data\n");
   dbus_message_iter_init(reply, &iter);
   type = dbus_message_iter_get_arg_type(&iter);
-  while(type != DBUS_TYPE_INVALID)
-  {
-	if(type == DBUS_TYPE_ARRAY)
-	{
+
 	  dbus_message_iter_recurse(&iter, &subiter);
 	  type = dbus_message_iter_get_arg_type(&subiter);
 	  iter = subiter;
-	  if(type == DBUS_TYPE_DICT_ENTRY)
-	  {
+	  
+  while(type != DBUS_TYPE_INVALID)
+  {
 		dbus_message_iter_recurse(&iter, &subiter);
 		type = dbus_message_iter_get_arg_type(&subiter);
+		origiter = iter;
 		iter = subiter;
 		if(type == DBUS_TYPE_STRING)
 		{
@@ -173,6 +232,7 @@ static void connman_fill_connection_data(DBusMessage *reply, struct ipforward_da
 			log_debug("string = %s\n", string);
 			if(!strcmp(string, "Nameservers"))
 			{
+				log_debug("Trying to get Nameservers");
 				dbus_message_iter_recurse(&iter, &subiter);
 				iter = subiter;
 				dbus_message_iter_recurse(&iter, &subiter);
@@ -186,17 +246,43 @@ static void connman_fill_connection_data(DBusMessage *reply, struct ipforward_da
 					dbus_message_iter_get_basic(&iter, &string);
 					log_debug("dns2 = %s\n", string);
 					ipforward->dns2 = strdup(string);
-					return;
+					return(0);
 				}
 			}
-			break;
+			else if(!strcmp(string, "State"))
+			{
+				log_debug("Trying to get online state");
+				dbus_message_iter_recurse(&iter, &subiter);
+				type = dbus_message_iter_get_arg_type(&subiter);
+				if(type == DBUS_TYPE_VARIANT)
+					log_debug("variant found\n");
+				dbus_message_iter_recurse(&subiter, &subiter2);
+				type = dbus_message_iter_get_arg_type(&subiter2);
+				if(type == DBUS_TYPE_INVALID)
+				{
+					log_debug("Unexpected!?\n");
+					//dbus_message_iter_next (&subiter);
+					//type = dbus_message_iter_get_arg_type(&subiter);
+				}
+				//if(type == DBUS_TYPE_INVALID)
+				//	log_debug("Still unexpected!?\n");
+                                if(type == DBUS_TYPE_STRING)
+                                {
+                                        dbus_message_iter_get_basic(&subiter2, &string);
+					log_debug("Connection state = %s\n", string);
+					/* if cellular not online, connect it */
+					if(strcmp(string, "online"))
+						return(1);
+					
+				}
+
+			}
 		}
-	   }
-	}
+	iter = origiter;
 	dbus_message_iter_next (&iter);
 	type = dbus_message_iter_get_arg_type(&iter);
   }
-
+  return(0);
 }
 
 /**
@@ -248,13 +334,19 @@ static int connman_get_connection_data(struct ipforward_data *ipforward)
         dbus_message_unref(msg);
   }
   
+  log_debug("service = %s\n", service);
   if(service)
   {
-	if ((msg = dbus_message_new_method_call("net.connman", service, "net.connman.Manager", "GetProperties")) != NULL)
+try_again:
+	if ((msg = dbus_message_new_method_call("net.connman", service, "net.connman.Service", "GetProperties")) != NULL)
 	{
 		if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_connman, msg, -1, NULL)) != NULL)
 		{
-			connman_fill_connection_data(reply, ipforward);
+			if(connman_fill_connection_data(reply, ipforward))
+			{
+				connman_set_cellular_online(dbus_conn_connman, service);			
+				goto try_again;
+			}
 			dbus_message_unref(reply);
 		}
 		dbus_message_unref(msg);
@@ -281,6 +373,7 @@ int usb_network_set_up_dhcpd(struct mode_list_elem *data)
 #else
   resolv_conf_dns(ipforward);	
 #endif /*CONNMAN */
+  write_udhcpd_conf(ipforward, data);
   
   free(ipforward);
   return(0);
