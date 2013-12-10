@@ -110,6 +110,7 @@ static int resolv_conf_dns(ipforward_data *ipforward)
 
 /** 
   * Write udhcpd.conf
+  * @ipforward : NULL if we want a simple config, otherwise include dns info etc...
   * TODO: make this conditional ip could not have changed
   */
 static int write_udhcpd_conf(ipforward_data *ipforward, struct mode_list_elem *data)
@@ -154,8 +155,11 @@ static int write_udhcpd_conf(ipforward_data *ipforward, struct mode_list_elem *d
   fprintf(conffile, "start\t%s\n", ipstart);
   fprintf(conffile, "end\t%s\n", ipend);
   fprintf(conffile, "interface\t%s\n", get_interface(data));
-  fprintf(conffile, "opt\tdns\t%s %s\n", ipforward->dns1, ipforward->dns2);
-  fprintf(conffile, "opt\trouter\t%s\n", ip);
+  if(ipforward != NULL)
+  {
+	fprintf(conffile, "opt\tdns\t%s %s\n", ipforward->dns1, ipforward->dns2);
+	fprintf(conffile, "opt\trouter\t%s\n", ip);
+  }
 
   free(ipstart);
   free(ipend);
@@ -365,17 +369,23 @@ try_again:
  */
 int usb_network_set_up_dhcpd(struct mode_list_elem *data)
 {
-  struct ipforward_data *ipforward;
+  struct ipforward_data *ipforward = NULL;
 
-  ipforward = malloc(sizeof(struct ipforward_data));
+  /* Set up nat info only if it is required */
+  if(data->nat)
+  {
+	ipforward = malloc(sizeof(struct ipforward_data));
 #ifdef CONNMAN
-  connman_get_connection_data(ipforward);
+	  connman_get_connection_data(ipforward);
 #else
-  resolv_conf_dns(ipforward);	
+	  resolv_conf_dns(ipforward);
 #endif /*CONNMAN */
+  }
+  /* ipforward can be NULL here, which is expected and handled in this function */
   write_udhcpd_conf(ipforward, data);
   
-  free(ipforward);
+  if(ipforward)
+	free(ipforward);
   return(0);
 }
 

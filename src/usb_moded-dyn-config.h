@@ -50,6 +50,7 @@ android engineers prefered to have sysfs entries... go figure... */
 /* For windows different modes/usb profiles need their own idProduct */
 #define MODE_IDPRODUCT			"idProduct"
 #define MODE_HAS_NAT			"nat"
+#define MODE_HAS_DHCP_SERVER		"dhcp_server"
 
 /**
  * Struct keeping all the data needed for the definition of a dynamic mode
@@ -75,6 +76,7 @@ typedef struct mode_list_elem
   char *android_extra_sysfs_value2;	/* static value that never changes that needs to be set by sysfs :( */
   char *idProduct;			/* product id to assign to a specific profile */
   int nat;				/* If NAT should be set up in this mode or not */
+  int dhcp_server;			/* if a DHCP server needs to be configured and started or not */
   /*@} */
 }mode_list_elem;
 

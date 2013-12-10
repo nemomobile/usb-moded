@@ -352,7 +352,7 @@ int set_dynamic_mode(void)
 
   /* Needs to be called before application synching so
      that the dhcp server has the right config */
-  if(data->nat)
+  if(data->nat || data->dhcp_server)
 	usb_network_set_up_dhcpd(data);
 
 #ifdef APP_SYNC

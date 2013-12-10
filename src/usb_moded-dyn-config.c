@@ -133,6 +133,7 @@ static struct mode_list_elem *read_mode_file(const gchar *filename)
   //log_debug("Android extra value2 = %s\n", list_item->android_extra_sysfs_value2);
   list_item->idProduct = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_IDPRODUCT, NULL);
   list_item->nat = g_key_file_get_integer(settingsfile, MODE_OPTIONS_ENTRY, MODE_HAS_NAT, NULL);
+  list_item->dhcp_server = g_key_file_get_integer(settingsfile, MODE_OPTIONS_ENTRY, MODE_HAS_DHCP_SERVER, NULL);
 
   g_key_file_free(settingsfile);
   if(list_item->mode_name == NULL || list_item->mode_module == NULL)

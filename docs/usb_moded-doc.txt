@@ -151,6 +151,7 @@ When nat=1 is given in the mode configuration this will be used to enable nat on
 This is a bit complicated but related to the fact that the nat interface is usually the same on a device, 
 but not all usb network related profiles might want it enabled.
 
+If you want the device to load a dhcp server you need to configure this in the mode config, just like nat. (see lower)
 
 Functional overview
 --------------------
@@ -263,6 +264,12 @@ mass_storage data need to be defined in the config file. (other approaches are p
 mandatory for all kinds of mass_storage support)
 
 To enable nat, you need to set nat = 1 and configure the nat_interface in the network settings.
+
+To have dhcp server functionality on the device, set dhcp_server = 1. This will use udhcpd.
+It also uses the default network address or whatever has been configured and sets up a corresponding dhcp
+configuration. This way the device is always available on the same address.
+
+Both NAT and dhcp server need a corresponding service that can be started by usb_moded. (see Appsyn feature)
 
 Trigger support
 ---------------
