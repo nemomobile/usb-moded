@@ -235,7 +235,7 @@ static int connman_fill_connection_data(DBusMessage *reply, struct ipforward_dat
 			//log_debug("string = %s\n", string);
 			if(!strcmp(string, "Nameservers"))
 			{
-				log_debug("Trying to get Nameservers");
+				//log_debug("Trying to get Nameservers");
 				dbus_message_iter_next (&inside_dict_iter);
 				type = dbus_message_iter_get_arg_type(&inside_dict_iter);
 				dbus_message_iter_recurse(&inside_dict_iter, &variant_iter);
@@ -244,6 +244,11 @@ static int connman_fill_connection_data(DBusMessage *reply, struct ipforward_dat
 				{
 					dbus_message_iter_recurse(&variant_iter, &string_iter);
 					type = dbus_message_iter_get_arg_type(&string_iter);
+					if(type != DBUS_TYPE_STRING)
+					{
+						/* not online */
+						return(1);
+					}
 					dbus_message_iter_get_basic(&string_iter, &string);
 					log_debug("dns = %s\n", string);
 					ipforward->dns1 = strdup(string);
@@ -256,7 +261,7 @@ static int connman_fill_connection_data(DBusMessage *reply, struct ipforward_dat
 			}
 			else if(!strcmp(string, "State"))
 			{
-				log_debug("Trying to get online state");
+				//log_debug("Trying to get online state");
 				dbus_message_iter_next (&inside_dict_iter);
 				type = dbus_message_iter_get_arg_type(&inside_dict_iter);
 				dbus_message_iter_recurse(&inside_dict_iter, &variant_iter);
@@ -264,10 +269,13 @@ static int connman_fill_connection_data(DBusMessage *reply, struct ipforward_dat
                                 if(type == DBUS_TYPE_STRING)
                                 {
                                         dbus_message_iter_get_basic(&variant_iter, &string);
-					log_debug("Connection state = %s\n", string);
+					//log_debug("Connection state = %s\n", string);
 					/* if cellular not online, connect it */
 					if(!strcmp(string, "online"))
+					{
+						log_debug("Not online. Turning on cellular data connection.\n");
 						return(1);
+					}
 					
 				}
 
@@ -290,13 +298,14 @@ static int connman_set_cellular_online(DBusConnection *dbus_conn_connman, const 
 
   dbus_error_init(&error);
 
-  if ((msg = dbus_message_new_method_call("net.connman", service, "net.connman.Service", "connect")) != NULL)
+  if ((msg = dbus_message_new_method_call("net.connman", service, "net.connman.Service", "Connect")) != NULL)
   {
 	/* we don't care for the reply, which is empty anyway if all goes well */
-        //ret = !dbus_connection_send(dbus_conn_connman, msg, NULL);
-	dbus_connection_send_with_reply_and_block(dbus_conn_connman, msg, -1, NULL);
+        ret = !dbus_connection_send(dbus_conn_connman, msg, NULL);
+	/* sleep for the connection to come up */
+	sleep(3);
 	/* make sure the message is sent before cleaning up and closing the connection */
-	//dbus_connection_flush(dbus_conn_connman);
+	dbus_connection_flush(dbus_conn_connman);
         dbus_message_unref(msg);
   }
 
@@ -375,14 +384,20 @@ int usb_network_set_up_dhcpd(struct mode_list_elem *data)
   {
 	ipforward = malloc(sizeof(struct ipforward_data));
 #ifdef CONNMAN
-	  connman_get_connection_data(ipforward);
+	if(connman_get_connection_data(ipforward))
+	{
+		log_debug("data connection not available!\n");
+		/* TODO: send a message to the UI */
+		goto end;
+	}
 #else
 	  resolv_conf_dns(ipforward);
 #endif /*CONNMAN */
   }
   /* ipforward can be NULL here, which is expected and handled in this function */
   write_udhcpd_conf(ipforward, data);
-  
+
+end:
   if(ipforward)
 	free(ipforward);
   return(0);
