@@ -99,6 +99,15 @@ static void set_usb_ip_forward(struct mode_list_elem *data)
   free((char *)nat_interface);
 }
 
+/** 
+ * Remove ip forward
+ */
+static void clean_usb_ip_forward(void)
+{
+  write_to_file("/proc/sys/net/ipv4/ip_forward", "0");
+  system("/sbin/iptables -F FORWARD");
+}
+
 /**
  * Read dns settings from /etc/resolv.conf
  */
@@ -502,7 +511,9 @@ int usb_network_down(struct mode_list_elem *data)
   sprintf(command, "ifconfig %s down\n", interface);
   system(command);
 
-  /* TODO: Do dhcp client shutdown */
+  /* dhcp client shutdown happens on disconnect automatically */
+  if(data->nat)
+	clean_usb_ip_forward();
 
   free((char *)interface);
   
