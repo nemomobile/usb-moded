@@ -214,42 +214,41 @@ static const char * connman_parse_manager_reply(DBusMessage *reply)
 
 static int connman_fill_connection_data(DBusMessage *reply, struct ipforward_data *ipforward)
 {
-  DBusMessageIter iter, subiter, origiter, subiter2;
+  DBusMessageIter array_iter, dict_iter, inside_dict_iter, variant_iter, string_iter;
   int type;
   char *string;
   
   log_debug("Filling in dns data\n");
-  dbus_message_iter_init(reply, &iter);
-  type = dbus_message_iter_get_arg_type(&iter);
+  dbus_message_iter_init(reply, &array_iter);
+  type = dbus_message_iter_get_arg_type(&array_iter);
 
-	  dbus_message_iter_recurse(&iter, &subiter);
-	  type = dbus_message_iter_get_arg_type(&subiter);
-	  iter = subiter;
+  dbus_message_iter_recurse(&array_iter, &dict_iter);
+  type = dbus_message_iter_get_arg_type(&dict_iter);
 	  
   while(type != DBUS_TYPE_INVALID)
   {
-		dbus_message_iter_recurse(&iter, &subiter);
-		type = dbus_message_iter_get_arg_type(&subiter);
-		origiter = iter;
-		iter = subiter;
+		dbus_message_iter_recurse(&dict_iter, &inside_dict_iter);
+		type = dbus_message_iter_get_arg_type(&inside_dict_iter);
 		if(type == DBUS_TYPE_STRING)
 		{
-			dbus_message_iter_get_basic(&iter, &string);
-			log_debug("string = %s\n", string);
+			dbus_message_iter_get_basic(&inside_dict_iter, &string);
+			//log_debug("string = %s\n", string);
 			if(!strcmp(string, "Nameservers"))
 			{
 				log_debug("Trying to get Nameservers");
-				dbus_message_iter_recurse(&iter, &subiter);
-				iter = subiter;
-				dbus_message_iter_recurse(&iter, &subiter);
-				type = dbus_message_iter_get_arg_type(&subiter);
-				if(type == DBUS_TYPE_STRING)
+				dbus_message_iter_next (&inside_dict_iter);
+				type = dbus_message_iter_get_arg_type(&inside_dict_iter);
+				dbus_message_iter_recurse(&inside_dict_iter, &variant_iter);
+				type = dbus_message_iter_get_arg_type(&variant_iter);
+				if(type == DBUS_TYPE_ARRAY)
 				{
-					dbus_message_iter_get_basic(&iter, &string);
+					dbus_message_iter_recurse(&variant_iter, &string_iter);
+					type = dbus_message_iter_get_arg_type(&string_iter);
+					dbus_message_iter_get_basic(&string_iter, &string);
 					log_debug("dns = %s\n", string);
 					ipforward->dns1 = strdup(string);
-					dbus_message_iter_next (&iter);
-					dbus_message_iter_get_basic(&iter, &string);
+					dbus_message_iter_next (&string_iter);
+					dbus_message_iter_get_basic(&string_iter, &string);
 					log_debug("dns2 = %s\n", string);
 					ipforward->dns2 = strdup(string);
 					return(0);
@@ -258,35 +257,24 @@ static int connman_fill_connection_data(DBusMessage *reply, struct ipforward_dat
 			else if(!strcmp(string, "State"))
 			{
 				log_debug("Trying to get online state");
-				dbus_message_iter_recurse(&iter, &subiter);
-				type = dbus_message_iter_get_arg_type(&subiter);
-				if(type == DBUS_TYPE_VARIANT)
-					log_debug("variant found\n");
-				dbus_message_iter_recurse(&subiter, &subiter2);
-				type = dbus_message_iter_get_arg_type(&subiter2);
-				if(type == DBUS_TYPE_INVALID)
-				{
-					log_debug("Unexpected!?\n");
-					//dbus_message_iter_next (&subiter);
-					//type = dbus_message_iter_get_arg_type(&subiter);
-				}
-				//if(type == DBUS_TYPE_INVALID)
-				//	log_debug("Still unexpected!?\n");
+				dbus_message_iter_next (&inside_dict_iter);
+				type = dbus_message_iter_get_arg_type(&inside_dict_iter);
+				dbus_message_iter_recurse(&inside_dict_iter, &variant_iter);
+				type = dbus_message_iter_get_arg_type(&variant_iter);
                                 if(type == DBUS_TYPE_STRING)
                                 {
-                                        dbus_message_iter_get_basic(&subiter2, &string);
+                                        dbus_message_iter_get_basic(&variant_iter, &string);
 					log_debug("Connection state = %s\n", string);
 					/* if cellular not online, connect it */
-					if(strcmp(string, "online"))
+					if(!strcmp(string, "online"))
 						return(1);
 					
 				}
 
 			}
 		}
-	iter = origiter;
-	dbus_message_iter_next (&iter);
-	type = dbus_message_iter_get_arg_type(&iter);
+	dbus_message_iter_next (&dict_iter);
+	type = dbus_message_iter_get_arg_type(&dict_iter);
   }
   return(0);
 }
@@ -298,21 +286,21 @@ static int connman_set_cellular_online(DBusConnection *dbus_conn_connman, const 
 {
   DBusMessage *msg = NULL;
   DBusError error;
-  int ret = 0;
+  int ret = 0, online = 0;
 
   dbus_error_init(&error);
 
   if ((msg = dbus_message_new_method_call("net.connman", service, "net.connman.Service", "connect")) != NULL)
   {
 	/* we don't care for the reply, which is empty anyway if all goes well */
-        ret = !dbus_connection_send(dbus_conn_connman, msg, NULL);
+        //ret = !dbus_connection_send(dbus_conn_connman, msg, NULL);
+	dbus_connection_send_with_reply_and_block(dbus_conn_connman, msg, -1, NULL);
 	/* make sure the message is sent before cleaning up and closing the connection */
-	dbus_connection_flush(dbus_conn_connman);
+	//dbus_connection_flush(dbus_conn_connman);
         dbus_message_unref(msg);
   }
 
   return(ret);
-
 }
 
 static int connman_get_connection_data(struct ipforward_data *ipforward)
@@ -321,6 +309,7 @@ static int connman_get_connection_data(struct ipforward_data *ipforward)
   DBusMessage *msg = NULL, *reply = NULL;
   DBusError error;
   const char *service = NULL;
+  int online = 0;
 
   dbus_error_init(&error);
 
@@ -350,8 +339,16 @@ try_again:
 		{
 			if(connman_fill_connection_data(reply, ipforward))
 			{
-				connman_set_cellular_online(dbus_conn_connman, service);			
-				goto try_again;
+				if(!connman_set_cellular_online(dbus_conn_connman, service) && !online)
+				{
+					online = 1;
+					goto try_again;
+				}
+				else
+				{
+					log_debug("Cannot connect to cellular data\n");
+					return(1);
+				}
 			}
 			dbus_message_unref(reply);
 		}
