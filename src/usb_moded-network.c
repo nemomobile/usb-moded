@@ -155,6 +155,7 @@ static int write_udhcpd_conf(ipforward_data *ipforward, struct mode_list_elem *d
   fprintf(conffile, "start\t%s\n", ipstart);
   fprintf(conffile, "end\t%s\n", ipend);
   fprintf(conffile, "interface\t%s\n", get_interface(data));
+  fprintf(conffile, "option\tsubnet\t255.255.255.0\n");
   if(ipforward != NULL)
   {
 	fprintf(conffile, "opt\tdns\t%s %s\n", ipforward->dns1, ipforward->dns2);
