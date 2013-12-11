@@ -140,6 +140,7 @@ static struct list_elem *read_file(const gchar *filename)
   log_debug("Upstart control = %d\n", list_item->upstart);
   list_item->systemd = g_key_file_get_integer(settingsfile, APP_INFO_ENTRY, APP_INFO_SYSTEMD_KEY, NULL);
   log_debug("Systemd control = %d\n", list_item->systemd);
+  list_item->post = g_key_file_get_integer(settingsfile, APP_INFO_ENTRY, APP_INFO_POST, NULL);
 
 cleanup:
 
@@ -157,6 +158,7 @@ cleanup:
 
   return list_item;
 }
+
 /* @return 0 on succes, 1 if there is a failure */
 int activate_sync(const char *mode)
 {
@@ -218,6 +220,12 @@ int activate_sync(const char *mode)
     struct list_elem *data = iter->data;
     if(!strcmp(mode, data->mode))
     {
+      /* launch items marked as post, will be launched after usb is up */
+      if(data->post)
+      {
+	mark_active(data->name);
+	continue;
+      }
       log_debug("launching app %s\n", data->name);
       if(data->systemd)
       {
@@ -243,9 +251,74 @@ int activate_sync(const char *mode)
 			mark_active(data->name);
 #ifdef APP_SYNC_DBUS
 		else
-			if(usb_moded_dbus_app_launch(data->launch))
+			if(!usb_moded_dbus_app_launch(data->launch))
 				mark_active(data->name);
 			else
+				goto error;
+#endif /* APP_SYNC_DBUS */
+      }
+    }
+  }
+
+  return(0);
+
+error:
+  log_warning("Error launching a service!\n");
+  return(1);
+}
+
+int activate_sync_post(const char *mode)
+{
+  GList *iter;
+
+  log_debug("activate post sync");
+
+  if( sync_list == 0 )
+  {
+    log_debug("No sync list! skipping post sync\n");
+    return 0;
+  }
+
+#ifdef APP_SYNC_DBUS
+  /* check dbus initialisation, skip dbus activated services if this fails */
+  if(!usb_moded_app_sync_init())
+  {
+      log_debug("dbus setup failed => skipping dbus launched apps \n");
+      no_dbus = 1;
+   }
+#endif /* APP_SYNC_DBUS */
+
+  /* go through list and launch apps */
+  for( iter = sync_list; iter; iter = g_list_next(iter) )
+  {
+    struct list_elem *data = iter->data;
+    if(!strcmp(mode, data->mode))
+    {
+      /* launch only items marked as post, others are already running */
+      if(!data->post)
+	continue;
+      log_debug("launching app %s\n", data->name);
+      if(data->systemd)
+      {
+        if(systemd_control_service(data->name, SYSTEMD_START))
+		goto error;
+      }
+#ifdef UPSTART
+      else if(data->upstart)
+      {
+	if(upstart_control_job(data->name, UPSTART_START))	
+		goto error;
+      }
+#endif /* UPSTART */
+      else if(data->launch)
+      {
+		/* skipping if dbus session bus is not available,
+		   or not compiled in */
+		if(no_dbus)
+			continue;
+#ifdef APP_SYNC_DBUS
+		else
+			if(usb_moded_dbus_app_launch(data->launch != 0))
 				goto error;
 #endif /* APP_SYNC_DBUS */
       }

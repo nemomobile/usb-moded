@@ -358,7 +358,10 @@ int set_dynamic_mode(void)
 #ifdef APP_SYNC
   if(data->appsync)
 	if(activate_sync(data->mode_name)) /* returns 1 on error */
+	{
+		log_debug("Appsync failure");
 		return(1);
+	}
 #endif
   /* make sure things are disabled before changing functionality */
   if(data->softconnect_disconnect)
@@ -403,6 +406,8 @@ int set_dynamic_mode(void)
 	usb_network_up(data);
 #endif /* DEBIAN */
   }
+  if(data->appsync)
+	activate_sync_post(data->mode_name);
   return(0);
 }
 

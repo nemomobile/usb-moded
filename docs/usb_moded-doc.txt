@@ -192,9 +192,9 @@ In case you need some program to be started along some mode the appsync option
 provides this option.
 Only condition is that it can be activated by dbus and that (preferably) it will
 notify usb_moded that it is ready by ready_method call on the session bus.
-Systemd and upstart are also supported.
 This ready method call is just calling the regular usb_moded interface, but now
 on the session bus, with as argument the program name as defined in the config file.
+Systemd and upstart are also supported.
 
 To achieve this you need to have a config file in /etc/usb-moded/run.
 Best practice would be giving it a descriptive name followed by .ini
@@ -230,6 +230,10 @@ you need to restart usb_moded. Later when the mode is activated, usb_moded will 
 each of them after the module has been loaded and keep track if they have been started.
 It will warn you if that failed. This works together with an optional softconnect option
 that will need kernel support.
+
+These services will start before the whole setup for the usb is done. In case the application
+only works after everything has been set up, you can start the application at the end by adding
+post = 1 to configuration.
 
 Dynamic modes
 -------------

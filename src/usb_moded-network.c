@@ -165,6 +165,7 @@ static int write_udhcpd_conf(ipforward_data *ipforward, struct mode_list_elem *d
   free(ipend);
   free((char*)ip);
   fclose(conffile);
+  log_debug("/etc/udhcpd.conf written.\n");
   return(0);
 }
 

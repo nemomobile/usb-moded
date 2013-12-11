@@ -27,6 +27,7 @@
 #define APP_INFO_LAUNCH_KEY	"launch"
 #define APP_INFO_UPSTART_KEY	"upstart"
 #define APP_INFO_SYSTEMD_KEY	"systemd"
+#define APP_INFO_POST		"post"
 
 /** 
  * keep all the needed info together for launching an app 
@@ -40,11 +41,13 @@ typedef struct list_elem
   int active;		/* marker to check if the app has started sucessfully */
   int upstart;		/* marker to know if we start it with upstart or not */
   int systemd;		/* marker to know if we start it with systemd or not */
+  int post;		/* marker to indicate when to start the app */
   /*@}*/
 }list_elem;
 
 void readlist(void);
 int activate_sync(const char *mode);
+int activate_sync_post(const char *mode);
 int mark_active(const gchar *name);
 int appsync_stop(void);
 void free_appsync_list(void);
