@@ -208,12 +208,26 @@ Group: Config
 This package contains the diagnostics info needed to configure a
 diagnotic mode
 
+%package connection-sharing-android-config
+Summary:  USB mode controller - USB/cellular data connection sharing config
+Group:  Config
+
+%description connection-sharing-android-config
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains configuration to enable sharing the cellular data
+connection over the USB with the android gadget driver.
+
+
 %prep
 %setup -q
 
 %build
 %autogen
-%configure --enable-app-sync --enable-udev --enable-n900 --enable-meegodevlock --enable-debug
+%configure --enable-app-sync --enable-udev --enable-n900 --enable-meegodevlock --enable-debug --enable-connman
 make all doc %{?_smp_mflags}
 
 %install
@@ -324,3 +338,8 @@ systemctl daemon-reload
 %defattr(-,root,root,-)
 %{_sysconfdir}/usb-moded/diag/qa_diagnostic_mode.ini
 %{_sysconfdir}/usb-moded/run/qa-diagnostic.ini
+
+%files connection-sharing-android-config
+%defattr(-,root,root,-)
+%{_sysconfdir}/config/dyn-modes/connection_sharing.ini
+%{_sysconfdir}/config/run/udhcpd-connection-sharing.ini
