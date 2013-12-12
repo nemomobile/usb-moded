@@ -350,11 +350,6 @@ int set_dynamic_mode(void)
 	return set_mass_storage_mode();
   }
 
-  /* Needs to be called before application synching so
-     that the dhcp server has the right config */
-  if(data->nat || data->dhcp_server)
-	usb_network_set_up_dhcpd(data);
-
 #ifdef APP_SYNC
   if(data->appsync)
 	if(activate_sync(data->mode_name)) /* returns 1 on error */
@@ -406,6 +401,12 @@ int set_dynamic_mode(void)
 	usb_network_up(data);
 #endif /* DEBIAN */
   }
+
+  /* Needs to be called before application post synching so
+     that the dhcp server has the right config */
+  if(data->nat || data->dhcp_server)
+	usb_network_set_up_dhcpd(data);
+
   if(data->appsync)
 	activate_sync_post(data->mode_name);
   return(0);

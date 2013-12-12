@@ -382,7 +382,6 @@ try_again:
 
 /** 
  * Write out /etc/udhcpd.conf conf so the config is available when it gets started
- * NOTE: This will be called before network is brought up!
  */
 int usb_network_set_up_dhcpd(struct mode_list_elem *data)
 {
