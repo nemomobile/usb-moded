@@ -109,7 +109,7 @@ cleanup:
 }
 
 
-static int set_mass_storage_mode(void)
+static int set_mass_storage_mode(struct mode_list_elem *data)
 {
         gchar *command;
         char command2[256];
@@ -130,19 +130,22 @@ static int set_mass_storage_mode(void)
                 	mountpoints++;
                 }
 
-                /* check if the file storage module has been loaded with sufficient luns in the parameter,
-                if not, unload and reload or load it. Since  mountpoints start at 0 the amount of them is one more than their id */
-                sprintf(command2, "/sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", (mountpoints - 1) );
-                if(access(command2, R_OK) == -1)
-                {
-                	log_debug("%s does not exist, unloading and reloading mass_storage\n", command2);
-                        usb_moded_unload_module(MODULE_MASS_STORAGE);
-                        sprintf(command2, "modprobe %s luns=%d \n", MODULE_MASS_STORAGE, mountpoints);
-                        log_debug("usb-load command = %s \n", command2);
-                        ret = system(command2);
-                        if(ret)
-                        	return(ret);
-                }
+		if(strcmp(data->mode_module, MODULE_NONE))
+		{
+			/* check if the file storage module has been loaded with sufficient luns in the parameter,
+			if not, unload and reload or load it. Since  mountpoints start at 0 the amount of them is one more than their id */
+			sprintf(command2, "/sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", (mountpoints - 1) );
+			if(access(command2, R_OK) == -1)
+			{
+				log_debug("%s does not exist, unloading and reloading mass_storage\n", command2);
+				usb_moded_unload_module(MODULE_MASS_STORAGE);
+				sprintf(command2, "modprobe %s luns=%d \n", MODULE_MASS_STORAGE, mountpoints);
+				log_debug("usb-load command = %s \n", command2);
+				ret = system(command2);
+				if(ret)
+					return(ret);
+			}
+		}
                 /* umount filesystems */
                 for(i=0 ; mounts[i] != NULL; i++)
                 {
@@ -189,12 +192,25 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
 		usleep(1800);
                 for(i=0 ; mounts[i] != NULL; i++)
                 {       
-			sprintf(command2, "echo %i  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/nofua", fua, i);
-                        log_debug("usb lun = %s active\n", command2);
-                        system(command2);
-                	sprintf(command2, "/sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", i);
-                        log_debug("usb lun = %s active\n", command2);
- 			write_to_file(command2, mounts[i]);
+			
+			if(strcmp(data->mode_module, MODULE_NONE))
+			{
+				sprintf(command2, "echo %i  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/nofua", fua, i);
+				log_debug("usb lun = %s active\n", command2);
+				system(command2);
+				sprintf(command2, "/sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", i);
+				log_debug("usb lun = %s active\n", command2);
+				write_to_file(command2, mounts[i]);
+			}
+			else
+			{
+				write_to_file("/sys/class/android_usb/android0/enable", "0");
+				write_to_file("/sys/class/android_usb/android0/functions", "mass_storage");
+				//write_to_file("/sys/class/android_usb/f_mass_storage/lun/nofua", fua);
+				write_to_file("/sys/class/android_usb/f_mass_storage/lun/file", mount);
+				write_to_file("/sys/class/android_usb/android0/enable", "1");
+
+			}
                 }
                 g_strfreev(mounts);
 		g_free((gpointer *)mount);
@@ -208,7 +224,7 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
 
 }
 
-static int unset_mass_storage_mode(void)
+static int unset_mass_storage_mode(struct mode_list_elem *data)
 {
         gchar *command;
         char command2[256];
@@ -229,6 +245,7 @@ static int unset_mass_storage_mode(void)
                         if(ret)
                         {
                         	command = g_strconcat("mount ", mounts[i], NULL);
+				log_debug("mount command = %s\n",command);
                                 ret = system(command);
                                 g_free(command);
                                 if(ret != 0)
@@ -255,10 +272,17 @@ static int unset_mass_storage_mode(void)
 
                                   }
                         }
-
 			sprintf(command2, "echo \"\"  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", i);
-                	log_debug("usb lun = %s inactive\n", command2);
-                	system(command2);
+			log_debug("usb lun = %s inactive\n", command2);
+			system(command2);
+			if(data != NULL)
+			{
+				if(strcmp(data->mode_module, MODULE_NONE))
+				{
+					write_to_file("/sys/class/android_usb/f_mass_storage/lun/file", "none");
+					write_to_file("/sys/class/android_usb/android0/enable", "0");
+				}
+			}
                  }
                  g_strfreev(mounts);
 		 g_free((gpointer *)mount);
@@ -347,7 +371,7 @@ int set_dynamic_mode(void)
 
   if(data->mass_storage)
   {
-	return set_mass_storage_mode();
+	return set_mass_storage_mode(data);
   }
 
 #ifdef APP_SYNC
@@ -425,7 +449,7 @@ void unset_dynamic_mode(void)
 
   if(!strcmp(data->mode_name, MODE_MASS_STORAGE))
   {
-	unset_mass_storage_mode();
+	unset_mass_storage_mode(data);
 	return;
   }
 
@@ -495,7 +519,7 @@ int usb_moded_mode_cleanup(const char *module)
 		if(!strcmp(MODE_CHARGING, get_usb_mode()))
 		  return 0;	
 
-		unset_mass_storage_mode();
+		unset_mass_storage_mode(NULL);
         }
 #ifdef N900
         else if(!strcmp(module, MODULE_NETWORK))
