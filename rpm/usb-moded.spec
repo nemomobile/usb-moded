@@ -295,6 +295,7 @@ systemctl daemon-reload
 %files developer-mode-android
 %defattr(-,root,root,-)
 %{_sysconfdir}/usb-moded/dyn-modes/developer_mode-android.ini
+%{_sysconfdir}/config/run/udhcpd-developer-mode.ini
 
 %files adb-mode
 %defattr(-,root,root,-)
