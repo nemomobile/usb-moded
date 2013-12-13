@@ -282,9 +282,9 @@ static int connman_fill_connection_data(DBusMessage *reply, struct ipforward_dat
                                 if(type == DBUS_TYPE_STRING)
                                 {
                                         dbus_message_iter_get_basic(&variant_iter, &string);
-					//log_debug("Connection state = %s\n", string);
+					log_debug("Connection state = %s\n", string);
 					/* if cellular not online, connect it */
-					if(!strcmp(string, "online"))
+					if(strcmp(string, "online"))
 					{
 						log_debug("Not online. Turning on cellular data connection.\n");
 						return(1);
