@@ -140,6 +140,10 @@ static int write_udhcpd_conf(ipforward_data *ipforward, struct mode_list_elem *d
 
   /* generate start and end ip based on the setting */
   ip = get_network_ip();
+  if(ip == NULL)
+  {
+	ip = strdup("192.168.2.15");
+  }
   ipstart = malloc(sizeof(char)*15);
   ipend = malloc(sizeof(char)*15);
   while(i < 15)
