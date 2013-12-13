@@ -108,6 +108,7 @@ static void clean_usb_ip_forward(void)
   system("/sbin/iptables -F FORWARD");
 }
 
+#ifndef CONNMAN
 /**
  * Read dns settings from /etc/resolv.conf
  */
@@ -116,6 +117,7 @@ static int resolv_conf_dns(ipforward_data *ipforward)
   /* TODO: implement */
   return(0);
 }
+#endif
 
 /** 
   * Write udhcpd.conf
@@ -125,7 +127,7 @@ static int resolv_conf_dns(ipforward_data *ipforward)
 static int write_udhcpd_conf(ipforward_data *ipforward, struct mode_list_elem *data)
 {
   FILE *conffile;
-  const char *ip; 
+  const char *ip, *interface; 
   char *ipstart, *ipend;
   int dot = 0, i = 0;
 
@@ -160,10 +162,11 @@ static int write_udhcpd_conf(ipforward_data *ipforward, struct mode_list_elem *d
   strcat(ipstart,"1");
   strcat(ipend, "10");
 
+  interface = get_interface(data);
   /* print all data in the file */
   fprintf(conffile, "start\t%s\n", ipstart);
   fprintf(conffile, "end\t%s\n", ipend);
-  fprintf(conffile, "interface\t%s\n", get_interface(data));
+  fprintf(conffile, "interface\t%s\n", interface);
   fprintf(conffile, "option\tsubnet\t255.255.255.0\n");
   if(ipforward != NULL)
   {
@@ -174,6 +177,7 @@ static int write_udhcpd_conf(ipforward_data *ipforward, struct mode_list_elem *d
   free(ipstart);
   free(ipend);
   free((char*)ip);
+  free((char*)interface);
   fclose(conffile);
   log_debug("/etc/udhcpd.conf written.\n");
   return(0);
@@ -303,7 +307,7 @@ static int connman_set_cellular_online(DBusConnection *dbus_conn_connman, const 
 {
   DBusMessage *msg = NULL;
   DBusError error;
-  int ret = 0, online = 0;
+  int ret = 0;
 
   dbus_error_init(&error);
 
