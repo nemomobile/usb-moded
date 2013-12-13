@@ -221,6 +221,18 @@ system bus.
 This package contains configuration to enable sharing the cellular data
 connection over the USB with the android gadget driver.
 
+%package mass-storage-android-config
+Summary:  USB mode controller - mass-storage config with android gadget
+Group:  Config
+
+%description mass-storage-android-config
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains configuration to enable sharing over mass-storage
+with the android gadget driver.
 
 %prep
 %setup -q
@@ -250,6 +262,7 @@ install -d %{buildroot}/%{_sysconfdir}/usb-moded/diag
 install -m 644 -D config/dyn-modes/* %{buildroot}/%{_sysconfdir}/usb-moded/dyn-modes/
 install -m 644 -D config/diag/* %{buildroot}/%{_sysconfdir}/usb-moded/diag/
 install -m 644 -D config/run/* %{buildroot}/%{_sysconfdir}/usb-moded/run/
+install -m 644 -D config/mass-storage-jolla.ini %{buildroot}/%{_sysconfdir}/usb-moded/
 install -d $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/
 ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/%{name}.service
 # Sync mode not packaged for now.
@@ -309,7 +322,7 @@ systemctl daemon-reload
 %files developer-mode-android
 %defattr(-,root,root,-)
 %{_sysconfdir}/usb-moded/dyn-modes/developer_mode-android.ini
-%{_sysconfdir}/config/run/udhcpd-developer-mode.ini
+%{_sysconfdir}/usb-moded/run/udhcpd-developer-mode.ini
 
 %files adb-mode
 %defattr(-,root,root,-)
@@ -341,5 +354,10 @@ systemctl daemon-reload
 
 %files connection-sharing-android-config
 %defattr(-,root,root,-)
-%{_sysconfdir}/config/dyn-modes/connection_sharing.ini
-%{_sysconfdir}/config/run/udhcpd-connection-sharing.ini
+%{_sysconfdir}/usb-moded/dyn-modes/connection_sharing.ini
+%{_sysconfdir}/usb-moded/run/udhcpd-connection-sharing.ini
+
+%files mass-storage-android-config
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/mass_storage_android.ini
+%{_sysconfdir}/usb-moded/mass-storage-jolla.ini

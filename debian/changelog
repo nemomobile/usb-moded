@@ -1,3 +1,24 @@
+usb-moded (0.77) unstable; urgency=low
+
+  * [usb-moded] Add dhcp server support to developer mode
+  * [usb-moded] Add configuration for cellular connection sharing
+  * [usb-moded] Working USB tethering
+  * Add support for using udhcpc dhcp client
+  * Write out udhcpd.conf with the correct information
+  * [usb_moded] support starting a dhcp server on the device
+  * Support post start appsync (so udhcpd can work for example)
+  * To really be able to connect to the device udhcpd needs also the
+    subnet set
+  * Get dns info and connection state from connman
+  * Clean-up ip forwarding
+  * Do not block usb enumeration when data connection is not enabled, this
+    can be handled later
+  * Improved USB mass storage support for all currently supported
+    back-ends
+  * Experimental export of SD card on Jolla in mass-storage mode
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Fri, 13 Dec 2013 13:18:39 +0200
+
 usb-moded (0.76) unstable; urgency=low
 
   * Fix possible memory leak when setting the network config.
