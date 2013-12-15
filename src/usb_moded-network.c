@@ -48,6 +48,7 @@ typedef struct ipforward_data
 	char *dns1;
 	char *dns2;
 	char *interface;
+	char *nat_interface;
 }ipforward_data;
 
 static char* get_interface(struct mode_list_elem *data)
@@ -77,13 +78,15 @@ static char* get_interface(struct mode_list_elem *data)
 /**
  * Turn on ip forwarding on the usb interface
  */
-static void set_usb_ip_forward(struct mode_list_elem *data)
+static void set_usb_ip_forward(struct mode_list_elem *data, struct ipforward_data *ipforward)
 {
   const char *interface, *nat_interface;
   char command[128];
 
   interface = get_interface(data);
   nat_interface = get_network_nat_interface();
+  if(nat_interface == NULL)
+	nat_interface = strdup(ipforward->nat_interface);
 
   write_to_file("/proc/sys/net/ipv4/ip_forward", "1");
   snprintf(command, 128, "/sbin/iptables -t nat -A POSTROUTING -o %s -j MASQUERADE", nat_interface);
@@ -112,7 +115,7 @@ static void clean_usb_ip_forward(void)
 /**
  * Read dns settings from /etc/resolv.conf
  */
-static int resolv_conf_dns(ipforward_data *ipforward)
+static int resolv_conf_dns(struct ipforward_data *ipforward)
 {
   /* TODO: implement */
   return(0);
@@ -124,7 +127,7 @@ static int resolv_conf_dns(ipforward_data *ipforward)
   * @ipforward : NULL if we want a simple config, otherwise include dns info etc...
   * TODO: make this conditional ip could not have changed
   */
-static int write_udhcpd_conf(ipforward_data *ipforward, struct mode_list_elem *data)
+static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_elem *data)
 {
   FILE *conffile;
   const char *ip, *interface; 
@@ -231,7 +234,8 @@ static const char * connman_parse_manager_reply(DBusMessage *reply)
 
 static int connman_fill_connection_data(DBusMessage *reply, struct ipforward_data *ipforward)
 {
-  DBusMessageIter array_iter, dict_iter, inside_dict_iter, variant_iter, string_iter;
+  DBusMessageIter array_iter, dict_iter, inside_dict_iter, variant_iter;
+  DBusMessageIter sub_array_iter, string_iter;
   int type;
   char *string;
   
@@ -294,6 +298,36 @@ static int connman_fill_connection_data(DBusMessage *reply, struct ipforward_dat
 						return(1);
 					}
 					
+				}
+
+			}
+			else if(!strcmp(string, "Ethernet"))
+			{
+				dbus_message_iter_next (&inside_dict_iter);
+				type = dbus_message_iter_get_arg_type(&inside_dict_iter);
+				dbus_message_iter_recurse(&inside_dict_iter, &variant_iter);
+				type = dbus_message_iter_get_arg_type(&variant_iter);
+				if(type == DBUS_TYPE_ARRAY)
+				{
+					dbus_message_iter_recurse(&variant_iter, &sub_array_iter);
+					/* we want the second dict */
+					dbus_message_iter_next(&sub_array_iter);
+					/* we go into the dict and get the string */
+					dbus_message_iter_recurse(&sub_array_iter, &variant_iter);
+					type = dbus_message_iter_get_arg_type(&variant_iter);
+					if(type == DBUS_TYPE_STRING)
+					{
+						dbus_message_iter_get_basic(&variant_iter, &string);
+						if(!strcmp(string, "Interface"))
+						{
+							/* get variant and iter down in it */
+							dbus_message_iter_next(&variant_iter);
+							dbus_message_iter_recurse(&variant_iter, &string_iter);
+							dbus_message_iter_get_basic(&string_iter, &string);
+							log_debug("cellular interface = %s\n", string);
+							ipforward->nat_interface = strdup(string);
+						}
+					}
 				}
 
 			}
@@ -413,6 +447,10 @@ int usb_network_set_up_dhcpd(struct mode_list_elem *data)
   /* ipforward can be NULL here, which is expected and handled in this function */
   write_udhcpd_conf(ipforward, data);
 
+  if(data->nat)
+	set_usb_ip_forward(data, ipforward);
+
+
 end:
   if(ipforward)
 	free(ipforward);
@@ -489,9 +527,6 @@ int usb_network_up(struct mode_list_elem *data)
 	sprintf(command, "route add default gw %s\n", gateway);
         system(command);
   }
-
-  if(data->nat)
-	set_usb_ip_forward(data);
 
 clean:
   free((char *)interface);
