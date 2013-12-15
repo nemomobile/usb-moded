@@ -493,6 +493,8 @@ static void usb_moded_init(void)
 
 #ifdef APP_SYNC
   readlist();
+  /* make sure all services are down when starting */
+  appsync_stop();
 #endif /* APP_SYNC */
   modelist = read_mode_list(diag_mode);
 
