@@ -51,6 +51,17 @@ typedef struct ipforward_data
 	char *nat_interface;
 }ipforward_data;
 
+static void free_ipforward_data (struct ipforward_data *ipforward)
+{
+  if(ipforward)
+  {
+	free(ipforward->dns1);
+	free(ipforward->dns2);
+	free(ipforward->interface);
+	free(ipforward->nat_interface);
+  }
+}
+
 static char* get_interface(struct mode_list_elem *data)
 {
   char *interface = NULL;
@@ -452,8 +463,8 @@ int usb_network_set_up_dhcpd(struct mode_list_elem *data)
 
 
 end:
-  if(ipforward)
-	free(ipforward);
+  /* the function checks if ipforward is NULL or not */
+  free_ipforward_data(ipforward);
   return(0);
 }
 
