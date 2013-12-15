@@ -1,3 +1,14 @@
+usb-moded (0.77.4) unstable; urgency=low
+
+  * [usb-moded] Remove the need to configure the interface in the config file, it can be fetched from connman too now
+  * [usb-moded] make sure all appsync services are not running on start. Fixes issues with services not working correctly before replug
+  * [usb-moded] If no ip is set, make sure there is a default value defined otherwise writing out the udhcpcd config will crash
+  * [usb-moded] Correct developer mode config to actually launch dhcp server
+  * [usb-moded] Update dhcp dependency
+  * Fix online state check
+
+ -- Philippe De Swert <philippe.deswert@jollamobile.com>  Sun, 15 Dec 2013 13:57:37 +0200
+
 usb-moded (0.77) unstable; urgency=low
 
   * [usb-moded] Add dhcp server support to developer mode
