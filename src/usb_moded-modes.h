@@ -29,3 +29,4 @@
 #define MODE_DEVELOPER		"developer_mode"
 #define MODE_MTP		"mtp_mode"
 #define MODE_CHARGER		"dedicated_charger"
+#define MODE_CONNECTION_SHARING "connection_charing"

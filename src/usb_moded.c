@@ -495,8 +495,8 @@ static void usb_moded_init(void)
   readlist();
   /* make sure all services are down when starting */
   appsync_stop();
-#endif /* APP_SYNC */
   modelist = read_mode_list(diag_mode);
+#endif /* APP_SYNC */
 
 #ifdef UDEV
   if(check_trigger())
@@ -549,6 +549,7 @@ static void handle_exit(void)
   extern struct kmod_ctx *ctx;
 
   /* exiting and clean-up when mainloop ended */
+  appsync_stop();
   hwal_cleanup();
   usb_moded_dbus_cleanup();
   stop_devicelock_listener();
