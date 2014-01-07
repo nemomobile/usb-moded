@@ -47,7 +47,6 @@ typedef struct ipforward_data
 {
 	char *dns1;
 	char *dns2;
-	char *interface;
 	char *nat_interface;
 }ipforward_data;
 
@@ -55,10 +54,13 @@ static void free_ipforward_data (struct ipforward_data *ipforward)
 {
   if(ipforward)
   {
-	free(ipforward->dns1);
-	free(ipforward->dns2);
-	free(ipforward->interface);
-	free(ipforward->nat_interface);
+	if(ipforward->dns1)
+		free(ipforward->dns1);
+	if(ipforward->dns2)
+		free(ipforward->dns2);
+	if(ipforward->nat_interface)
+		free(ipforward->nat_interface);
+	free(ipforward);
   }
 }
 
@@ -111,6 +113,7 @@ static void set_usb_ip_forward(struct mode_list_elem *data, struct ipforward_dat
 
   free((char *)interface);
   free((char *)nat_interface);
+  log_debug("ipforwarding success!\n");
 }
 
 /** 
@@ -380,7 +383,7 @@ static int connman_get_connection_data(struct ipforward_data *ipforward)
   DBusMessage *msg = NULL, *reply = NULL;
   DBusError error;
   const char *service = NULL;
-  int online = 0;
+  int online = 0, ret = 0;
 
   dbus_error_init(&error);
 
@@ -418,7 +421,7 @@ try_again:
 				else
 				{
 					log_debug("Cannot connect to cellular data\n");
-					return(1);
+					ret = 1;
 				}
 			}
 			dbus_message_unref(reply);
@@ -429,7 +432,7 @@ try_again:
   dbus_connection_unref(dbus_conn_connman);
   dbus_error_free(&error);
   free((char *)service);
-  return(0);
+  return(ret);
 }
 #endif /* CONNMAN */
 
