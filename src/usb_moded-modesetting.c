@@ -248,40 +248,39 @@ static int unset_mass_storage_mode(struct mode_list_elem *data)
 				log_debug("mount command = %s\n",command);
                                 ret = system(command);
                                 g_free(command);
-                                if(ret != 0)
+				/* mount returns 0 if success */
+                                if(ret != 0 )
                                 {
                                 	log_err("Mounting %s failed\n", mount);
-                                        usb_moded_send_error_signal(RE_MOUNT_FAILED);
-					g_free((gpointer *)mount);
-                                        mount = find_alt_mount();
-                                        if(mount)
-                                        {
-						/* check if it is already mounted, if not mount failure fallback */
-                                                command = g_strconcat("mount | grep ", mount, NULL);
-                                                ret = system(command);
-                                                g_free(command);
-                                                if(ret)
-                                                {
+					if(ret)
+					{
+						mount = find_alt_mount();
+						if(mount)
+						{
                                                		command = g_strconcat("mount -t tmpfs tmpfs -o ro --size=512K ", mount, NULL);
 							log_debug("Total failure, mount ro tmpfs as fallback\n");
                                                         ret = system(command);
                                                         g_free(command);
                                                 }
-
+						usb_moded_send_error_signal(RE_MOUNT_FAILED);
                                         }
 
                                   }
                         }
-			sprintf(command2, "echo \"\"  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", i);
-			log_debug("usb lun = %s inactive\n", command2);
-			system(command2);
 			if(data != NULL)
 			{
-				if(strcmp(data->mode_module, MODULE_NONE))
+				if(!strcmp(data->mode_module, MODULE_NONE))
 				{
-					write_to_file("/sys/class/android_usb/f_mass_storage/lun/file", "none");
+					log_debug("Disable android mass storage\n");
+					write_to_file("/sys/class/android_usb/f_mass_storage/lun/file", "0");
 					write_to_file("/sys/class/android_usb/android0/enable", "0");
 				}
+			}
+			else
+			{
+				sprintf(command2, "echo \"\"  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun%d/file", i);
+				log_debug("usb lun = %s inactive\n", command2);
+				system(command2);
 			}
                  }
                  g_strfreev(mounts);
@@ -433,6 +432,7 @@ int set_dynamic_mode(void)
 
   if(data->appsync)
 	activate_sync_post(data->mode_name);
+
   return(0);
 }
 
@@ -518,7 +518,6 @@ int usb_moded_mode_cleanup(const char *module)
 		   to check since we use fake mass-storage for charging */
 		if(!strcmp(MODE_CHARGING, get_usb_mode()))
 		  return 0;	
-
 		unset_mass_storage_mode(NULL);
         }
 #ifdef N900
