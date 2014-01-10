@@ -328,9 +328,8 @@ end:
   {
 	  set_usb_module(MODULE_NONE);
 	  mode = MODE_UNDEFINED;
-	  unset_dynamic_mode();
 	  set_usb_mode_data(NULL);
-	  log_debug("mode setting failed, mode = %s\n", mode);
+	  log_debug("mode setting failed or device disconnected, mode to set was = %s\n", mode);
   }
   if(net)
     log_debug("Network setting failed!\n");
