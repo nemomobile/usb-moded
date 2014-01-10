@@ -95,7 +95,7 @@ int usb_moded_load_module(const char *module)
 	     loading failures we use it here, as we fall back to g_file_storage if g_mass_storage 
 	     fails to load */
 	  strings = g_strsplit(MODULE_CHARGE_FALLBACK, " ", 2);
-	  log_debug("module args = %s, module = %s\n", strings[1], strings[0]);
+	  //log_debug("module args = %s, module = %s\n", strings[1], strings[0]);
           charging_args = strdup(strings[1]);
 	  /* load was already assigned. Free it to re-assign */
 	  free(load);
