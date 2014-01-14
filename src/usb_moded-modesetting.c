@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <limits.h>
 
 #include <glib.h>
 
@@ -108,11 +109,10 @@ cleanup:
   return err;
 }
 
-
 static int set_mass_storage_mode(struct mode_list_elem *data)
 {
         gchar *command;
-        char command2[256];
+        char command2[256], *real_path = NULL, *mountpath;
         const char *mount;
         gchar **mounts;
         int ret = 0, i = 0, mountpoints = 0, fua = 0, try = 0;
@@ -150,13 +150,18 @@ static int set_mass_storage_mode(struct mode_list_elem *data)
                 for(i=0 ; mounts[i] != NULL; i++)
                 {
                 	/* check if filesystem is mounted or not, if ret = 1 it is already unmounted */
-umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
+			real_path = realpath(mounts[i], NULL);
+			if(real_path)
+				mountpath = real_path;
+			else
+				mountpath = mounts[i];
+umount:                 command = g_strconcat("mount | grep ", mountpath, NULL);
                         ret = system(command);
                         g_free(command);
                         if(!ret)
                         {
 				/* no check for / needed as that will fail to umount anyway */
-                        	command = g_strconcat("umount ", mounts[i], NULL);
+				command = g_strconcat("umount ", mountpath, NULL);
                                 log_debug("unmount command = %s\n", command);
                                 ret = system(command);
                                 g_free(command);
@@ -214,6 +219,8 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
                 }
                 g_strfreev(mounts);
 		g_free((gpointer *)mount);
+		if(real_path)
+			free(real_path);
 	}
 
 	/* only send data in use signal in case we actually succeed */
@@ -227,7 +234,7 @@ umount:                 command = g_strconcat("mount | grep ", mounts[i], NULL);
 static int unset_mass_storage_mode(struct mode_list_elem *data)
 {
         gchar *command;
-        char command2[256];
+        char command2[256], *real_path = NULL, *mountpath;
         const char *mount;
         gchar **mounts;
         int ret = 1, i = 0;
@@ -239,12 +246,17 @@ static int unset_mass_storage_mode(struct mode_list_elem *data)
                 for(i=0 ; mounts[i] != NULL; i++)
                 {
                 	/* check if it is still or already mounted, if so (ret==0) skip mounting */
-                	command = g_strconcat("mount | grep ", mounts[i], NULL);
+			real_path = realpath(mounts[i], NULL);
+			if(real_path)
+				mountpath = real_path;
+			else
+				mountpath = mounts[i];
+                	command = g_strconcat("mount | grep ", mountpath, NULL);
                         ret = system(command);
                         g_free(command);
                         if(ret)
                         {
-                        	command = g_strconcat("mount ", mounts[i], NULL);
+                        	command = g_strconcat("mount ", mountpath, NULL);
 				log_debug("mount command = %s\n",command);
                                 ret = system(command);
                                 g_free(command);
@@ -285,6 +297,8 @@ static int unset_mass_storage_mode(struct mode_list_elem *data)
                  }
                  g_strfreev(mounts);
 		 g_free((gpointer *)mount);
+		 if(real_path)
+			free(real_path);
         }
 
 	return(ret);
