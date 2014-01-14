@@ -273,6 +273,21 @@ void set_usb_mode(const char *mode)
   /* set return to 1 to be sure to error out if no matching mode is found either */
   int ret=1, net=0;
 
+
+#ifdef MEEGOLOCK
+  /* Do a second check in case timer suspend causes a race issue */
+  int export = 1;
+
+  /* check if we are allowed to export system contents 0 is unlocked */
+  export = usb_moded_get_export_permission();
+
+  if(export)
+  {
+	log_debug("Secondary device lock check failed. Not setting mode!\n");
+	goto end;
+  }
+#endif /* MEEGOLOCK */
+
   log_debug("Setting %s\n", mode);
   
   if(!strcmp(mode, MODE_CHARGING))
