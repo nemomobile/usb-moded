@@ -1,3 +1,15 @@
+usb-moded (0.78) unstable; urgency=low
+
+  * [usb-moded] Know how to deal with symlinks for improved SD card mass-storage support
+  * [usb-moded] double-check devicelock to avoid race issues
+  * Do not clean up twice, improve debug output
+  * Re-factoring mass-storage code
+  * Remove some unecessary debug
+  * Free ipforward data correctly, interface is not used so no need to free.
+  * Stop appsync on shutdown, only do diag appsync when appsync is compiled in, add connection_sharing mode to development headers
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Wed, 15 Jan 2014 08:07:50 +0200 
+
 usb-moded (0.77.4) unstable; urgency=low
 
   * [usb-moded] Remove the need to configure the interface in the config file, it can be fetched from connman too now
