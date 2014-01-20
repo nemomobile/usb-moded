@@ -71,7 +71,9 @@ gboolean rescue_mode = FALSE;
 gboolean diag_mode = FALSE;
 gboolean hw_fallback = FALSE;
 gboolean charging_mode_set = FALSE;
-gboolean systemd_notify = FALSE;
+#ifdef SYSTEMD
+static gboolean systemd_notify = FALSE;
+#endif
 
 struct usb_mode current_mode;
 guint charging_timeout = 0;
@@ -621,7 +623,9 @@ static void usage(void)
 		  "  -d,  --diag	  turn on diag mode\n"
                   "  -h,  --help          display this help and exit\n"
 		  "  -r,  --rescue	  rescue mode\n"
+#ifdef SYSTEMD
 		  "  -n,  --systemd       notify systemd when started up\n"
+#endif
                   "  -v,  --version       output version information and exit\n"
                   "\n");
 }
@@ -677,11 +681,11 @@ int main(int argc, char* argv[])
 			case 'r':
 				rescue_mode = TRUE;
 				break;
-	
+#ifdef SYSTEMD
 			case 'n':
 				systemd_notify = TRUE;
 				break;
-	
+#endif	
 	                case 'v':
 				printf("USB mode daemon version: %s\n", VERSION);
 				exit(0);
