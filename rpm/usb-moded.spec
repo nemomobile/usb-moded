@@ -15,6 +15,7 @@ BuildRequires: pkgconfig(glib-2.0)
 BuildRequires: pkgconfig(udev)
 BuildRequires: pkgconfig(libkmod)
 BuildRequires: doxygen
+BuildRequires: pkgconfig(libsystemd-daemon)
 
 Requires: lsof
 Requires: usb-moded-configs
@@ -240,7 +241,7 @@ with the android gadget driver.
 
 %build
 %autogen
-%configure --enable-app-sync --enable-udev --enable-n900 --enable-meegodevlock --enable-debug --enable-connman
+%configure --enable-app-sync --enable-udev --enable-n900 --enable-meegodevlock --enable-debug --enable-connman --enable-systemd
 make all doc %{?_smp_mflags}
 
 %install

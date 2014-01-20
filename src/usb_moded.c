@@ -34,6 +34,9 @@
 #endif
 
 #include <libkmod.h>
+#ifdef SYSTEMD
+#include <systemd/sd-daemon.h>
+#endif
 
 #include "usb_moded.h"
 #include "usb_moded-modes.h"
@@ -68,6 +71,9 @@ gboolean rescue_mode = FALSE;
 gboolean diag_mode = FALSE;
 gboolean hw_fallback = FALSE;
 gboolean charging_mode_set = FALSE;
+#ifdef SYSTEMD
+static gboolean systemd_notify = FALSE;
+#endif
 
 struct usb_mode current_mode;
 guint charging_timeout = 0;
@@ -617,6 +623,9 @@ static void usage(void)
 		  "  -d,  --diag	  turn on diag mode\n"
                   "  -h,  --help          display this help and exit\n"
 		  "  -r,  --rescue	  rescue mode\n"
+#ifdef SYSTEMD
+		  "  -n,  --systemd       notify systemd when started up\n"
+#endif
                   "  -v,  --version       output version information and exit\n"
                   "\n");
 }
@@ -634,6 +643,7 @@ int main(int argc, char* argv[])
                 { "diag", no_argument, 0, 'd' },
                 { "help", no_argument, 0, 'h' },
 		{ "rescue", no_argument, 0, 'r' },
+		{ "systemd", no_argument, 0, 'n' },
                 { "version", no_argument, 0, 'v' },
                 { 0, 0, 0, 0 }
         };
@@ -641,7 +651,7 @@ int main(int argc, char* argv[])
 	log_name = basename(*argv);
 
 	 /* Parse the command-line options */
-        while ((opt = getopt_long(argc, argv, "fsTDdhrv", options, &opt_idx)) != -1) 
+        while ((opt = getopt_long(argc, argv, "fsTDdhrnv", options, &opt_idx)) != -1) 
 	{
                 switch (opt) 
 		{
@@ -671,7 +681,11 @@ int main(int argc, char* argv[])
 			case 'r':
 				rescue_mode = TRUE;
 				break;
-	
+#ifdef SYSTEMD
+			case 'n':
+				systemd_notify = TRUE;
+				break;
+#endif	
 	                case 'v':
 				printf("USB mode daemon version: %s\n", VERSION);
 				exit(0);
@@ -723,6 +737,15 @@ int main(int argc, char* argv[])
 	/* signal handling */
 	signal(SIGINT, sigint_handler);
 	signal(SIGHUP, sigint_handler);
+
+#ifdef SYSTEMD
+	/* Tell systemd that we have started up */
+	if( systemd_notify ) 
+	{
+		log_debug("notifying systemd\n");
+		sd_notify(0, "READY=1");
+	}
+#endif /* SYSTEMD */
 
 	/* init succesful, run main loop */
 	result = EXIT_SUCCESS;  

@@ -102,6 +102,14 @@ AC_ARG_ENABLE([connman], AS_HELP_STRING([--enable-connman], [Enable connman supp
    esac],[connman=false])
 AM_CONDITIONAL([CONNMAN], [test x$connman = xtrue])
 
+AC_ARG_ENABLE([systemd], AS_HELP_STRING([--enable-systemd], [Enable systemd notify interface @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) systemd=true ; CFLAGS="-DSYSTEMD -lsystemd-daemon $CFLAGS" ;;
+   no)  systemd=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-systemd]) ;;
+   esac],[systemd=false])
+AM_CONDITIONAL([SYSTEMD], [test x$systemd = xtrue])
+
 #TODO: Figure out how to check for this depending on the gconf flag
 # gconf-2.0 >= 2.16.0
 PKG_CHECK_MODULES([USB_MODED], [
