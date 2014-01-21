@@ -1,3 +1,10 @@
+usb-moded (0.78.1) unstable; urgency=low
+
+  * Do not check devicelock in ACTDEAD
+  * Notify systemd when booted up
+
+ -- Pekka Lundstrom <pekka.lundstrom@jolla.com>  Tue, 21 Jan 2014 10:16:29 +0200
+
 usb-moded (0.78) unstable; urgency=low
 
   * [usb-moded] Know how to deal with symlinks for improved SD card mass-storage support
