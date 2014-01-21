@@ -285,12 +285,16 @@ void set_usb_mode(const char *mode)
   int export = 1;
 
   /* check if we are allowed to export system contents 0 is unlocked */
-  export = usb_moded_get_export_permission();
-
-  if(export)
+  /* In ACTDEAD export is always ok */
+  if(is_in_user_state())
   {
-	log_debug("Secondary device lock check failed. Not setting mode!\n");
-	goto end;
+	export = usb_moded_get_export_permission();
+
+	if(export)
+	{
+		log_debug("Secondary device lock check failed. Not setting mode!\n");
+		goto end;
+  	}
   }
 #endif /* MEEGOLOCK */
 
