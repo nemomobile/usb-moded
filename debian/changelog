@@ -1,5 +1,11 @@
 usb-moded (0.78.2) unstable; urgency=low
 
+  * [usb-moded] check for more return states so we do not error out when we shouldn't
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Mon, 27 Jan 2014 16:29:32 +0200
+
+usb-moded (0.78.2) unstable; urgency=low
+
   * Fix crash when failing to get cellular connection data
   * Report mode setting failures for dynamic modes to UI
 
