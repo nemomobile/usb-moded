@@ -52,6 +52,7 @@
 #define RE_MOUNT_FAILED			"mount_failed"
 #define CHARGER_CONNECTED		"charger_connected"
 #define CHARGER_DISCONNECTED		"charger_disconnected"
+#define MODE_SETTING_FAILED		"mode_setting_failed"
 
 /* errors */
 #define UMOUNT_ERROR			"Unmounting filesystem failed. Exporting impossible"

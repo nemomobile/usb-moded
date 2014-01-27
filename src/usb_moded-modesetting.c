@@ -376,11 +376,12 @@ int set_dynamic_mode(void)
 {
 
   struct mode_list_elem *data; 
+  int ret = 1;
 
   data = get_usb_mode_data();
 
   if(!data)
-	return 1;
+	return(ret);
 
   if(data->mass_storage)
   {
@@ -392,7 +393,7 @@ int set_dynamic_mode(void)
 	if(activate_sync(data->mode_name)) /* returns 1 on error */
 	{
 		log_debug("Appsync failure");
-		return(1);
+		return(ret);
 	}
 #endif
   /* make sure things are disabled before changing functionality */
@@ -442,12 +443,14 @@ int set_dynamic_mode(void)
   /* Needs to be called before application post synching so
      that the dhcp server has the right config */
   if(data->nat || data->dhcp_server)
-	usb_network_set_up_dhcpd(data);
+	ret = usb_network_set_up_dhcpd(data);
 
   if(data->appsync)
 	activate_sync_post(data->mode_name);
 
-  return(0);
+  if(ret)
+	usb_moded_send_error_signal(MODE_SETTING_FAILED);
+  return(ret);
 }
 
 void unset_dynamic_mode(void)

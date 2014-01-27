@@ -447,6 +447,7 @@ try_again:
 int usb_network_set_up_dhcpd(struct mode_list_elem *data)
 {
   struct ipforward_data *ipforward = NULL;
+  int ret = 1;
 
   /* Set up nat info only if it is required */
   if(data->nat)
@@ -469,12 +470,13 @@ int usb_network_set_up_dhcpd(struct mode_list_elem *data)
 
   if(data->nat)
 	set_usb_ip_forward(data, ipforward);
+  ret = 0;
 
 
 end:
   /* the function checks if ipforward is NULL or not */
   free_ipforward_data(ipforward);
-  return(0);
+  return(ret);
 }
 
 /**
