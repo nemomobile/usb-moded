@@ -1,3 +1,10 @@
+usb-moded (0.78.2) unstable; urgency=low
+
+  * Fix crash when failing to get cellular connection data
+  * Report mode setting failures for dynamic modes to UI
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Mon, 27 Jan 2014 14:15:57 +0200
+
 usb-moded (0.78.1) unstable; urgency=low
 
   * Do not check devicelock in ACTDEAD
