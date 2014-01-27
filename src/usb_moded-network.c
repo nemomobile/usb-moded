@@ -191,7 +191,12 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   fprintf(conffile, "option\tsubnet\t255.255.255.0\n");
   if(ipforward != NULL)
   {
-	fprintf(conffile, "opt\tdns\t%s %s\n", ipforward->dns1, ipforward->dns2);
+	if(!ipforward->dns1 || !ipforward->dns2)
+	{
+		log_debug("No dns info!");
+	}
+	else
+		fprintf(conffile, "opt\tdns\t%s %s\n", ipforward->dns1, ipforward->dns2);
 	fprintf(conffile, "opt\trouter\t%s\n", ip);
   }
 
@@ -447,6 +452,7 @@ int usb_network_set_up_dhcpd(struct mode_list_elem *data)
   if(data->nat)
   {
 	ipforward = malloc(sizeof(struct ipforward_data));
+	memset(ipforward, 0, sizeof(struct ipforward_data));
 #ifdef CONNMAN
 	if(connman_get_connection_data(ipforward))
 	{
