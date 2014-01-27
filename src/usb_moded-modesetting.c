@@ -404,7 +404,7 @@ int set_dynamic_mode(void)
   /* set functionality first, then enable */
   if(data->android_extra_sysfs_value && data->android_extra_sysfs_path)
   {
-	write_to_file(data->android_extra_sysfs_path, data->android_extra_sysfs_value);
+	ret = write_to_file(data->android_extra_sysfs_path, data->android_extra_sysfs_value);
   }
   if(data->android_extra_sysfs_value2 && data->android_extra_sysfs_path2)
   {
@@ -423,7 +423,7 @@ int set_dynamic_mode(void)
   /* enable the device */
   if(data->softconnect)
   {
-	write_to_file(data->softconnect_path, data->softconnect);
+	ret = write_to_file(data->softconnect_path, data->softconnect);
   }
 
   /* functionality should be enabled, so we can enable the network now */
