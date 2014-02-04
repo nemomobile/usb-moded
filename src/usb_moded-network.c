@@ -24,6 +24,8 @@
 
 /*============================================================================= */
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -131,7 +133,40 @@ static void clean_usb_ip_forward(void)
  */
 static int resolv_conf_dns(struct ipforward_data *ipforward)
 {
-  /* TODO: implement */
+  FILE *resolv;
+  int i = 0, count = 0;
+  char *line = NULL, **tokens;
+  size_t len = 0;
+  ssize_t read;
+
+
+  resolv = fopen("/etc/resolv.conf", "r");
+  if (resolv == NULL)
+	return(1);
+
+  /* we don't expect more than 10 lines in /etc/resolv.conf */
+  for (i=0; i < 10; i++)
+  {
+	read = getline(&line, &len, resolv);
+	if(read)
+	{
+	  if(strstr(line, "nameserver") != NULL)
+	  {
+		tokens = g_strsplit(line, " ", 2);
+		if(count == 0)
+			ipforward->dns1 = strdup(tokens[1]);
+		else
+			ipforward->dns2 = strdup(tokens[1]);
+		count++;
+		g_strfreev(tokens);
+	  }
+	}
+	if(count == 2)
+		goto end;
+  }
+end:
+  free(line);
+  fclose(resolv);
   return(0);
 }
 #endif
@@ -462,7 +497,8 @@ int usb_network_set_up_dhcpd(struct mode_list_elem *data)
 		goto end;
 	}
 #else
-	  resolv_conf_dns(ipforward);
+	if(resolv_conf_dns(ipforward))
+		goto end;
 #endif /*CONNMAN */
   }
   /* ipforward can be NULL here, which is expected and handled in this function */
