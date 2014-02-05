@@ -45,6 +45,8 @@ int is_in_user_state(void)
   if( (dbus_conn = dbus_bus_get(DBUS_BUS_SYSTEM, &error)) == 0 )
   {
      log_err("Could not connect to dbus systembus (is_in_user_state)\n");
+     /* dbus system bus is broken or not there, so assume not in USER state */
+     return(ret);
   }
 
   if ((msg = dbus_message_new_method_call("com.nokia.dsme", "/request", "com.nokia.dsme.request", "get_state")) != NULL)
