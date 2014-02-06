@@ -271,10 +271,10 @@ ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/%
 rm %{buildroot}/etc/usb-moded/dyn-modes/sync_mode.ini
 
 %preun
-systemctl daemon-reload
+systemctl daemon-reload || :
 
 %post
-systemctl daemon-reload
+systemctl daemon-reload || :
 
 %files
 %defattr(-,root,root,-)
