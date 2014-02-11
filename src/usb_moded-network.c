@@ -38,7 +38,7 @@
 #include "usb_moded-log.h"
 #include "usb_moded-modesetting.h"
 
-#if CONNMAN
+#if CONNMAN || OFONO
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -126,6 +126,80 @@ static void clean_usb_ip_forward(void)
   write_to_file("/proc/sys/net/ipv4/ip_forward", "0");
   system("/sbin/iptables -F FORWARD");
 }
+
+#ifdef OFONO
+/**
+ * Get roaming data from ofono
+ * 
+ * @return : 1 if roaming, 0 when not (or when ofono is unavailable)
+ */
+static int get_roaming(void)
+{
+  int ret = 0, type;
+  DBusError error;
+  DBusMessage *msg = NULL, *reply;
+  DBusConnection *dbus_conn_ofono = NULL;
+  char *modem = NULL;
+  DBusMessageIter iter, subiter;
+
+  dbus_error_init(&error);
+
+  if( (dbus_conn_ofono = dbus_bus_get(DBUS_BUS_SYSTEM, &error)) == 0 )
+  {
+         log_err("Could not connect to dbus for ofono\n");
+  }
+
+  /* find the modem object path so can find out if it is roaming or not (one modem only is assumed) */
+  if ((msg = dbus_message_new_method_call("org.ofono", "/", "org.ofono.Manager", "GetModems")) != NULL)
+  {
+        if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_ofono, msg, -1, NULL)) != NULL)
+        {
+	  dbus_message_iter_init(reply, &iter);
+	  dbus_message_iter_recurse(&iter, &subiter);
+	  iter = subiter;
+	  dbus_message_iter_recurse(&iter, &subiter);
+	  type = dbus_message_iter_get_arg_type(&subiter);
+	  if(type == DBUS_TYPE_OBJECT_PATH)
+	  {
+		dbus_message_iter_get_basic(&subiter, &modem);
+		log_debug("modem = %s\n", modem);
+	  }
+          dbus_message_unref(reply);
+        }
+        dbus_message_unref(msg);
+  }
+  /* if modem found then we check roaming state */
+  if(modem != NULL)
+  {
+	if ((msg = dbus_message_new_method_call("org.ofono", modem, "org.ofono.NetworkRegistration", "GetProperties")) != NULL)
+	{
+		if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_ofono, msg, -1, NULL)) != NULL)
+		{
+		  dbus_message_iter_init(reply, &iter);
+		  dbus_message_iter_recurse(&iter, &subiter);
+		  iter = subiter;
+		  dbus_message_iter_recurse(&iter, &subiter);
+		  type = dbus_message_iter_get_arg_type(&subiter);
+		    if(type == DBUS_TYPE_STRING)
+		    {
+			dbus_message_iter_next (&subiter);
+			iter = subiter;
+			dbus_message_iter_recurse(&iter, &subiter);
+			dbus_message_iter_get_basic(&subiter, &modem);
+			log_debug("modem status = %s\n", modem);
+		    }
+		}
+		dbus_message_unref(reply);
+		}
+        dbus_message_unref(msg);
+	
+	if(!strcmp("Roaming", modem))
+		ret = 1;
+  }
+
+  return(ret);
+}
+#endif
 
 #ifndef CONNMAN
 /**
@@ -487,6 +561,11 @@ int usb_network_set_up_dhcpd(struct mode_list_elem *data)
   /* Set up nat info only if it is required */
   if(data->nat)
   {
+#ifdef OFONO
+	/* check if we are roaming or not */
+	if(get_roaming())
+		goto end;
+#endif /* OFONO */
 	ipforward = malloc(sizeof(struct ipforward_data));
 	memset(ipforward, 0, sizeof(struct ipforward_data));
 #ifdef CONNMAN

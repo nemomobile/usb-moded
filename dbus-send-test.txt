@@ -11,3 +11,7 @@ aegis-exec -a usb-moded::USBControl
 dbus-send --system --type=method_call --print-reply --dest=net.connman / net.connman.Manager.GetProperties
 dbus-send --system --type=method_call --print-reply --dest=net.connman / net.connman.Manager.GetServices /* get all network connections */
 dbus-send --system --type=method_call --print-reply --dest=net.connman /service_path/from/previous/command/ net.connman.Service.GetProperties
+
+#ofono mess
+dbus-send --system --print-reply --dest=org.ofono / org.ofono.Manager.GetModems
+dbus-send --system --print-reply --dest=org.ofono /ril_0 org.ofono.NetworkRegistration.GetProperties

@@ -110,6 +110,14 @@ AC_ARG_ENABLE([systemd], AS_HELP_STRING([--enable-systemd], [Enable systemd noti
    esac],[systemd=false])
 AM_CONDITIONAL([SYSTEMD], [test x$systemd = xtrue])
 
+AC_ARG_ENABLE([ofono], AS_HELP_STRING([--enable-ofono], [Enable ofono DBUS interface for usb tethering roaming detection  @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) ofono=true ; CFLAGS="-DOFONO $CFLAGS" ;;
+   no)  ofono=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-ofono]) ;;
+   esac],[ofono=false])
+AM_CONDITIONAL([SYSTEMD], [test x$ofono = xtrue])
+
 #TODO: Figure out how to check for this depending on the gconf flag
 # gconf-2.0 >= 2.16.0
 PKG_CHECK_MODULES([USB_MODED], [
