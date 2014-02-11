@@ -193,7 +193,7 @@ static int get_roaming(void)
 		}
         dbus_message_unref(msg);
 	
-	if(!strcmp("Roaming", modem))
+	if(!strcmp("roaming", modem))
 		ret = 1;
   }
 
