@@ -564,7 +564,11 @@ int usb_network_set_up_dhcpd(struct mode_list_elem *data)
 #ifdef OFONO
 	/* check if we are roaming or not */
 	if(get_roaming())
-		goto end;
+	{
+		/* get permission to use roaming */
+		if(is_roaming_not_allowed())
+			goto end;
+	}
 #endif /* OFONO */
 	ipforward = malloc(sizeof(struct ipforward_data));
 	memset(ipforward, 0, sizeof(struct ipforward_data));

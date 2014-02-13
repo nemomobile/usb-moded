@@ -49,6 +49,7 @@
 #define NETWORK_INTERFACE_KEY		"interface"
 #define NETWORK_GATEWAY_KEY		"gateway"
 #define NETWORK_NAT_INTERFACE_KEY	"nat_interface"
+#define NO_ROAMING_KEY			"noroaming"
 #define ANDROID_ENTRY			"android"
 #define ANDROID_MANUFACTURER_KEY	"iManufacturer"
 #define ANDROID_VENDOR_ID_KEY		"idVendor"
@@ -88,6 +89,8 @@ const char * get_android_product(void);
 const char * get_android_product_id(void);
 
 int check_android_section(void);
+
+int is_roaming_not_allowed(void);
 
 int conf_file_merge(void);
 int set_config_setting(const char *entry, const char *key, const char *value);

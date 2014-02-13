@@ -607,3 +607,7 @@ cleanup:
   return(ret);
 }
 
+int is_roaming_not_allowed(void)
+{
+  return(get_conf_int(NETWORK_ENTRY, NO_ROAMING_KEY));
+}

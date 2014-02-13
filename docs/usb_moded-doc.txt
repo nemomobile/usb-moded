@@ -356,3 +356,22 @@ Usb-moded supports a diagnostic mode. This requires a special command line param
 One mode should be configured in /etc/usb-moded/diag and this will be automatically used.
 This is a feature to allow for "hidden" or non-standard modes that are only of use for 
 testing/QA.
+
+USB tethering
+-------------
+
+Usb_moded can set up USB tethering. In the sense that it can share the connection of your device to a second one.
+Most common use case would be using USB tethering from a phone to a laptop.
+
+When compiled with ofono and connman support you can make the most of this. ofono can be used to detect roaming status.
+Connman for getting dns settings and interface from the modem connection.
+However it works also without it. It can be configured so that it knows what the interfaces are and get the dns info 
+from /etc/resolv.conf.
+
+For this are the 
+
+#define NETWORK_NAT_INTERFACE_KEY       "nat_interface"
+#define NO_ROAMING_KEY                  "noroaming"
+
+Network options. nat_interface documents which interfaces the internet facing modem. noroaming when set to 1
+will prohibit enabling the modem interface in case you are roaming (this requires ofono). 
