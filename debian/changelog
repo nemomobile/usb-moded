@@ -1,3 +1,14 @@
+usb-moded (0.78.4) unstable; urgency=low
+
+  * [usb-moded] Put ffs as first interface on USB
+  * Add noroaming config key and document USB tethering
+  * [usb-moded] Detect roaming state from ofono
+  * [packaging] Make sure the %preun and %post scripts do not fail.
+  * [usb-moded] Avoid potential crash when the DBUS system bus is not up/crashed/does not work
+  * Add reading dns info from /etc/resolv.conf
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Mon, 17 Feb 2014 16:53:37 +0200
+
 usb-moded (0.78.2) unstable; urgency=low
 
   * [usb-moded] check for more return states so we do not error out when we shouldn't
