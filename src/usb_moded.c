@@ -603,10 +603,17 @@ static void handle_exit(void)
 
 static void sigint_handler(int signum)
 {
+  struct mode_list_elem *data;
+
   if(signum == SIGINT)
 	handle_exit();
   if(signum == SIGHUP)
   {
+	/* clean up current mode */
+	data = get_usb_mode_data();
+	set_disconnected(data);
+	/* clear existing data to be sure */
+	set_usb_mode_data(NULL);	
 	/* free and read in modelist again */
 	free_mode_list(modelist);
 	modelist = read_mode_list(0);
