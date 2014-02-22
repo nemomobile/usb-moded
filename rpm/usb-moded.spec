@@ -180,6 +180,19 @@ system bus.
 
 This package contains the android at modem port mode config.
 
+%package host-mode-jolla
+Summary:  USB mode controller - host mode switch for Jolla
+Group:  Config
+
+%description host-mode-jolla
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains the config to switch the first Jolla phone 
+in host mode.
+
 %package defaults
 Summary: USB mode controller - default configuration
 Group: Config
@@ -363,3 +376,7 @@ systemctl daemon-reload || :
 %defattr(-,root,root,-)
 %{_sysconfdir}/usb-moded/dyn-modes/mass_storage_android.ini
 %{_sysconfdir}/usb-moded/mass-storage-jolla.ini
+
+%files host-mode-jolla
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/host_mode_jolla.ini
