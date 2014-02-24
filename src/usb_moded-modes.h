@@ -30,4 +30,4 @@
 #define MODE_MTP		"mtp_mode"
 #define MODE_CHARGER		"dedicated_charger"
 #define MODE_HOST		"host_mode"
-#define MODE_CONNECTION_SHARING "connection_charing"
+#define MODE_CONNECTION_SHARING "connection_sharing"
