@@ -613,7 +613,7 @@ static void sigint_handler(int signum)
 	data = get_usb_mode_data();
 	set_disconnected(data);
 	/* clear existing data to be sure */
-	set_usb_mode_data(NULL);	
+	set_usb_mode_data(NULL);
 	/* free and read in modelist again */
 	free_mode_list(modelist);
 	modelist = read_mode_list(0);

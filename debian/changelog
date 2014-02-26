@@ -1,3 +1,12 @@
+usb-moded (0.78.5) unstable; urgency=low
+
+  * Set new idProduct since the device will fail to be recognized correctly in Windows if used with the old one.
+  * Fix connection_sharing define. Thanks to lukedirtwalker for spotting it.
+  * [usb-moded] Add experimental host mode switching support
+  * [usb-moded] Set mode to undefined/disconnected, before re-reading usb mode configuration.
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Wed, 26 Feb 2014 18:06:29 +0200
+
 usb-moded (0.78.4) unstable; urgency=low
 
   * [usb-moded] Put ffs as first interface on USB
