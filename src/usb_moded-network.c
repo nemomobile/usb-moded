@@ -29,6 +29,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include <glib.h>
 
@@ -255,9 +259,11 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   FILE *conffile;
   const char *ip, *interface; 
   char *ipstart, *ipend;
-  int dot = 0, i = 0;
+  int dot = 0, i = 0, test;
+  struct stat st;
 
-  conffile = fopen("/etc/udhcpd.conf", "w");
+  /* /tmp is often tmpfs, so we avoid writing to flash */
+  conffile = fopen("/tmp/udhcpd.conf", "w");
   if(conffile == NULL)
   {
 	log_debug("Error creating /etc/udhcpd.conf!\n");
@@ -315,6 +321,25 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   free((char*)interface);
   fclose(conffile);
   log_debug("/etc/udhcpd.conf written.\n");
+
+  /* check if it is a symlink, if not remove and link, create the link if missing */
+  test = stat("/etc/udhcpd.conf", &st);
+  /* if stat fails there is no file or link */
+  if(test == -1)
+	goto link;
+  /* if it is not a link we remove it, else we expect the right link to be there */
+  if((st.st_mode & S_IFMT) != S_IFLNK)
+  {
+	unlink("/etc/udhcpcd.conf");
+  }
+  else
+	goto end;
+
+link:
+  symlink("/tmp/udhcpcd.conf", "/etc/udhcpcd.conf");
+
+end:
+
   return(0);
 }
 
