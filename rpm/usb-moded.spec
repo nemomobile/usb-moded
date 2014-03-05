@@ -280,6 +280,7 @@ install -m 644 -D config/run/* %{buildroot}/%{_sysconfdir}/usb-moded/run/
 install -m 644 -D config/mass-storage-jolla.ini %{buildroot}/%{_sysconfdir}/usb-moded/
 install -d $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/
 ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/%{name}.service
+touch %{_sysconfdir}/modprobe.d/g_ether.conf
 # Sync mode not packaged for now.
 rm %{buildroot}/etc/usb-moded/dyn-modes/sync_mode.ini
 
@@ -295,6 +296,7 @@ systemctl daemon-reload || :
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/usb_moded.conf
 %config(noreplace) %{_sysconfdir}/gconf/schemas/%{name}.schemas
 %config(noreplace) %{_sysconfdir}/modprobe.d/usb_moded.conf
+%ghost %config(noreplace) %{_sysconfdir}/modprobe.d/g_ether.conf
 %{_sbindir}/usb_moded
 %{_sbindir}/usb_moded_util
 %{_mandir}/man1/usb-moded.1.gz
