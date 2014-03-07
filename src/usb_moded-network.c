@@ -330,13 +330,13 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   /* if it is not a link we remove it, else we expect the right link to be there */
   if((st.st_mode & S_IFMT) != S_IFLNK)
   {
-	unlink("/etc/udhcpcd.conf");
+	unlink("/etc/udhcpd.conf");
   }
   else
 	goto end;
 
 link:
-  symlink("/tmp/udhcpcd.conf", "/etc/udhcpcd.conf");
+  symlink("/tmp/udhcpd.conf", "/etc/udhcpd.conf");
 
 end:
 
