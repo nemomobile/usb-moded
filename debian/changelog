@@ -1,3 +1,10 @@
+usb-moded (0.78.6) unstable; urgency=low
+
+  * [usb-moded] Ghost /etc/modprobe.d/g_ether.conf in the spec file. Fixes: JB#16574
+  * Write udhcp config to /tmp (which is tmpfs) and link to /etc/ to avoid spurious writes to flash
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Fri, 07 Mar 2014 17:07:19 +0200
+
 usb-moded (0.78.5) unstable; urgency=low
 
   * Set new idProduct since the device will fail to be recognized correctly in Windows if used with the old one.
