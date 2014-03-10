@@ -19,7 +19,8 @@
   02110-1301 USA
 */
 
-#define CONF_DIR_PATH	"/etc/usb-moded/run"
+#define CONF_DIR_PATH		"/etc/usb-moded/run"
+#define CONF_DIR_DIAG_PATH	"/etc/usb-moded/run-diag"
 
 #define APP_INFO_ENTRY		"info"
 #define APP_INFO_MODE_KEY	"mode"
@@ -45,7 +46,7 @@ typedef struct list_elem
   /*@}*/
 }list_elem;
 
-void readlist(void);
+void readlist(int diag);
 int activate_sync(const char *mode);
 int activate_sync_post(const char *mode);
 int mark_active(const gchar *name);

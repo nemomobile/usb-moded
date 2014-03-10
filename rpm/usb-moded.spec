@@ -272,11 +272,13 @@ install -m 644 -D %{SOURCE2} %{buildroot}/%{_sysconfdir}/modprobe.d/usb_moded.co
 install -m 644 -D %{SOURCE1} %{buildroot}/lib/systemd/system/%{name}.service
 install -d %{buildroot}/%{_sysconfdir}/usb-moded
 install -d %{buildroot}/%{_sysconfdir}/usb-moded/run
+install -d %{buildroot}/%{_sysconfdir}/usb-moded/run-diag
 install -d %{buildroot}/%{_sysconfdir}/usb-moded/dyn-modes
 install -d %{buildroot}/%{_sysconfdir}/usb-moded/diag
 install -m 644 -D config/dyn-modes/* %{buildroot}/%{_sysconfdir}/usb-moded/dyn-modes/
 install -m 644 -D config/diag/* %{buildroot}/%{_sysconfdir}/usb-moded/diag/
 install -m 644 -D config/run/* %{buildroot}/%{_sysconfdir}/usb-moded/run/
+install -m 644 -D config/run-diag/* %{buildroot}/%{_sysconfdir}/usb-moded/run-diag/
 install -m 644 -D config/mass-storage-jolla.ini %{buildroot}/%{_sysconfdir}/usb-moded/
 install -d $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/
 ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/%{name}.service
@@ -367,7 +369,7 @@ systemctl daemon-reload || :
 %files diagnostics-config
 %defattr(-,root,root,-)
 %{_sysconfdir}/usb-moded/diag/qa_diagnostic_mode.ini
-%{_sysconfdir}/usb-moded/run/qa-diagnostic.ini
+%{_sysconfdir}/usb-moded/run-diag/qa-diagnostic.ini
 
 %files connection-sharing-android-config
 %defattr(-,root,root,-)

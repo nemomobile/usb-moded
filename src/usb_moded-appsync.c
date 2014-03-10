@@ -77,7 +77,7 @@ void free_appsync_list(void)
   }
 }
 
-void readlist(void)
+void readlist(int diag)
 {
   GDir *confdir = 0;
 
@@ -86,8 +86,16 @@ void readlist(void)
 
   free_appsync_list();
 
-  if( !(confdir = g_dir_open(CONF_DIR_PATH, 0, NULL)) )
-    goto cleanup;
+  if(diag)
+  {
+    if( !(confdir = g_dir_open(CONF_DIR_DIAG_PATH, 0, NULL)) )
+	goto cleanup;
+  }
+  else
+  {
+    if( !(confdir = g_dir_open(CONF_DIR_PATH, 0, NULL)) )
+	goto cleanup;
+  }
 
   while( (dirname = g_dir_read_name(confdir)) )
   {
