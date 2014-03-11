@@ -587,7 +587,8 @@ static void handle_exit(void)
   usb_moded_appsync_cleanup();
 #endif /* APP_SYNC_DBUS */
 #endif /* APP_SYNC */
-  dbus_shutdown();
+  /* dbus_shutdown(); This causes exit(1) and don't seem
+     to behave as documented */
 
   /* If the mainloop is initialised, unreference it */
   if (mainloop != NULL)
@@ -598,6 +599,8 @@ static void handle_exit(void)
   free((void *)current_mode.mode);
   free((void *)current_mode.module);
 
+  log_debug("All resources freed. Exiting!\n");
+
   exit(0);
 }
 
@@ -605,7 +608,7 @@ static void sigint_handler(int signum)
 {
   struct mode_list_elem *data;
 
-  if(signum == SIGINT)
+  if(signum == SIGINT || signum == SIGTERM)
 	handle_exit();
   if(signum == SIGHUP)
   {
@@ -747,6 +750,7 @@ int main(int argc, char* argv[])
 
 	/* signal handling */
 	signal(SIGINT, sigint_handler);
+	signal(SIGTERM, sigint_handler);
 	signal(SIGHUP, sigint_handler);
 
 #ifdef SYSTEMD
