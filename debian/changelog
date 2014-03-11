@@ -1,3 +1,11 @@
+usb-moded (0.78.7) unstable; urgency=low
+
+  * [usb-moded] Sort modes alphabetically when reading. JB#15436
+  * [usb-moded] Split of appsync for diag mode also. It's cleaner that way.
+  * [usb-moded] Improve exit handling
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Tue, 11 Mar 2014 17:59:53 +0200
+
 usb-moded (0.78.6) unstable; urgency=low
 
   * [usb-moded] Ghost /etc/modprobe.d/g_ether.conf in the spec file. Fixes: JB#16574
