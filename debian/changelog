@@ -1,5 +1,11 @@
 usb-moded (0.78.7) unstable; urgency=low
 
+  * [usb-moded] Fix diag mode synclist to read files from the right location
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Tue, 11 Mar 2014 18:33:12 +0200
+
+usb-moded (0.78.7) unstable; urgency=low
+
   * [usb-moded] Sort modes alphabetically when reading. JB#15436
   * [usb-moded] Split of appsync for diag mode also. It's cleaner that way.
   * [usb-moded] Improve exit handling
