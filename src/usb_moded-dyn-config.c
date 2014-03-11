@@ -62,6 +62,14 @@ void free_mode_list(GList *modelist)
   }
 }
 
+static gint compare_modes(gconstpointer a, gconstpointer b)
+{
+  struct mode_list_elem *aa = (struct mode_list_elem *)a;
+  struct mode_list_elem *bb = (struct mode_list_elem *)b;
+
+  return g_strcmp0(aa->mode_name, bb->mode_name);
+}
+
 GList *read_mode_list(int diag)
 {
   GDir *confdir;
@@ -93,6 +101,8 @@ GList *read_mode_list(int diag)
   }
   else
 	  log_debug("Mode confdir open failed or file is incomplete/invalid.\n");
+
+  g_list_sort (modelist, compare_modes);
   return(modelist);
 }
 
