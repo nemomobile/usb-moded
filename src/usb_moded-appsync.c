@@ -41,7 +41,7 @@
 #include "usb_moded-upstart.h"
 #include "usb_moded-systemd.h"
 
-static struct list_elem *read_file(const gchar *filename);
+static struct list_elem *read_file(const gchar *filename, int diag);
 static gboolean enumerate_usb(gpointer data);
 
 static GList *sync_list = NULL;
@@ -100,7 +100,7 @@ void readlist(int diag)
   while( (dirname = g_dir_read_name(confdir)) )
   {
     log_debug("Read file %s\n", dirname);
-    if( (list_item = read_file(dirname)) )
+    if( (list_item = read_file(dirname, diag)) )
       sync_list = g_list_append(sync_list, list_item);
   }
 
@@ -120,14 +120,22 @@ cleanup:
   }
 }
 
-static struct list_elem *read_file(const gchar *filename)
+static struct list_elem *read_file(const gchar *filename, int diag)
 {
   gchar *full_filename = NULL;
   GKeyFile *settingsfile = NULL;
   struct list_elem *list_item = NULL;
 
-  if( !(full_filename = g_strconcat(CONF_DIR_PATH, "/", filename, NULL)) )
-    goto cleanup;
+  if(diag)
+  {
+    if( !(full_filename = g_strconcat(CONF_DIR_DIAG_PATH, "/", filename, NULL)) )
+	goto cleanup;
+  }
+  else
+  {
+    if( !(full_filename = g_strconcat(CONF_DIR_PATH, "/", filename, NULL)) )
+	goto cleanup;
+  }
 
   if( !(settingsfile = g_key_file_new()) )
     goto cleanup;
