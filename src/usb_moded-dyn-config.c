@@ -102,7 +102,7 @@ GList *read_mode_list(int diag)
   else
 	  log_debug("Mode confdir open failed or file is incomplete/invalid.\n");
 
-  g_list_sort (modelist, compare_modes);
+  modelist = g_list_sort (modelist, compare_modes);
   return(modelist);
 }
 
