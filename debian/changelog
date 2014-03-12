@@ -1,5 +1,11 @@
 usb-moded (0.78.7) unstable; urgency=low
 
+  * [usb-moded] Correctly return the modelist start after sorting
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Wed, 12 Mar 2014 12:06:30 +0200
+
+usb-moded (0.78.7) unstable; urgency=low
+
   * [usb-moded] Fix diag mode synclist to read files from the right location
 
  -- Philippe De Swert <philippe.deswert@jolla.com>  Tue, 11 Mar 2014 18:33:12 +0200
