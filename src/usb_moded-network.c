@@ -96,17 +96,22 @@ static char* get_interface(struct mode_list_elem *data)
 
 /**
  * Turn on ip forwarding on the usb interface
+ * @return: 0 on success, 1 on failure
  */
-static void set_usb_ip_forward(struct mode_list_elem *data, struct ipforward_data *ipforward)
+static int set_usb_ip_forward(struct mode_list_elem *data, struct ipforward_data *ipforward)
 {
   const char *interface, *nat_interface;
   char command[128];
 
   interface = get_interface(data);
   nat_interface = get_network_nat_interface();
-  if(nat_interface == NULL)
+  if((nat_interface == NULL) && (ipforward->nat_interface != NULL))
 	nat_interface = strdup(ipforward->nat_interface);
-
+  else
+  {
+	log_debug("No nat interface available!\n");
+	return(1);
+  }
   write_to_file("/proc/sys/net/ipv4/ip_forward", "1");
   snprintf(command, 128, "/sbin/iptables -t nat -A POSTROUTING -o %s -j MASQUERADE", nat_interface);
   system(command);
@@ -120,6 +125,7 @@ static void set_usb_ip_forward(struct mode_list_elem *data, struct ipforward_dat
   free((char *)interface);
   free((char *)nat_interface);
   log_debug("ipforwarding success!\n");
+  return(0);
 }
 
 /** 
@@ -613,9 +619,7 @@ int usb_network_set_up_dhcpd(struct mode_list_elem *data)
   write_udhcpd_conf(ipforward, data);
 
   if(data->nat)
-	set_usb_ip_forward(data, ipforward);
-  ret = 0;
-
+	ret = set_usb_ip_forward(data, ipforward);
 
 end:
   /* the function checks if ipforward is NULL or not */
