@@ -27,6 +27,7 @@
 #define USB_MODE_OBJECT			"/com/meego/usb_moded"
 #define USB_MODE_SIGNAL_NAME		"sig_usb_state_ind"
 #define USB_MODE_ERROR_SIGNAL_NAME	"sig_usb_state_error_ind"
+#define USB_MODE_SUPPORTED_MODES_SIGNAL_NAME "sig_usb_supported_modes_ind"
 
 /* supported methods */
 #define USB_MODE_STATE_REQUEST	"mode_request"

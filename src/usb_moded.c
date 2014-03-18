@@ -87,6 +87,7 @@ static gboolean set_disconnected(gpointer data);
 static void usb_moded_init(void);
 static gboolean charging_fallback(gpointer data);
 static void usage(void);
+static void send_supported_modes_signal(void);
 
 
 /* ============= Implementation starts here =========================================== */
@@ -620,6 +621,8 @@ static void sigint_handler(int signum)
 	/* free and read in modelist again */
 	free_mode_list(modelist);
 	modelist = read_mode_list(0);
+
+    send_supported_modes_signal();
   }
 }
 
@@ -642,6 +645,14 @@ static void usage(void)
 #endif
                   "  -v,  --version       output version information and exit\n"
                   "\n");
+}
+
+static void send_supported_modes_signal(void)
+{
+    /* Send supported modes signal */
+    gchar *mode_list = get_mode_list();
+    usb_moded_send_supported_modes_signal(mode_list);
+    g_free(mode_list);
 }
 
 int main(int argc, char* argv[])
@@ -761,6 +772,8 @@ int main(int argc, char* argv[])
 		sd_notify(0, "READY=1");
 	}
 #endif /* SYSTEMD */
+
+    send_supported_modes_signal();
 
 	/* init succesful, run main loop */
 	result = EXIT_SUCCESS;  

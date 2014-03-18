@@ -375,3 +375,39 @@ EXIT:
 
   return result;
 }
+
+int usb_moded_send_supported_modes_signal(const char *supported_modes)
+{
+  int result = 1;
+  DBusMessage* msg = 0;
+
+  // create a signal and check for errors
+  msg = dbus_message_new_signal(USB_MODE_OBJECT, USB_MODE_INTERFACE, USB_MODE_SUPPORTED_MODES_SIGNAL_NAME);
+  if (NULL == msg)
+  {
+      log_debug("Message Null\n");
+      goto EXIT;
+  }
+
+  // append arguments onto signal
+  if (!dbus_message_append_args(msg, DBUS_TYPE_STRING, &supported_modes, DBUS_TYPE_INVALID))
+  {
+      log_debug("Appending arguments failed. Out Of Memory!\n");
+      goto EXIT;
+  }
+
+  // send the message on the correct bus and flush the connection
+  if (!dbus_connection_send(dbus_connection_sys, msg, 0))
+  {
+    log_debug("Failed sending message. Out Of Memory!\n");
+    goto EXIT;
+  }
+  result = 0;
+
+EXIT:
+  // free the message
+  if(msg != 0)
+      dbus_message_unref(msg);
+
+  return result;
+}
