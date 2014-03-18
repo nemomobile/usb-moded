@@ -298,6 +298,49 @@ void usb_moded_dbus_cleanup(void)
 }
 
 /**
+ * Helper function for sending the different signals
+ *
+ * @return 1 on success, 0 on failure
+ * @param signal_type the type of signal (normal, error, ...)
+ * @@param content string which can be mode name, error, list of modes, ...
+*/
+static int usb_moded_dbus_signal(const char *signal_type, const char *content)
+{
+  int result = 1;
+  DBusMessage* msg = 0;
+
+  // create a signal and check for errors 
+  msg = dbus_message_new_signal(USB_MODE_OBJECT, USB_MODE_INTERFACE, signal_type );
+  if (NULL == msg) 
+  { 
+      log_debug("Message Null\n"); 
+      goto EXIT;
+   }
+
+  // append arguments onto signal
+  if (!dbus_message_append_args(msg, DBUS_TYPE_STRING, &content, DBUS_TYPE_INVALID)) 
+  { 
+      log_debug("Appending arguments failed. Out Of Memory!\n"); 
+      goto EXIT;
+  }
+
+  // send the message on the correct bus  and flush the connection
+  if (!dbus_connection_send(dbus_connection_sys, msg, 0)) 
+  {
+ 	log_debug("Failed sending message. Out Of Memory!\n");
+	goto EXIT;
+  }
+  result = 0;
+
+EXIT:   
+  // free the message 
+  if(msg != 0)
+	  dbus_message_unref(msg);
+
+  return result;
+}
+
+/**
  * Send regular usb_moded state signal
  *
  * @return 1 on success, 0 on failure
@@ -306,108 +349,29 @@ void usb_moded_dbus_cleanup(void)
 */
 int usb_moded_send_signal(const char *state_ind)
 {
-  int result = 1;
-  DBusMessage* msg = 0;
-
-  // create a signal and check for errors 
-  msg = dbus_message_new_signal(USB_MODE_OBJECT, USB_MODE_INTERFACE, USB_MODE_SIGNAL_NAME );
-  if (NULL == msg) 
-  { 
-      log_debug("Message Null\n"); 
-      goto EXIT;
-   }
-
-  // append arguments onto signal
-  if (!dbus_message_append_args(msg, DBUS_TYPE_STRING, &state_ind, DBUS_TYPE_INVALID)) 
-  { 
-      log_debug("Appending arguments failed. Out Of Memory!\n"); 
-      goto EXIT;
-  }
-
-  // send the message on the correct bus  and flush the connection
-  if (!dbus_connection_send(dbus_connection_sys, msg, 0)) 
-  {
- 	log_debug("Failed sending message. Out Of Memory!\n");
-	goto EXIT;
-  }
-  result = 0;
-
-EXIT:   
-  // free the message 
-  if(msg != 0)
-	  dbus_message_unref(msg);
-
-  return result;
+  return(usb_moded_dbus_signal(USB_MODE_SIGNAL_NAME, state_ind));
 }
 
+/**
+ * Send regular usb_moded error signal
+ *
+ * @return 1 on success, 0 on failure
+ * @param state_ind the signal name
+ *
+*/
 int usb_moded_send_error_signal(const char *error)
 {
-  int result = 1;
-  DBusMessage* msg = 0;
-
-  // create a signal and check for errors 
-  msg = dbus_message_new_signal(USB_MODE_OBJECT, USB_MODE_INTERFACE, USB_MODE_ERROR_SIGNAL_NAME );
-  if (NULL == msg) 
-  { 
-      log_debug("Message Null\n"); 
-      goto EXIT;
-   }
-
-  // append arguments onto signal
-  if (!dbus_message_append_args(msg, DBUS_TYPE_STRING, &error, DBUS_TYPE_INVALID)) 
-  { 
-      log_debug("Appending arguments failed. Out Of Memory!\n"); 
-      goto EXIT;
-  }
-
-  // send the message on the correct bus  and flush the connection
-  if (!dbus_connection_send(dbus_connection_sys, msg, 0)) 
-  {
- 	log_debug("Failed sending message. Out Of Memory!\n");
-	goto EXIT;
-  }
-  result = 0;
-
-EXIT:   
-  // free the message 
-  if(msg != 0)
-	  dbus_message_unref(msg);
-
-  return result;
+  return(usb_moded_dbus_signal(USB_MODE_ERROR_SIGNAL_NAME, error));
 }
 
+/**
+ * Send regular usb_moded mode list signal
+ *
+ * @return 1 on success, 0 on failure
+ * @param state_ind the signal name
+ *
+*/
 int usb_moded_send_supported_modes_signal(const char *supported_modes)
 {
-  int result = 1;
-  DBusMessage* msg = 0;
-
-  // create a signal and check for errors
-  msg = dbus_message_new_signal(USB_MODE_OBJECT, USB_MODE_INTERFACE, USB_MODE_SUPPORTED_MODES_SIGNAL_NAME);
-  if (NULL == msg)
-  {
-      log_debug("Message Null\n");
-      goto EXIT;
-  }
-
-  // append arguments onto signal
-  if (!dbus_message_append_args(msg, DBUS_TYPE_STRING, &supported_modes, DBUS_TYPE_INVALID))
-  {
-      log_debug("Appending arguments failed. Out Of Memory!\n");
-      goto EXIT;
-  }
-
-  // send the message on the correct bus and flush the connection
-  if (!dbus_connection_send(dbus_connection_sys, msg, 0))
-  {
-    log_debug("Failed sending message. Out Of Memory!\n");
-    goto EXIT;
-  }
-  result = 0;
-
-EXIT:
-  // free the message
-  if(msg != 0)
-      dbus_message_unref(msg);
-
-  return result;
+  return(usb_moded_dbus_signal(USB_MODE_SUPPORTED_MODES_SIGNAL_NAME, supported_modes));
 }
