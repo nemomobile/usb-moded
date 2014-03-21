@@ -407,9 +407,10 @@ gchar *get_mode_list(void)
 
   modelist_str = g_string_new(NULL);
 
+  if(!diag_mode)
   {
     /* check dynamic modes */
-    if(modelist && !diag_mode)
+    if(modelist)
     {
       GList *iter;
 
@@ -420,16 +421,17 @@ gchar *get_mode_list(void)
 	modelist_str = g_string_append(modelist_str, ", ");
       }
     }
-    else
-    {
-	/* diag mode. there is only one active mode */
-	g_string_append(modelist_str, MODE_DIAG);
-	return(g_string_free(modelist_str, FALSE));
-    }
+
+    /* end with charging mode */
+    g_string_append(modelist_str, MODE_CHARGING);
+    return(g_string_free(modelist_str, FALSE));
   }
-  /* end with charging mode */
-  g_string_append(modelist_str, MODE_CHARGING);
-  return(g_string_free(modelist_str, FALSE));
+  else
+  {
+    /* diag mode. there is only one active mode */
+    g_string_append(modelist_str, MODE_DIAG);
+    return(g_string_free(modelist_str, FALSE));
+  }
 }
 
 /** get the usb mode 
@@ -626,7 +628,8 @@ static void sigint_handler(int signum)
 	set_usb_mode_data(NULL);
 	/* free and read in modelist again */
 	free_mode_list(modelist);
-	modelist = read_mode_list(0);
+
+	modelist = read_mode_list(diag_mode);
 
         send_supported_modes_signal();
   }
