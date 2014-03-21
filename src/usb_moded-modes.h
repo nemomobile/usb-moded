@@ -31,3 +31,4 @@
 #define MODE_CHARGER		"dedicated_charger"
 #define MODE_HOST		"host_mode"
 #define MODE_CONNECTION_SHARING "connection_sharing"
+#define MODE_DIAG		"qa_diag_mode"

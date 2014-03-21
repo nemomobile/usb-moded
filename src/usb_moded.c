@@ -409,7 +409,7 @@ gchar *get_mode_list(void)
 
   {
     /* check dynamic modes */
-    if(modelist)
+    if(modelist && !diag_mode)
     {
       GList *iter;
 
@@ -419,6 +419,12 @@ gchar *get_mode_list(void)
 	modelist_str = g_string_append(modelist_str, data->mode_name);
 	modelist_str = g_string_append(modelist_str, ", ");
       }
+    }
+    else
+    {
+	/* diag mode. there is only one active mode */
+	g_string_append(modelist_str, MODE_DIAG);
+	return(g_string_free(modelist_str, FALSE));
     }
   }
   /* end with charging mode */
@@ -622,7 +628,7 @@ static void sigint_handler(int signum)
 	free_mode_list(modelist);
 	modelist = read_mode_list(0);
 
-    send_supported_modes_signal();
+        send_supported_modes_signal();
   }
 }
 
