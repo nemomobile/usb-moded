@@ -300,7 +300,7 @@ void usb_moded_dbus_cleanup(void)
 /**
  * Helper function for sending the different signals
  *
- * @return 1 on success, 0 on failure
+ * @return 0 on success, 1 on failure
  * @param signal_type the type of signal (normal, error, ...)
  * @@param content string which can be mode name, error, list of modes, ...
 */
@@ -343,7 +343,7 @@ EXIT:
 /**
  * Send regular usb_moded state signal
  *
- * @return 1 on success, 0 on failure
+ * @return 0 on success, 1 on failure
  * @param state_ind the signal name
  *
 */
@@ -355,7 +355,7 @@ int usb_moded_send_signal(const char *state_ind)
 /**
  * Send regular usb_moded error signal
  *
- * @return 1 on success, 0 on failure
+ * @return 0 on success, 1 on failure
  * @param state_ind the signal name
  *
 */
@@ -367,7 +367,7 @@ int usb_moded_send_error_signal(const char *error)
 /**
  * Send regular usb_moded mode list signal
  *
- * @return 1 on success, 0 on failure
+ * @return 0 on success, 1 on failure
  * @param state_ind the signal name
  *
 */
