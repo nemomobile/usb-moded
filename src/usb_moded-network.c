@@ -110,6 +110,7 @@ static int set_usb_ip_forward(struct mode_list_elem *data, struct ipforward_data
   else
   {
 	log_debug("No nat interface available!\n");
+	free((char *)interface);
 	return(1);
   }
   write_to_file("/proc/sys/net/ipv4/ip_forward", "1");
