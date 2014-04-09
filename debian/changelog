@@ -1,3 +1,13 @@
+usb-moded (0.79.1) unstable; urgency=low
+
+  * [usb-moded] Check return of the dhcp config write
+  * Fix up comment about the post synching to avoid confusion in the future.
+  * [usb-moded] Fix up some typos and assign another id to connection sharing mode
+  * Fix a potential memory leak found with coverity. Fixes: CID#1197129
+  * Make signal handling async-signal-safe
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Wed, 09 Apr 2014 16:40:08 +0300
+
 usb-moded (0.79) unstable; urgency=low
 
   * [usb-moded] Only report diag mode when started in diag mode with -d. Contributes: JB#13491
