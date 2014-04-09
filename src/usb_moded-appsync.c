@@ -236,7 +236,7 @@ int activate_sync(const char *mode)
     struct list_elem *data = iter->data;
     if(!strcmp(mode, data->mode))
     {
-      /* launch items marked as post, will be launched after usb is up */
+      /* do not launch items marked as post, will be launched after usb is up */
       if(data->post)
       {
 	mark_active(data->name);
