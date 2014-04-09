@@ -617,7 +617,7 @@ int usb_network_set_up_dhcpd(struct mode_list_elem *data)
 #endif /*CONNMAN */
   }
   /* ipforward can be NULL here, which is expected and handled in this function */
-  write_udhcpd_conf(ipforward, data);
+  ret = write_udhcpd_conf(ipforward, data);
 
   if(data->nat)
 	ret = set_usb_ip_forward(data, ipforward);
