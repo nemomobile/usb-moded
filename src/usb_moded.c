@@ -291,7 +291,7 @@ void set_usb_mode(const char *mode)
   {
 	export = usb_moded_get_export_permission();
 
-	if(export)
+	if(export && strcmp(mode, MODE_CHARGING))
 	{
 		log_debug("Secondary device lock check failed. Not setting mode!\n");
 		goto end;
