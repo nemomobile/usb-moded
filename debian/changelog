@@ -1,3 +1,10 @@
+usb-moded (0.79.2) unstable; urgency=low
+  
+  * Add -HUP functionality to the systemd service file
+  * [usb-moded] Skip second devicelock check of we go to charging only. Fixes: JB#17241
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Thu, 17 Apr 2014 16:33:08 +0300
+
 usb-moded (0.79.1) unstable; urgency=low
 
   * [usb-moded] Check return of the dhcp config write
