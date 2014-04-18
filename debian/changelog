@@ -1,3 +1,9 @@
+usb-moded (0.79.3) unstable; urgency=low
+
+  * Correct all softconnect_disconnect typo's
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Fri, 18 Apr 2014 22:15:20 +0300
+
 usb-moded (0.79.2) unstable; urgency=low
   
   * Add -HUP functionality to the systemd service file
