@@ -38,7 +38,7 @@
 #define MODE_SYSFS_VALUE		"sysfs_value"
 #define MODE_SYSFS_RESET_VALUE		"sysfs_reset_value"
 #define MODE_SOFTCONNECT		"softconnect"
-#define MODE_SOFTCONNECT_DISCONNECT	"softconnec_disconnect"
+#define MODE_SOFTCONNECT_DISCONNECT	"softconnect_disconnect"
 #define MODE_SOFTCONNECT_PATH		"softconnect_path"
 /* Instead of hard-coding values that never change or have only one option, 
 android engineers prefered to have sysfs entries... go figure... */
