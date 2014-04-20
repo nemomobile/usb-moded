@@ -746,6 +746,8 @@ int usb_network_update(void)
 	return(0);
 
   data = get_usb_mode_data();
+  if(data == NULL)
+	return(0);
   if(data->network)
   {
 	usb_network_down(data);	

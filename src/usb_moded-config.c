@@ -44,6 +44,22 @@ static int get_conf_int(const gchar *entry, const gchar *key);
 static const char * get_conf_string(const gchar *entry, const gchar *key);
 static const char * get_kcmdline_string(const char *entry);
 
+static int validate_ip(const char *ipadd)
+{
+  unsigned int b1, b2, b3, b4;
+  unsigned char c;
+
+  if (sscanf(ipadd, "%3u.%3u.%3u.%3u%c", &b1, &b2, &b3, &b4, &c) != 4)
+        return(-1);
+
+  if ((b1 | b2 | b3 | b4) > 255)
+        return(-1);
+  if (strspn(ipadd, "0123456789.") < strlen(ipadd))
+        return(-1);
+  /* all ok */
+  return 0;
+}
+
 const char *find_mounts(void)
 {
   
@@ -124,7 +140,8 @@ const char * get_network_ip(void)
 {
   const char * ip = get_kcmdline_string(NETWORK_IP_KEY);
   if (ip != NULL)
-    return(ip);
+    if(!validate_ip(ip))
+	return(ip);
 
   return(get_conf_string(NETWORK_ENTRY, NETWORK_IP_KEY));
 }
@@ -362,12 +379,20 @@ int set_mode_setting(const char *mode)
   return (set_config_setting(MODE_SETTING_ENTRY, MODE_SETTING_KEY, mode));
 }
 
+/*
+ * @param config : the key to be set
+ * @param setting : The value to be set
+ */
 int set_network_setting(const char *config, const char *setting)
 {
   GKeyFile *settingsfile;
   gboolean test = FALSE;
   int ret = 0; 
   gchar *keyfile;
+
+  if(!strcmp(config, NETWORK_IP_KEY) || !strcmp(config, NETWORK_GATEWAY_KEY))
+	if(validate_ip(setting) != 0)
+		return(1);
 
   settingsfile = g_key_file_new();
   test = g_key_file_load_from_file(settingsfile, FS_MOUNT_CONFIG_FILE, G_KEY_FILE_NONE, NULL);
