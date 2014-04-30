@@ -84,6 +84,7 @@ static GList *modelist;
 
 /* static helper functions */
 static gboolean set_disconnected(gpointer data);
+static gboolean set_disconnected_silent(gpointer data);
 static void usb_moded_init(void);
 static gboolean charging_fallback(gpointer data);
 static void usage(void);
@@ -161,6 +162,24 @@ static gboolean set_disconnected(gpointer data)
 	
 	}
   return FALSE;
+}
+
+/* set disconnected without sending signals. */
+static gboolean set_disconnected_silent(gpointer data)
+{
+if(!get_usb_connection_state())
+        {
+                log_debug("Resetting connection data after HUP\n");
+                /* unload modules and general cleanup if not charging */
+                if(strcmp(get_usb_mode(), MODE_CHARGING))
+                        usb_moded_mode_cleanup(get_usb_module());
+                /* Nothing else as we do not need to do anything for cleaning up charging mode */
+                usb_moded_module_cleanup(get_usb_module());
+                set_usb_mode(MODE_UNDEFINED);
+                charging_mode_set = FALSE;
+        }
+  return FALSE;
+
 }
 
 /** set and track charger state
@@ -623,7 +642,7 @@ static void sigint_handler(int signum)
   {
 	/* clean up current mode */
 	data = get_usb_mode_data();
-	set_disconnected(data);
+	set_disconnected_silent(data);
 	/* clear existing data to be sure */
 	set_usb_mode_data(NULL);
 	/* free and read in modelist again */
@@ -941,7 +960,7 @@ int main(int argc, char* argv[])
 	}
 #endif /* SYSTEMD */
 
-    send_supported_modes_signal();
+        send_supported_modes_signal();
 
 	/* init succesful, run main loop */
 	result = EXIT_SUCCESS;  
