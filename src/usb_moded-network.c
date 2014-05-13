@@ -354,7 +354,7 @@ end:
 /**
  * Connman message handling
  */
-static const char * connman_parse_manager_reply(DBusMessage *reply)
+static const char * connman_parse_manager_reply(DBusMessage *reply, const char *req_service)
 {
   DBusMessageIter iter, subiter, origiter;
   int type;
@@ -378,9 +378,9 @@ static const char * connman_parse_manager_reply(DBusMessage *reply)
 		{
 			dbus_message_iter_get_basic(&iter, &service);
 			log_debug("service = %s\n", service);
-			if(strstr(service, "cellular"))
+			if(strstr(service, req_service))
 			{
-				log_debug("cellular service found!\n");
+				log_debug("%s service found!\n", req_service);
 				return(strdup(service));
 			}
 			iter = origiter;
@@ -501,20 +501,45 @@ static int connman_fill_connection_data(DBusMessage *reply, struct ipforward_dat
 /**
  * Turn on cellular connection if it is not on 
  */
-static int connman_set_cellular_online(DBusConnection *dbus_conn_connman, const char *service)
+static int connman_set_cellular_online(DBusConnection *dbus_conn_connman, const char *service, int retry)
 {
-  DBusMessage *msg = NULL;
+  DBusMessage *msg = NULL, *reply;
   DBusError error;
   int ret = 0;
+  const char *wifi = NULL;
 
   dbus_error_init(&error);
 
+  if(!retry)
+  {
+	if ((msg = dbus_message_new_method_call("net.connman", "/", "net.connman.Manager", "GetServices")) != NULL)
+	{
+		if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_connman, msg, -1, NULL)) != NULL)
+		{
+		  wifi = connman_parse_manager_reply(reply, "wifi");
+		  dbus_message_unref(reply);
+		}
+		dbus_message_unref(msg);
+	}
+
+	if(wifi != NULL)
+	{
+		/* we must make sure that wifi is disconnected as sometimes cellular will not come up otherwise */
+		if ((msg = dbus_message_new_method_call("net.connman", wifi, "net.connman.Service", "Disconnect")) != NULL)
+		{
+		  /* we don't care for the reply, which is empty anyway if all goes well */
+		  ret = !dbus_connection_send(dbus_conn_connman, msg, NULL);
+		  dbus_connection_flush(dbus_conn_connman);
+		  dbus_message_unref(msg);
+		}
+	}
+  }
   if ((msg = dbus_message_new_method_call("net.connman", service, "net.connman.Service", "Connect")) != NULL)
   {
 	/* we don't care for the reply, which is empty anyway if all goes well */
         ret = !dbus_connection_send(dbus_conn_connman, msg, NULL);
 	/* sleep for the connection to come up */
-	sleep(3);
+	sleep(5);
 	/* make sure the message is sent before cleaning up and closing the connection */
 	dbus_connection_flush(dbus_conn_connman);
         dbus_message_unref(msg);
@@ -543,7 +568,7 @@ static int connman_get_connection_data(struct ipforward_data *ipforward)
   {
         if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_connman, msg, -1, NULL)) != NULL)
         {
-	    service = connman_parse_manager_reply(reply);
+	    service = connman_parse_manager_reply(reply, "cellular");
             dbus_message_unref(reply);
         }
         dbus_message_unref(msg);
@@ -559,7 +584,7 @@ try_again:
 		{
 			if(connman_fill_connection_data(reply, ipforward))
 			{
-				if(!connman_set_cellular_online(dbus_conn_connman, service) && !online)
+				if(!connman_set_cellular_online(dbus_conn_connman, service, online) && !online)
 				{
 					online = 1;
 					goto try_again;
