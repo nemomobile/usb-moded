@@ -36,7 +36,7 @@ Similary a mode can be set.
 
 dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.set_mode string:'<mode_name>'
 
-Even the configuration can be set over DBus (this will set either the gconf key or use the settings file)
+Even the configuration can be set over DBus
 
 dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.set_config string:'<mode_name>'
 
@@ -47,17 +47,6 @@ dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /
 The supported modes can be queried over dbus as follows:
 
 dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.get_modes
-
-=== WITH GCONF ONLY === 
-
-However this can also be optionally handled by setting the following GConf key (gconf has to be compiled in).
-
-/Meego/System/UsbMode (querying and setting can be done as follows:
-
-gconftool-2 -g /Meego/System/UsbMode
-gconftool-2 -s /Meego/System/UsbMode --type=string <mode_name>
-
-=== END WITH GCONF ONLY === 
 
 Usb_moded will also broadcast changes and errors over the system bus.
 This will happen on the com.meego.usb_moded interface

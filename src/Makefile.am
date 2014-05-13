@@ -36,12 +36,6 @@ usb_moded_SOURCES = \
 	usb_moded-android.h \
 	usb_moded-android.c
 
-if GCONF
-usb_moded_SOURCES += \
-	usb_moded-gconf.c \
-	usb_moded-gconf.h 
-endif
-
 if UDEV
 usb_moded_SOURCES += \
 	usb_moded-udev.c \

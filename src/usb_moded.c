@@ -43,7 +43,6 @@
 #include "usb_moded-dbus.h"
 #include "usb_moded-dbus-private.h"
 #include "usb_moded-hw-ab.h"
-#include "usb_moded-gconf.h"
 #include "usb_moded-modules.h"
 #include "usb_moded-log.h"
 #include "usb_moded-lock.h"
