@@ -74,8 +74,6 @@ ifneq (0,$(MAKE_DOCS))
 endif
 	mkdir -p $(CURDIR)/debian/usb-moded/etc/usb-moded
 	install -m 644 $(CURDIR)/usb-moded.ini $(CURDIR)/debian/usb-moded/etc/usb-moded/usb-moded.ini
-	mkdir -p $(CURDIR)/debian/usb-moded/etc/gconf/schemas
-	install -m 644 $(CURDIR)/debian/usb-moded.schemas $(CURDIR)/debian/usb-moded/etc/gconf/schemas/usb-moded.schemas
 	
 
 
@@ -101,7 +99,7 @@ binary-arch: build install
 #	dh_installinit
 #	dh_installcron
 #	dh_installinfo
-	dh_gconf
+#	dh_gconf
 	dh_installman
 	dh_link
 	dh_strip --dbg-package=usb-moded-dbg
