@@ -309,6 +309,11 @@ static int usb_moded_dbus_signal(const char *signal_type, const char *content)
   int result = 1;
   DBusMessage* msg = 0;
 
+  if(!dbus_connection_sys)
+  {
+	log_err("Dbus system connection broken!\n");
+	goto EXIT;
+  }
   // create a signal and check for errors 
   msg = dbus_message_new_signal(USB_MODE_OBJECT, USB_MODE_INTERFACE, signal_type );
   if (NULL == msg) 
