@@ -56,6 +56,10 @@ typedef struct ipforward_data
 	char *nat_interface;
 }ipforward_data;
 
+#ifdef CONNMAN
+static int connman_reset_state(void);
+#endif
+
 static void free_ipforward_data (struct ipforward_data *ipforward)
 {
   if(ipforward)
@@ -110,6 +114,10 @@ static int set_usb_ip_forward(struct mode_list_elem *data, struct ipforward_data
   else
   {
 	log_debug("No nat interface available!\n");
+#ifdef CONNMAN
+	/* in case the cellular did not come up we want to make sure wifi gets restored */
+	connman_reset_state();
+#endif
 	free((char *)interface);
 	return(1);
   }
@@ -134,6 +142,9 @@ static int set_usb_ip_forward(struct mode_list_elem *data, struct ipforward_data
  */
 static void clean_usb_ip_forward(void)
 {
+#ifdef CONNMAN
+  connman_reset_state();
+#endif
   write_to_file("/proc/sys/net/ipv4/ip_forward", "0");
   system("/sbin/iptables -F FORWARD");
 }
@@ -259,7 +270,6 @@ end:
 /** 
   * Write udhcpd.conf
   * @ipforward : NULL if we want a simple config, otherwise include dns info etc...
-  * TODO: make this conditional ip could not have changed
   */
 static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_elem *data)
 {
@@ -548,6 +558,73 @@ static int connman_set_cellular_online(DBusConnection *dbus_conn_connman, const 
   return(ret);
 }
 
+/*
+ * Turn on or off the wifi service
+ * wifistatus static variable tracks the state so we do not turn on the wifi if it was off
+ *
+*/
+static int connman_wifi_power_control(DBusConnection *dbus_conn_connman, int on)
+{
+  static int wifistatus = 0;
+  int type = 0;
+  char *string;
+  DBusMessage *msg = NULL, *reply;
+  //DBusError error;
+  DBusMessageIter array_iter, dict_iter, inside_dict_iter, variant_iter;
+
+  if(!on)
+  {
+	/* check wifi status only before turning off */
+	if ((msg = dbus_message_new_method_call("net.connman", "/net/connman/technology/wifi", "net.connman.Technology", "GetProperties")) != NULL)
+	{
+		if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_connman, msg, -1, NULL)) != NULL)
+		{
+		  dbus_message_iter_init(reply, &array_iter);
+
+		  dbus_message_iter_recurse(&array_iter, &dict_iter);
+		  type = dbus_message_iter_get_arg_type(&dict_iter);
+
+		  while(type != DBUS_TYPE_INVALID)
+		  {
+		    dbus_message_iter_recurse(&dict_iter, &inside_dict_iter);
+		    type = dbus_message_iter_get_arg_type(&inside_dict_iter);
+		    if(type == DBUS_TYPE_STRING)
+		    {
+			dbus_message_iter_get_basic(&inside_dict_iter, &string);
+                        log_debug("string = %s\n", string);
+                        if(!strcmp(string, "Powered"))
+                        {
+				dbus_message_iter_next (&inside_dict_iter);
+				type = dbus_message_iter_get_arg_type(&inside_dict_iter);
+				dbus_message_iter_recurse(&inside_dict_iter, &variant_iter);
+				type = dbus_message_iter_get_arg_type(&variant_iter);
+                                if(type == DBUS_TYPE_BOOLEAN)
+                                {
+                                        dbus_message_iter_get_basic(&variant_iter, &wifistatus);
+					log_debug("Powered state = %d\n", wifistatus);
+				}
+				break;
+			}
+		     }
+		     dbus_message_iter_next (&dict_iter);
+		     type = dbus_message_iter_get_arg_type(&dict_iter);
+		  }
+		  dbus_message_unref(reply);
+		}
+		dbus_message_unref(msg);
+	}
+  }
+
+  /*  /net/connman/technology/wifi net.connman.Technology.SetProperty string:Powered variant:boolean:false */
+  if(wifistatus && !on)
+	system("/bin/dbus-send --print-reply --type=method_call --system --dest=net.connman /net/connman/technology/wifi net.connman.Technology.SetProperty string:Powered variant:boolean:false");
+  if(wifistatus && on)
+       /* turn on wifi after tethering is over and wifi was on before */
+	system("/bin/dbus-send --print-reply --type=method_call --system --dest=net.connman /net/connman/technology/wifi net.connman.Technology.SetProperty string:Powered variant:boolean:true");
+
+  return(0);
+}
+
 static int connman_get_connection_data(struct ipforward_data *ipforward)
 {
   DBusConnection *dbus_conn_connman = NULL;
@@ -562,6 +639,9 @@ static int connman_get_connection_data(struct ipforward_data *ipforward)
   {
          log_err("Could not connect to dbus for connman\n");
   }
+
+  /* turn off wifi in preparation for cellular connection if needed */
+  connman_wifi_power_control(dbus_conn_connman, 0);
 
   /* get list of services so we can find out which one is the cellular */
   if ((msg = dbus_message_new_method_call("net.connman", "/", "net.connman.Manager", "GetServices")) != NULL)
@@ -604,6 +684,27 @@ try_again:
   dbus_error_free(&error);
   free((char *)service);
   return(ret);
+}
+
+static int connman_reset_state(void)
+{
+  DBusConnection *dbus_conn_connman = NULL;
+  DBusError error;
+
+  dbus_error_init(&error);
+
+  if( (dbus_conn_connman = dbus_bus_get(DBUS_BUS_SYSTEM, &error)) == 0 )
+  {
+         log_err("Could not connect to dbus for connman\n");
+  }
+
+  /* make sure connman turns wifi back on when we disconnect */
+  log_debug("Turning wifi back on\n");
+  connman_wifi_power_control(dbus_conn_connman, 1);
+  dbus_connection_unref(dbus_conn_connman);
+  dbus_error_free(&error);
+
+  return(0);
 }
 #endif /* CONNMAN */
 
