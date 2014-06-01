@@ -445,7 +445,8 @@ int set_dynamic_mode(void)
   if(data->nat || data->dhcp_server)
 	ret = usb_network_set_up_dhcpd(data);
 
-  if(data->appsync)
+  /* no need to execute the post sync if there was an error setting the mode */
+  if(data->appsync && !ret)
 	activate_sync_post(data->mode_name);
 
   if(ret)
