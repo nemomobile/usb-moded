@@ -265,6 +265,7 @@ install -m 644 -D src/usb_moded-appsync-dbus.h %{buildroot}/%{_includedir}/%{nam
 install -m 644 -D usb_moded.pc %{buildroot}/%{_libdir}/pkgconfig/usb_moded.pc
 install -d %{buildroot}/%{_docdir}/%{name}/html/
 install -m 644 docs/html/* %{buildroot}/%{_docdir}/%{name}/html/
+install -m 644 docs/usb_moded-doc.txt %{buildroot}/%{_docdir}/%{name}/
 install -m 644 -D debian/manpage.1 %{buildroot}/%{_mandir}/man1/usb-moded.1
 install -m 644 -D debian/usb_moded.conf %{buildroot}/%{_sysconfdir}/dbus-1/system.d/usb_moded.conf
 install -m 644 -D %{SOURCE2} %{buildroot}/%{_sysconfdir}/modprobe.d/usb_moded.conf
@@ -312,6 +313,7 @@ systemctl daemon-reload || :
 %files doc
 %defattr(-,root,root,-)
 %doc debian/changelog debian/copyright LICENSE
+%{_docdir}/%{name}/*
 %{_docdir}/%{name}/html/*
 
 %files developer-mode
