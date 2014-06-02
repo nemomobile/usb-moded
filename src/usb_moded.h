@@ -48,6 +48,7 @@ typedef struct usb_mode
   /*@{*/
   gboolean connected; 		/* connection status, 1 for connected */
   gboolean mounted;  		/* mount status, 1 for mounted -UNUSED atm- */
+  gboolean android_usb_broken;  /* Used to keep an active gadget for broken Android kernels */
   char *mode;  			/* the mode name */
   char *module; 		/* the module name for the specific mode */
   struct mode_list_elem *data;  /* contains the mode data */

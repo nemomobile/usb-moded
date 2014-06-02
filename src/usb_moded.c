@@ -70,6 +70,7 @@ gboolean rescue_mode = FALSE;
 gboolean diag_mode = FALSE;
 gboolean hw_fallback = FALSE;
 gboolean charging_mode_set = FALSE;
+gboolean android_broken_usb = FALSE;
 #ifdef SYSTEMD
 static gboolean systemd_notify = FALSE;
 #endif
@@ -132,6 +133,12 @@ void set_usb_connected(gboolean connected)
 		return;
 	current_mode.connected = FALSE;
 	set_disconnected(NULL);
+	/* Some android kernels check for an active gadget to enable charging and
+	 * cable detection, meaning USB is completely dead unless we keep the gadget
+	 * active
+	 */
+	if(current_mode.android_usb_broken)
+		set_android_charging_mode();
   }		
 
 }
@@ -535,6 +542,9 @@ static void usb_moded_init(void)
   current_mode.mode = strdup(MODE_UNDEFINED);
   current_mode.module = strdup(MODULE_NONE);
 
+  if(android_broken_usb)
+	current_mode.android_usb_broken = TRUE;
+
   /* check config, merge or create if outdated */
   if(conf_file_merge() != 0)
   {
@@ -845,6 +855,7 @@ int main(int argc, char* argv[])
         int opt = 0, opt_idx = 0;
 
 	struct option const options[] = {
+                { "android_usb_broken", no_argument, 0, 'a' },
                 { "fallback", no_argument, 0, 'd' },
                 { "force-syslog", no_argument, 0, 's' },
                 { "force-stderr", no_argument, 0, 'T' },
@@ -860,10 +871,13 @@ int main(int argc, char* argv[])
 	log_name = basename(*argv);
 
 	 /* Parse the command-line options */
-        while ((opt = getopt_long(argc, argv, "fsTDdhrnv", options, &opt_idx)) != -1) 
+        while ((opt = getopt_long(argc, argv, "afsTDdhrnv", options, &opt_idx)) != -1)
 	{
                 switch (opt) 
 		{
+			case 'a':
+				android_broken_usb = TRUE;
+				break;
 			case 'f':
 				hw_fallback = TRUE;
 				break;
