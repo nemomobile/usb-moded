@@ -315,6 +315,21 @@ softconnect = 1
 softconnec_disconnect = 0
 idProduct = 0002
 
+
+Android portability
+---------------------
+
+On some android kernels cable detection/charging etc is broken unless the gadget is active.
+Often this is weirdly done on purpose by checking if the gadget is active before doing anything.
+This is not recommend and is actually wrong. Not to mention all the potential issues this could cause.
+(extra power drain, suspend issues, accidental exposure of data over USB, ...)
+
+For this purpose there is the -a switch that activates by default the charging mode, and will set it
+on disconnect. So technically unless you connect and set some mode, the gadget will always be active
+in the fake mass-storage charging mode.
+
+WARNING: This could potentially expose data over mass-storage (TODO, make sure this does not happen)
+
 rescue mode
 -----------
 
