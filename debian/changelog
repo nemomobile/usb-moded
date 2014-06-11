@@ -1,3 +1,20 @@
+usb-moded (0.80) unstable; urgency=low
+
+  * [usb-moded] Support broken android kernels
+  * [usb-moded] Update and beautify usage information
+  * [usb-moded] Support broken android kernels
+  * [usb-moded] Add the txt file to the documentation
+  * [usb-moded] Do not do post-sync after mode setting error.
+  * [usb-moded] Add connman support to switch wifi off
+  * Avoid potential crash when dbus disappears
+  * [gconf] Remove gconf schemas file from packaging as it is not used. Contributes: JB#19322
+  * [gconf] Remove GConf support, as it's abandoned upstream
+  * [usb-moded] Do not send signals when disconnected and handling -HUP. Fixes: JB#18884
+  * [usb-moded] Enable -fstack-protector and D_FORTIFY_SOURCE=2 gcc flags for improved security.
+  * [usb-moded] Validate ip in case bad values get fed in
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Wed, 11 Jun 2014 13:05:03 +0300
+
 usb-moded (0.79.3) unstable; urgency=low
 
   * Correct all softconnect_disconnect typo's

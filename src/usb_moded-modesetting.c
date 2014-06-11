@@ -509,7 +509,6 @@ gboolean export_cdrom(gpointer data)
 
 #endif /* NOKIA */
 
-
 /** clean up mode changes or extra actions to perform after a mode change 
  * @param module Name of module currently in use
  * @return 0 on success, non-zero on failure
