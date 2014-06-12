@@ -1,6 +1,5 @@
 usb-moded (0.80) unstable; urgency=low
 
-  * [usb-moded] Support broken android kernels
   * [usb-moded] Update and beautify usage information
   * [usb-moded] Support broken android kernels
   * [usb-moded] Add the txt file to the documentation
