@@ -1,3 +1,9 @@
+usb-moded (0.80.1) unstable; urgency=low
+
+  * [rescue] Make sure the secondary device lock check gets also ignored.
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Thu, 19 Jun 2014 19:51:42 +0300
+
 usb-moded (0.80) unstable; urgency=low
 
   * [usb-moded] Update and beautify usage information
