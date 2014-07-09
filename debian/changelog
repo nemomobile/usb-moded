@@ -1,3 +1,9 @@
+usb-moded (0.80.2) unstable; urgency=low
+
+  * [network] Check configured interface, fallback to usb0 if it does not exist Fixes: JB#21324
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Wed, 09 Jul 2014 18:07:15 +0300
+
 usb-moded (0.80.1) unstable; urgency=low
 
   * [rescue] Make sure the secondary device lock check gets also ignored.
