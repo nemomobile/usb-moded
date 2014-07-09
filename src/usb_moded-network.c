@@ -74,9 +74,22 @@ static void free_ipforward_data (struct ipforward_data *ipforward)
   }
 }
 
+/* This function checks if the configured interface exists */
+static int check_interface(char *interface)
+{
+  char command[32];
+  int ret = 0;
+
+   snprintf(command, 32, "ifconfig %s\n", interface );
+   ret = system(command);
+
+   return(ret);
+}
+
 static char* get_interface(struct mode_list_elem *data)
 {
   char *interface = NULL;
+  int check = 0;
 
   if(data)
   {
@@ -88,11 +101,19 @@ static char* get_interface(struct mode_list_elem *data)
   else
   	interface = (char *)get_network_interface();
 
-  if(interface == NULL)
+  if(interface != NULL)
+	check = check_interface(interface);
+
+  if(interface == NULL && check != 0)
   {
 	interface = malloc(sizeof(default_interface)*sizeof(char));
 	strncpy(interface, default_interface, sizeof(default_interface));
   }
+
+  check = check_interface(interface);
+  if(check)
+	log_warning("Configured interface is incorrect, nor does usb0 exists. Check your config!\n");
+  /* TODO: Make it so that interface configuration gets skipped */
 
   log_debug("interface = %s\n", interface);
   return interface;
