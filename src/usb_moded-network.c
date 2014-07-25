@@ -427,7 +427,7 @@ static int connman_fill_connection_data(DBusMessage *reply, struct ipforward_dat
 {
   DBusMessageIter array_iter, dict_iter, inside_dict_iter, variant_iter;
   DBusMessageIter sub_array_iter, string_iter;
-  int type;
+  int type, next;
   char *string;
   
   log_debug("Filling in dns data\n");
@@ -464,7 +464,14 @@ static int connman_fill_connection_data(DBusMessage *reply, struct ipforward_dat
 					dbus_message_iter_get_basic(&string_iter, &string);
 					log_debug("dns = %s\n", string);
 					ipforward->dns1 = strdup(string);
-					dbus_message_iter_next (&string_iter);
+					next = dbus_message_iter_next (&string_iter);
+					if(!next)
+					{
+						log_debug("No secundary dns\n");
+						/* FIXME: set the same dns for dns2 to avoid breakage */
+						ipforward->dns2 = strdup(string);
+						return(0);
+					}
 					dbus_message_iter_get_basic(&string_iter, &string);
 					log_debug("dns2 = %s\n", string);
 					ipforward->dns2 = strdup(string);
