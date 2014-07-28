@@ -1,3 +1,9 @@
+usb-moded (0.80.3) unstable; urgency=low
+
+  * [connection-sharing] Avoid crash when no secondary dns is given in connman
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Mon, 28 Jul 2014 11:17:23 +0300
+
 usb-moded (0.80.2) unstable; urgency=low
 
   * [network] Check configured interface, fallback to usb0 if it does not exist Fixes: JB#21324
