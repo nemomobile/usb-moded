@@ -6,8 +6,7 @@ Group:    System/System Control
 License:  LGPLv2
 URL:      https://github.com/nemomobile/usb-moded
 Source0:  %{name}-%{version}.tar.bz2
-Source1:  %{name}.service
-Source2:  usb_moded.conf
+Source1:  usb_moded.conf
 
 BuildRequires: pkgconfig(dbus-1)
 BuildRequires: pkgconfig(dbus-glib-1)
@@ -249,6 +248,20 @@ system bus.
 This package contains configuration to enable sharing over mass-storage
 with the android gadget driver.
 
+%package systemd-rescue-mode
+Summary: USB mode controller - systemd rescue mode support
+Group:	Config
+
+%Description systemd-rescue-mode
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains the configuration files for systemd to 
+provide the rescue mode, so device does not get locked down
+when the UI fails.
+
 %prep
 %setup -q
 
@@ -268,8 +281,7 @@ install -m 644 docs/html/* %{buildroot}/%{_docdir}/%{name}/html/
 install -m 644 docs/usb_moded-doc.txt %{buildroot}/%{_docdir}/%{name}/
 install -m 644 -D debian/manpage.1 %{buildroot}/%{_mandir}/man1/usb-moded.1
 install -m 644 -D debian/usb_moded.conf %{buildroot}/%{_sysconfdir}/dbus-1/system.d/usb_moded.conf
-install -m 644 -D %{SOURCE2} %{buildroot}/%{_sysconfdir}/modprobe.d/usb_moded.conf
-install -m 644 -D %{SOURCE1} %{buildroot}/lib/systemd/system/%{name}.service
+install -m 644 -D %{SOURCE1} %{buildroot}/%{_sysconfdir}/modprobe.d/usb_moded.conf
 install -d %{buildroot}/%{_sysconfdir}/usb-moded
 install -d %{buildroot}/%{_sysconfdir}/usb-moded/run
 install -d %{buildroot}/%{_sysconfdir}/usb-moded/run-diag
@@ -280,11 +292,20 @@ install -m 644 -D config/diag/* %{buildroot}/%{_sysconfdir}/usb-moded/diag/
 install -m 644 -D config/run/* %{buildroot}/%{_sysconfdir}/usb-moded/run/
 install -m 644 -D config/run-diag/* %{buildroot}/%{_sysconfdir}/usb-moded/run-diag/
 install -m 644 -D config/mass-storage-jolla.ini %{buildroot}/%{_sysconfdir}/usb-moded/
-install -d $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/
-ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/%{name}.service
-touch %{buildroot}/%{_sysconfdir}/modprobe.d/g_ether.conf
+
 # Sync mode not packaged for now.
 rm %{buildroot}/etc/usb-moded/dyn-modes/sync_mode.ini
+
+touch %{buildroot}/%{_sysconfdir}/modprobe.d/g_ether.conf
+#systemd stuff
+install -d $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/
+install -m 644 -D systemd/%{name}.service %{buildroot}/lib/systemd/system/%{name}.service
+ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/%{name}.service
+install -m 644 -D systemd/usb-moded-args.conf %{buildroot}/var/lib/environment/usb-moded/usb-moded-args.conf
+install -m 644 -D systemd/turn-usb-rescue-mode-off %{buildroot}/%{_bindir}/turn-usb-rescue-mode-off
+install -m 644 -D systemd/usb-rescue-mode-off.service %{buildroot}/lib/systemd/system/usb-rescue-mode-off.service
+install -m 644 -D systemd/usb-rescue-mode-off.service %{buildroot}/lib/systemd/system/graphical.target.wants/usb-rescue-mode-off.service
+
 
 %preun
 systemctl daemon-reload || :
@@ -384,3 +405,10 @@ systemctl daemon-reload || :
 %files host-mode-jolla
 %defattr(-,root,root,-)
 %{_sysconfdir}/usb-moded/dyn-modes/host_mode_jolla.ini
+
+%files systemd-rescue-mode
+%defattr(-,root,root,-)
+/var/lib/environment/usb-moded/usb-moded-args.conf
+%{_bindir}/turn-usb-rescue-mode-off
+/lib/systemd/system/usb-rescue-mode-off.service
+/lib/systemd/system/graphical.target.wants/usb-rescue-mode-off.service

@@ -1,0 +1,16 @@
+# Copyright (C) 2013 Jolla Oy
+# Contact: Pekka Lundstrom  <pekka.lundstrom@jollamobile.com>
+#
+# Turn usb-moded rescue mode off
+ 
+[Unit]
+Description=Turn usb-moded rescue mode off
+After=init-done.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/turn-usb-rescue-mode-off
+
+[Install]
+WantedBy=graphical.target

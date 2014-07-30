@@ -1,0 +1,8 @@
+#!/bin/sh
+# Copyright (C) 2013 Jolla Oy
+# Contact: Pekka Lundstrom  <pekka.lundstrom@jollamobile.com>
+#
+# This gets run at the end of the boot and informs usb-moded
+# that rescue mode can be turned off
+
+dbus-send --system --type=method_call --print-reply --dest=com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded.rescue_off
