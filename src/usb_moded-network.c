@@ -106,6 +106,8 @@ static char* get_interface(struct mode_list_elem *data)
 
   if(interface == NULL || check != 0)
   {
+	if(interface != NULL)
+		free((char *)interface);
 	interface = malloc(sizeof(default_interface)*sizeof(char));
 	strncpy(interface, default_interface, sizeof(default_interface));
   }
