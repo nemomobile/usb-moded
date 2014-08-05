@@ -42,8 +42,22 @@
 #include "usb_moded-modesetting.h"
 #include "usb_moded-modes.h"
 
-/* kmod context - initialized at start in usb_moded_init */
+/* kmod context - initialized at start in usb_moded_init by ctx_init()
+   and cleaned up by ctx_cleanup() functions */
 struct kmod_ctx *ctx;
+
+/* kmod module init */
+void usb_moded_module_ctx_init(void)
+{
+  ctx = kmod_new(NULL, NULL);
+  kmod_load_resources(ctx);
+}
+
+/* kmod module cleanup */
+void usb_moded_module_ctx_cleanup(void)
+{
+  kmod_unref(ctx);
+}
 
 /** load module 
  *

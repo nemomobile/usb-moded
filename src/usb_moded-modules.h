@@ -33,6 +33,12 @@
 #define MODULE_DEVELOPER	"g_ether"
 #define MODULE_MTP		"g_ffs"
 
+/* module loading init */
+void usb_moded_module_ctx_init(void);
+
+/* module loading context cleanup */
+void usb_moded_module_ctx_cleanup(void);
+
 /* load module */
 int usb_moded_load_module(const char *module);
 

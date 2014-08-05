@@ -535,8 +535,6 @@ inline struct mode_list_elem * get_usb_mode_data(void)
 /* set default values for usb_moded */
 static void usb_moded_init(void)
 {
-  extern struct kmod_ctx *ctx;
-
   current_mode.connected = FALSE;
   current_mode.mounted = FALSE;
   current_mode.mode = strdup(MODE_UNDEFINED);
@@ -571,8 +569,7 @@ static void usb_moded_init(void)
   }
 
   /* kmod init */
-  ctx = kmod_new(NULL, NULL);
-  kmod_load_resources(ctx);
+  usb_moded_module_ctx_init();
 
   /* Android specific stuff */
   if(android_settings())
@@ -607,8 +604,6 @@ static gboolean charging_fallback(gpointer data)
 
 static void handle_exit(void)
 {
-  extern struct kmod_ctx *ctx;
-
   /* exiting and clean-up when mainloop ended */
   appsync_stop();
   hwal_cleanup();
@@ -618,7 +613,7 @@ static void handle_exit(void)
 #endif /* MEEGOLOCK */
 
   free_mode_list(modelist);
-  kmod_unref(ctx);
+  usb_moded_module_ctx_cleanup();
 
 #ifdef APP_SYNC
   free_appsync_list();
