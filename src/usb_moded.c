@@ -613,7 +613,9 @@ static void handle_exit(void)
   appsync_stop();
   hwal_cleanup();
   usb_moded_dbus_cleanup();
+#ifdef MEEGOLOCK
   stop_devicelock_listener();
+#endif /* MEEGOLOCK */
 
   free_mode_list(modelist);
   kmod_unref(ctx);

@@ -108,7 +108,7 @@ AC_ARG_ENABLE([ofono], AS_HELP_STRING([--enable-ofono], [Enable ofono DBUS inter
    no)  ofono=false ;;
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-ofono]) ;;
    esac],[ofono=false])
-AM_CONDITIONAL([SYSTEMD], [test x$ofono = xtrue])
+AM_CONDITIONAL([OFONO], [test x$ofono = xtrue])
 
 PKG_CHECK_MODULES([USB_MODED], [
  glib-2.0 >= 2.24.0
