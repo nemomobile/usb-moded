@@ -104,6 +104,14 @@ AC_ARG_ENABLE([ofono], AS_HELP_STRING([--enable-ofono], [Enable ofono DBUS inter
    esac],[ofono=false])
 AM_CONDITIONAL([OFONO], [test x$ofono = xtrue])
 
+AC_ARG_ENABLE([libusbg], AS_HELP_STRING([--enable-libusbg], [Enable the use of libusbg to use the USB gadgetfs  @<:@default=false@:>@]),
+  [case "${enableval}" in
+   yes) libusbg=true ; CFLAGS="-DLIBUSBG $CFLAGS" ;;
+   no)  libusbg=false ;;
+   *) AC_MSG_ERROR([bad value ${enableval} for --enable-libusbg]) ;;
+   esac],[libusbg=false])
+AM_CONDITIONAL([LIBUSBG], [test x$libusbg = xtrue])
+
 PKG_CHECK_MODULES([USB_MODED], [
  glib-2.0 >= 2.24.0
  dbus-1 >= 1.2.1
