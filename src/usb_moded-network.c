@@ -104,7 +104,7 @@ static char* get_interface(struct mode_list_elem *data)
   if(interface != NULL)
 	check = check_interface(interface);
 
-  if(interface == NULL && check != 0)
+  if(interface == NULL || check != 0)
   {
 	interface = malloc(sizeof(default_interface)*sizeof(char));
 	strncpy(interface, default_interface, sizeof(default_interface));
@@ -113,7 +113,7 @@ static char* get_interface(struct mode_list_elem *data)
   check = check_interface(interface);
   if(check)
 	log_warning("Configured interface is incorrect, nor does usb0 exists. Check your config!\n");
-  /* TODO: Make it so that interface configuration gets skipped */
+  /* TODO: Make it so that interface configuration gets skipped when no usable interface exists */
 
   log_debug("interface = %s\n", interface);
   return interface;
