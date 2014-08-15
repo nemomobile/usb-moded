@@ -1,3 +1,14 @@
+usb-moded (0.80.4) unstable; urgency=low
+
+  * [usb setting logic] Do not check for mode_to_set_twice Fixes: CID#1230272
+  * [network] Fix minor resource leak. Fixes: CID#1230273 
+  * [network] Correct the check for broken network interfaces. Fixes: CID#1230271 
+  * Handle all the kmod init where all the modules are handled
+  * [usb-moded] some minor fixes, small naming issue in configure.ac, fix compilation without devicelock
+  *  [systemd] package all systemd files in their own section, add rescue mode
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Fri, 15 Aug 2014 20:22:58 +0300
+
 usb-moded (0.80.3) unstable; urgency=low
 
   * [connection-sharing] Avoid crash when no secondary dns is given in connman
