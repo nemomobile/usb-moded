@@ -70,14 +70,6 @@ AC_ARG_ENABLE([app_sync_dbus], AS_HELP_STRING([--enable-app-sync-dbus], [Enable 
    esac],[app_sync_dbus=false])
 AM_CONDITIONAL([APP_SYNC_DBUS], [test x$app_sync_dbus = xtrue])
 
-AC_ARG_ENABLE([udev], AS_HELP_STRING([--enable-udev], [Enable udev interface @<:@default=true@:>@]),
-  [case "${enableval}" in
-   yes) udev=true ; CFLAGS="-DUDEV -ludev $CFLAGS" ;;
-   no)  udev=false ;;
-   *) AC_MSG_ERROR([bad value ${enableval} for --enable-udev]) ;;
-   esac],[udev=true CFLAGS="-DUDEV -ludev $CFLAGS" ])
-AM_CONDITIONAL([UDEV], [test x$udev = xtrue])
-
 AC_ARG_ENABLE([upstart], AS_HELP_STRING([--enable-upstart], [Enable upstart interface for appsync @<:@default=false@:>@]),
   [case "${enableval}" in
    yes) upstart=true ; CFLAGS="-DUPSTART $CFLAGS" ;;
@@ -116,6 +108,7 @@ PKG_CHECK_MODULES([USB_MODED], [
  dbus-glib-1 >= 0.78
  gobject-2.0 >= 2.16.6
  gio-2.0
+ libudev
  libkmod
 ])
 

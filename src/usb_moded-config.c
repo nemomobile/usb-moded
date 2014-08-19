@@ -85,7 +85,6 @@ const char * find_alt_mount(void)
   return(get_conf_string(ALT_MOUNT_ENTRY, ALT_MOUNT_KEY));
 }
 
-#ifdef UDEV
 const char * find_udev_path(void)
 {
   return(get_conf_string(UDEV_PATH_ENTRY, UDEV_PATH_KEY));
@@ -95,7 +94,6 @@ const char * find_udev_subsystem(void)
 {
   return(get_conf_string(UDEV_PATH_ENTRY, UDEV_SUBSYSTEM_KEY));
 }
-#endif /* UDEV */
 
 #ifdef NOKIA
 const char * find_cdrom_path(void)
@@ -109,7 +107,6 @@ int find_cdrom_timeout(void)
 }
 #endif /* NOKIA */
 
-#ifdef UDEV
 const char * check_trigger(void)
 {
   return(get_conf_string(TRIGGER_ENTRY, TRIGGER_PATH_KEY));
@@ -134,7 +131,6 @@ const char * get_trigger_value(void)
 {
   return(get_conf_string(TRIGGER_ENTRY, TRIGGER_PROPERTY_VALUE_KEY));
 }
-#endif /* UDEV */
 
 const char * get_network_ip(void)
 {
@@ -466,9 +462,7 @@ int conf_file_merge(void)
   GString *keyfile_string = NULL;
   GKeyFile *settingsfile;
   int ret = 0, test = 0, conffile_created = 0;
-#ifdef UDEV
   const gchar *udev = 0;
-#endif /* UDEV */
 
   confdir = g_dir_open(CONFIG_FILE_DIR, 0, NULL);
   if(!confdir)
@@ -516,10 +510,8 @@ int conf_file_merge(void)
 	{
 		/* store mode info to add it later as we want to keep it */
 		mode = get_mode_setting();
-#ifdef UDEV
 		/* store udev path (especially important for the upgrade path */
 		udev = find_udev_path();
-#endif /* UDEV */
 		ip = get_conf_string(NETWORK_ENTRY, NETWORK_IP_KEY);
 		gateway = get_conf_string(NETWORK_ENTRY, NETWORK_GATEWAY_KEY);
 		continue;
@@ -551,7 +543,6 @@ next:
 	{
 		set_mode_setting(mode);
 	}
-#ifdef UDEV
 	if(udev)
 	{
 		set_config_setting(UDEV_PATH_ENTRY, UDEV_PATH_KEY, udev);
@@ -563,18 +554,14 @@ next:
 		set_network_setting(NETWORK_IP_KEY, ip);
 	if(gateway)
 		set_network_setting(NETWORK_GATEWAY_KEY, gateway);
-		
-#endif /* UDEV */
   }
   else
 	ret = 1;
 cleanup:
   if(mode)
   	free((void *)mode);
-#ifdef UDEV
   if(udev)
 	free((void *)udev);
-#endif /* UDEV */
   if(ip)
 	free((void *)ip);
   if(gateway)

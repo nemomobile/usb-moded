@@ -60,23 +60,19 @@ const char * find_mounts(void);
 int find_sync(void);
 const char * find_alt_mount(void);
 
-#ifdef UDEV
 const char * find_udev_path(void);
 const char * find_udev_subsystem(void);
-#endif
 
 #ifdef NOKIA
 const char * find_cdrom_path(void);
 int find_cdrom_timeout(void);
 #endif
 
-#ifdef UDEV
 const char * check_trigger(void);
 const char * get_trigger_subsystem(void);
 const char * get_trigger_mode(void);
 const char * get_trigger_property(void);
 const char * get_trigger_value(void);
-#endif /* UDEV */
 
 const char * get_network_ip(void);
 const char * get_network_interface(void);
