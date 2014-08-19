@@ -27,7 +27,7 @@
 
 #include <glib.h>
 
-#include <libkmod.h>
+#include <usbg/usbg.h>
 
 #include "usb_moded.h"
 #include "usb_moded-modules.h"
@@ -38,6 +38,21 @@
 #include "usb_moded-config.h"
 #include "usb_moded-modesetting.h"
 
+/* module context init and cleanup functions */
+void usb_moded_module_ctx_init(void)
+{
+        usbg_state *s;
+        int usbg_ret;
+
+        usbg_ret = usbg_init("/sys/kernel/config", &s);
+        if (usbg_ret != USBG_SUCCESS)
+                fprintf(stderr, "Error on USB gadget init\n");
+
+}
+
+void usb_moded_module_ctx_cleanup(void)
+{
+}
 
 /** load module 
  *
@@ -48,6 +63,7 @@
  */
 int usb_moded_load_module(const char *module)
 {
+  return (0);
 }
 
 /** unload module
@@ -59,6 +75,7 @@ int usb_moded_load_module(const char *module)
  */
 int usb_moded_unload_module(const char *module)
 {
+  return (0);
 }
 
 /** Check which state a module is in
