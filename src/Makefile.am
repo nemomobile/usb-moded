@@ -32,15 +32,11 @@ usb_moded_SOURCES = \
 	usb_moded-mac.h \
 	usb_moded-dyn-config.c \
 	usb_moded-dyn-config.h \
+	usb_moded-udev.c \
+	usb_moded-trigger.c \
 	usb_moded-modules.c \
 	usb_moded-android.h \
 	usb_moded-android.c
-
-if UDEV
-usb_moded_SOURCES += \
-	usb_moded-udev.c \
-	usb_moded-trigger.c
-endif
 
 if MEEGOLOCK
 usb_moded_SOURCES += \

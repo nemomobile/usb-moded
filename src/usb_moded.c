@@ -553,10 +553,8 @@ static void usb_moded_init(void)
   modelist = read_mode_list(diag_mode);
 #endif /* APP_SYNC */
 
-#ifdef UDEV
   if(check_trigger())
 	trigger_init();
-#endif /* UDEV */
 
   /* Set-up mac address before kmod */
   if(access("/etc/modprobe.d/g_ether.conf", F_OK) != 0)
