@@ -76,6 +76,9 @@ static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessa
     	{
 		const char *mode = get_usb_mode();
 
+		/* To the outside we want to keep CHARGING and CHARGING_FALLBACK the same */
+		if(!strcmp(MODE_CHARGING_FALLBACK, mode))
+			mode = strdup(MODE_CHARGING);
       		if((reply = dbus_message_new_method_return(msg)))
         		dbus_message_append_args (reply, DBUS_TYPE_STRING, &mode, DBUS_TYPE_INVALID);
     	}

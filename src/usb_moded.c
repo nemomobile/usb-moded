@@ -384,7 +384,11 @@ end:
     log_debug("Network setting failed!\n");
   free(current_mode.mode);
   current_mode.mode = strdup(mode);
-  usb_moded_send_signal(get_usb_mode());
+  /* CHARGING_FALLBACK is an internal mode not to be broadcasted outside */
+  if(!strcmp(mode, MODE_CHARGING_FALLBACK))
+    usb_moded_send_signal(MODE_CHARGING);
+  else
+    usb_moded_send_signal(get_usb_mode());
 }
 
 /** check if a given usb_mode exists
@@ -396,8 +400,9 @@ end:
 int valid_mode(const char *mode)
 {
 
-  /* MODE_ASK and MODE_CHARGER_FALLBACK are not modes that are settable seen their special status */
-  if(!strcmp(MODE_CHARGING_FALLBACK, mode))
+  /* MODE_ASK, MODE_CHARGER and MODE_CHARGING_FALLBACK are not modes that are settable seen their special 'internal' status 
+     so we only check the modes that are announed outside. Only exception is the built in MODE_CHARGING */
+  if(!strcmp(MODE_CHARGING, mode))
 	return(0);
   else
   {
