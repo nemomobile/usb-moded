@@ -141,10 +141,12 @@ static DBusHandlerResult devicelock_unlocked_cb(DBusConnection *conn, DBusMessag
   	if(ret == 0 && get_usb_connection_state() == 1 )
   	{	
 	    log_debug("usb_mode %s\n", get_usb_mode());
-	    /* if the mode is MODE_CHARGING_FALLBACK we know the user has not selected any mode */
-            if(!strcmp(get_usb_mode(), MODE_UNDEFINED) || !strcmp(get_usb_mode(), MODE_CHARGING)) {
-            log_debug("set_usb");
-			set_usb_connected_state();
+	    /* if the mode is MODE_CHARGING_FALLBACK we know the user has not selected any mode, in case it
+               things are still undefined it cannot hurt to try again to set a mode */
+            if(!strcmp(get_usb_mode(), MODE_UNDEFINED) || !strcmp(get_usb_mode(), MODE_CHARGING_FALLBACK))
+            {
+              log_debug("set_usb");
+	      set_usb_connected_state();
 	    }
   	}
   }

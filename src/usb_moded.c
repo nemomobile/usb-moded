@@ -303,27 +303,13 @@ void set_usb_mode(const char *mode)
   /* set return to 1 to be sure to error out if no matching mode is found either */
   int ret=1, net=0;
 
-
 #ifdef MEEGOLOCK
   /* Do a second check in case timer suspend causes a race issue */
   int export = 1;
+#endif
 
-  /* check if we are allowed to export system contents 0 is unlocked */
-  /* In ACTDEAD export is always ok */
-  if(is_in_user_state())
-  {
-	export = usb_moded_get_export_permission();
-
-	if(export && strcmp(mode, MODE_CHARGING) && !rescue_mode)
-	{
-		log_debug("Secondary device lock check failed. Not setting mode!\n");
-		goto end;
-  	}
-  }
-#endif /* MEEGOLOCK */
-
-  log_debug("Setting %s\n", mode);
-  
+  /* CHARGING AND FALLBACK CHARGING are always ok to set, so this can be done
+     before the optional second device lock check */
   if(!strcmp(mode, MODE_CHARGING) || !strcmp(mode, MODE_CHARGING_FALLBACK))
   {
 	check_module_state(MODULE_MASS_STORAGE);
@@ -340,7 +326,27 @@ void set_usb_mode(const char *mode)
 	charging_mode_set = TRUE;
 	goto end;
   }
-  else if(!strcmp(mode, MODE_ASK) || !strcmp(mode, MODE_CHARGER))
+
+#ifdef MEEGOLOCK
+  /* check if we are allowed to export system contents 0 is unlocked */
+  /* In ACTDEAD export is always ok */
+  if(is_in_user_state())
+  {
+	export = usb_moded_get_export_permission();
+
+	if(export && !rescue_mode)
+	{
+		log_debug("Secondary device lock check failed. Not setting mode!\n");
+		goto end;
+        }
+  }
+#endif /* MEEGOLOCK */
+
+  log_debug("Setting %s\n", mode);
+
+  /* nothing needs to be done for these modes, apart from the
+     signalling at the end */
+  if(!strcmp(mode, MODE_ASK) || !strcmp(mode, MODE_CHARGER))
   {
 	ret = 0;
 	goto end;
