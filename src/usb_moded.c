@@ -69,7 +69,6 @@ extern int log_type;
 gboolean rescue_mode = FALSE;
 gboolean diag_mode = FALSE;
 gboolean hw_fallback = FALSE;
-gboolean charging_mode_set = FALSE;
 gboolean android_broken_usb = FALSE;
 #ifdef SYSTEMD
 static gboolean systemd_notify = FALSE;
@@ -165,7 +164,6 @@ static gboolean set_disconnected(gpointer data)
 		usb_moded_module_cleanup(get_usb_module());
 		set_usb_mode(MODE_UNDEFINED);
 #endif /* NOKIA */
-		charging_mode_set = FALSE;
 	
 	}
   return FALSE;
@@ -184,7 +182,6 @@ if(!get_usb_connection_state())
                 /* Nothing else as we do not need to do anything for cleaning up charging mode */
                 usb_moded_module_cleanup(get_usb_module());
                 set_usb_mode(MODE_UNDEFINED);
-                charging_mode_set = FALSE;
         }
   return FALSE;
 
@@ -264,10 +261,6 @@ void set_usb_connected_state(void)
 
 	if(!strcmp(MODE_ASK, mode_to_set))
 	{
-		/* if charging mode was set we do not do anything as we might get here
-		   due to a devicelock state change */
-		if(charging_mode_set)
-			return;
 		/* send signal, mode will be set when the dialog service calls
 	  	 the set_mode method call.
 	 	*/
@@ -323,7 +316,6 @@ void set_usb_mode(const char *mode)
 	  set_usb_module(MODULE_NONE);
 	  ret = set_android_charging_mode();
 	}
-	charging_mode_set = TRUE;
 	goto end;
   }
 
@@ -601,9 +593,6 @@ static gboolean charging_fallback(gpointer data)
   current_mode.mode = strdup(MODE_ASK);
   current_mode.data = NULL;
   charging_timeout = 0;
-  /* for extra safety we explicitly set charging_mode_set
-     to false as the mode was not chosen */
-  charging_mode_set = FALSE;
   log_info("Falling back on charging mode.\n");
 	
   return(FALSE);
