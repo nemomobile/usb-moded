@@ -117,6 +117,7 @@ int stop_devicelock_listener(void)
 
 static DBusHandlerResult devicelock_unlocked_cb(DBusConnection *conn, DBusMessage *msg, void *user_data)
 {
+  /* regardless what happens, we want that other programs get a chance to process this */
   DBusHandlerResult   result    = DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   const char         *interface = dbus_message_get_interface(msg);
   const char         *member    = dbus_message_get_member(msg);
@@ -147,7 +148,6 @@ static DBusHandlerResult devicelock_unlocked_cb(DBusConnection *conn, DBusMessag
 	    }
   	}
   }
-  result = DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 
 cleanup:
   return result;
