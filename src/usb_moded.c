@@ -158,7 +158,8 @@ static gboolean set_disconnected(gpointer data)
   		/* signal usb disconnected */
 		usb_moded_send_signal(USB_DISCONNECTED);
 		/* unload modules and general cleanup if not charging */
-		if(strcmp(get_usb_mode(), MODE_CHARGING))
+		if(strcmp(get_usb_mode(), MODE_CHARGING) ||
+		   strcmp(get_usb_mode(), MODE_CHARGING_FALLBACK))
 			usb_moded_mode_cleanup(get_usb_module());
 		/* Nothing else as we do not need to do anything for cleaning up charging mode */
 		usb_moded_module_cleanup(get_usb_module());
@@ -177,7 +178,8 @@ if(!get_usb_connection_state())
         {
                 log_debug("Resetting connection data after HUP\n");
                 /* unload modules and general cleanup if not charging */
-                if(strcmp(get_usb_mode(), MODE_CHARGING))
+                if(strcmp(get_usb_mode(), MODE_CHARGING) ||
+		   strcmp(get_usb_mode(), MODE_CHARGING_FALLBACK))
                         usb_moded_mode_cleanup(get_usb_module());
                 /* Nothing else as we do not need to do anything for cleaning up charging mode */
                 usb_moded_module_cleanup(get_usb_module());
@@ -285,7 +287,7 @@ void set_usb_connected_state(void)
 	   We also fall back here in case the device is locked and we do not 
 	   export the system contents. Or if we are in acting dead mode.
 	*/
-	set_usb_mode(MODE_CHARGING);
+	set_usb_mode(MODE_CHARGING_FALLBACK);
   }
 end:
   free((void *)mode_to_set); 
@@ -322,7 +324,7 @@ void set_usb_mode(const char *mode)
 
   log_debug("Setting %s\n", mode);
   
-  if(!strcmp(mode, MODE_CHARGING))
+  if(!strcmp(mode, MODE_CHARGING) || !strcmp(mode, MODE_CHARGING_FALLBACK))
   {
 	check_module_state(MODULE_MASS_STORAGE);
 	/* for charging we use a fake file_storage (blame USB certification for this insanity */
@@ -394,8 +396,8 @@ end:
 int valid_mode(const char *mode)
 {
 
-  /* MODE_ASK and MODE_CHARGER are not modes that are settable seen their special status */
-  if(!strcmp(MODE_CHARGING, mode))
+  /* MODE_ASK and MODE_CHARGER_FALLBACK are not modes that are settable seen their special status */
+  if(!strcmp(MODE_CHARGING_FALLBACK, mode))
 	return(0);
   else
   {
@@ -580,7 +582,7 @@ static gboolean charging_fallback(gpointer data)
   if(strcmp(get_usb_mode(), MODE_ASK) != 0)
 		  return FALSE;
 
-  set_usb_mode(MODE_CHARGING);
+  set_usb_mode(MODE_CHARGING_FALLBACK);
   /* since this is the fallback, we keep an indication
      for the UI, as we are not really in charging mode.
   */
