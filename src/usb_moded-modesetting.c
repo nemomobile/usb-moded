@@ -533,7 +533,7 @@ int usb_moded_mode_cleanup(const char *module)
         {
 		/* no clean-up needs to be done when we come from charging mode. We need
 		   to check since we use fake mass-storage for charging */
-		if(!strcmp(MODE_CHARGING, get_usb_mode()))
+		if(!strcmp(MODE_CHARGING, get_usb_mode()) || !strcmp(MODE_CHARGING_FALLBACK, get_usb_mode()))
 		  return 0;	
 		unset_mass_storage_mode(NULL);
         }

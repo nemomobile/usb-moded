@@ -69,7 +69,6 @@ extern int log_type;
 gboolean rescue_mode = FALSE;
 gboolean diag_mode = FALSE;
 gboolean hw_fallback = FALSE;
-gboolean charging_mode_set = FALSE;
 gboolean android_broken_usb = FALSE;
 #ifdef SYSTEMD
 static gboolean systemd_notify = FALSE;
@@ -158,13 +157,13 @@ static gboolean set_disconnected(gpointer data)
   		/* signal usb disconnected */
 		usb_moded_send_signal(USB_DISCONNECTED);
 		/* unload modules and general cleanup if not charging */
-		if(strcmp(get_usb_mode(), MODE_CHARGING))
+		if(strcmp(get_usb_mode(), MODE_CHARGING) ||
+		   strcmp(get_usb_mode(), MODE_CHARGING_FALLBACK))
 			usb_moded_mode_cleanup(get_usb_module());
 		/* Nothing else as we do not need to do anything for cleaning up charging mode */
 		usb_moded_module_cleanup(get_usb_module());
 		set_usb_mode(MODE_UNDEFINED);
 #endif /* NOKIA */
-		charging_mode_set = FALSE;
 	
 	}
   return FALSE;
@@ -177,12 +176,12 @@ if(!get_usb_connection_state())
         {
                 log_debug("Resetting connection data after HUP\n");
                 /* unload modules and general cleanup if not charging */
-                if(strcmp(get_usb_mode(), MODE_CHARGING))
+                if(strcmp(get_usb_mode(), MODE_CHARGING) ||
+		   strcmp(get_usb_mode(), MODE_CHARGING_FALLBACK))
                         usb_moded_mode_cleanup(get_usb_module());
                 /* Nothing else as we do not need to do anything for cleaning up charging mode */
                 usb_moded_module_cleanup(get_usb_module());
                 set_usb_mode(MODE_UNDEFINED);
-                charging_mode_set = FALSE;
         }
   return FALSE;
 
@@ -262,10 +261,6 @@ void set_usb_connected_state(void)
 
 	if(!strcmp(MODE_ASK, mode_to_set))
 	{
-		/* if charging mode was set we do not do anything as we might get here
-		   due to a devicelock state change */
-		if(charging_mode_set)
-			return;
 		/* send signal, mode will be set when the dialog service calls
 	  	 the set_mode method call.
 	 	*/
@@ -285,7 +280,7 @@ void set_usb_connected_state(void)
 	   We also fall back here in case the device is locked and we do not 
 	   export the system contents. Or if we are in acting dead mode.
 	*/
-	set_usb_mode(MODE_CHARGING);
+	set_usb_mode(MODE_CHARGING_FALLBACK);
   }
 end:
   free((void *)mode_to_set); 
@@ -301,28 +296,14 @@ void set_usb_mode(const char *mode)
   /* set return to 1 to be sure to error out if no matching mode is found either */
   int ret=1, net=0;
 
-
 #ifdef MEEGOLOCK
   /* Do a second check in case timer suspend causes a race issue */
   int export = 1;
+#endif
 
-  /* check if we are allowed to export system contents 0 is unlocked */
-  /* In ACTDEAD export is always ok */
-  if(is_in_user_state())
-  {
-	export = usb_moded_get_export_permission();
-
-	if(export && strcmp(mode, MODE_CHARGING) && !rescue_mode)
-	{
-		log_debug("Secondary device lock check failed. Not setting mode!\n");
-		goto end;
-  	}
-  }
-#endif /* MEEGOLOCK */
-
-  log_debug("Setting %s\n", mode);
-  
-  if(!strcmp(mode, MODE_CHARGING))
+  /* CHARGING AND FALLBACK CHARGING are always ok to set, so this can be done
+     before the optional second device lock check */
+  if(!strcmp(mode, MODE_CHARGING) || !strcmp(mode, MODE_CHARGING_FALLBACK))
   {
 	check_module_state(MODULE_MASS_STORAGE);
 	/* for charging we use a fake file_storage (blame USB certification for this insanity */
@@ -335,10 +316,29 @@ void set_usb_mode(const char *mode)
 	  set_usb_module(MODULE_NONE);
 	  ret = set_android_charging_mode();
 	}
-	charging_mode_set = TRUE;
 	goto end;
   }
-  else if(!strcmp(mode, MODE_ASK) || !strcmp(mode, MODE_CHARGER))
+
+#ifdef MEEGOLOCK
+  /* check if we are allowed to export system contents 0 is unlocked */
+  /* In ACTDEAD export is always ok */
+  if(is_in_user_state())
+  {
+	export = usb_moded_get_export_permission();
+
+	if(export && !rescue_mode)
+	{
+		log_debug("Secondary device lock check failed. Not setting mode!\n");
+		goto end;
+        }
+  }
+#endif /* MEEGOLOCK */
+
+  log_debug("Setting %s\n", mode);
+
+  /* nothing needs to be done for these modes, apart from the
+     signalling at the end */
+  if(!strcmp(mode, MODE_ASK) || !strcmp(mode, MODE_CHARGER))
   {
 	ret = 0;
 	goto end;
@@ -382,7 +382,11 @@ end:
     log_debug("Network setting failed!\n");
   free(current_mode.mode);
   current_mode.mode = strdup(mode);
-  usb_moded_send_signal(get_usb_mode());
+  /* CHARGING_FALLBACK is an internal mode not to be broadcasted outside */
+  if(!strcmp(mode, MODE_CHARGING_FALLBACK))
+    usb_moded_send_signal(MODE_CHARGING);
+  else
+    usb_moded_send_signal(get_usb_mode());
 }
 
 /** check if a given usb_mode exists
@@ -394,7 +398,8 @@ end:
 int valid_mode(const char *mode)
 {
 
-  /* MODE_ASK and MODE_CHARGER are not modes that are settable seen their special status */
+  /* MODE_ASK, MODE_CHARGER and MODE_CHARGING_FALLBACK are not modes that are settable seen their special 'internal' status 
+     so we only check the modes that are announed outside. Only exception is the built in MODE_CHARGING */
   if(!strcmp(MODE_CHARGING, mode))
 	return(0);
   else
@@ -580,7 +585,7 @@ static gboolean charging_fallback(gpointer data)
   if(strcmp(get_usb_mode(), MODE_ASK) != 0)
 		  return FALSE;
 
-  set_usb_mode(MODE_CHARGING);
+  set_usb_mode(MODE_CHARGING_FALLBACK);
   /* since this is the fallback, we keep an indication
      for the UI, as we are not really in charging mode.
   */
@@ -588,9 +593,6 @@ static gboolean charging_fallback(gpointer data)
   current_mode.mode = strdup(MODE_ASK);
   current_mode.data = NULL;
   charging_timeout = 0;
-  /* for extra safety we explicitly set charging_mode_set
-     to false as the mode was not chosen */
-  charging_mode_set = FALSE;
   log_info("Falling back on charging mode.\n");
 	
   return(FALSE);
