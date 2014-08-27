@@ -1,3 +1,14 @@
+usb-moded (0.80.5) unstable; urgency=low
+
+  * Remove usb_charging_set variable as it is not needed anymore
+  * [devicelock] Fix bug related to secondary device lock check
+  * [devicelock] No need to set dbus return value a second time
+  * [charging fallback] Keep fallback state internal
+  * [charging fallback] introduce charging fallback mode. Fixes JB#22320
+  * [udev] Remove udev defines as it is the only and default one
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Wed, 27 Aug 2014 13:52:53 +0300
+
 usb-moded (0.80.4) unstable; urgency=low
 
   * [usb setting logic] Do not check for mode_to_set_twice Fixes: CID#1230272
