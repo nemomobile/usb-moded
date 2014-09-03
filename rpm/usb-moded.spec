@@ -302,7 +302,7 @@ install -d $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/
 install -m 644 -D systemd/%{name}.service %{buildroot}/lib/systemd/system/%{name}.service
 ln -s ../%{name}.service $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/%{name}.service
 install -m 644 -D systemd/usb-moded-args.conf %{buildroot}/var/lib/environment/usb-moded/usb-moded-args.conf
-install -m 644 -D systemd/turn-usb-rescue-mode-off %{buildroot}/%{_bindir}/turn-usb-rescue-mode-off
+install -m 755 -D systemd/turn-usb-rescue-mode-off %{buildroot}/%{_bindir}/turn-usb-rescue-mode-off
 install -m 644 -D systemd/usb-rescue-mode-off.service %{buildroot}/lib/systemd/system/usb-rescue-mode-off.service
 install -m 644 -D systemd/usb-rescue-mode-off.service %{buildroot}/lib/systemd/system/graphical.target.wants/usb-rescue-mode-off.service
 
