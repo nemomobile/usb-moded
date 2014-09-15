@@ -316,6 +316,9 @@ systemctl daemon-reload || :
 %files
 %defattr(-,root,root,-)
 %doc debian/copyright
+%dir %{_sysconfdir}/usb-moded
+%dir %{_sysconfdir}/usb-moded/dyn-modes
+%dir %{_sysconfdir}/usb-moded/run
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/usb_moded.conf
 %config(noreplace) %{_sysconfdir}/modprobe.d/usb_moded.conf
 %ghost %config(noreplace) %{_sysconfdir}/modprobe.d/g_ether.conf
@@ -389,6 +392,8 @@ systemctl daemon-reload || :
 
 %files diagnostics-config
 %defattr(-,root,root,-)
+%dir %{_sysconfdir}/usb-moded/diag
+%dir %{_sysconfdir}/usb-moded/run-diag
 %{_sysconfdir}/usb-moded/diag/qa_diagnostic_mode.ini
 %{_sysconfdir}/usb-moded/run-diag/qa-diagnostic.ini
 
