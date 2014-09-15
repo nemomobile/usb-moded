@@ -1,3 +1,14 @@
+usb-moded (0.80.6) unstable; urgency=low
+
+  * Support newer autoconf versions correctly
+  * [network] Actually clean-up dynamic mode network
+  * [docs] Fix up doxygen docs for some dbus functions
+  * [rpm] Own config directories. Contributes to JB#22780
+  * Fix memory leak related to charging mode. Fixes: CID#1237447
+  * Fix usb-moded-rescue package exec permissions
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Mon, 15 Sep 2014 18:55:00 +0300
+
 usb-moded (0.80.5) unstable; urgency=low
 
   * Remove usb_charging_set variable as it is not needed anymore
