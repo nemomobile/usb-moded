@@ -471,6 +471,11 @@ void unset_dynamic_mode(void)
 	return;
   }
 
+  if(data->network)
+  {
+	usb_network_down(data);
+  }
+
   /* disconnect before changing functionality */
   if(data->softconnect_disconnect)
   {
@@ -481,7 +486,6 @@ void unset_dynamic_mode(void)
 	write_to_file(data->sysfs_path, data->sysfs_reset_value);
 	log_debug("writing to file %s, value %s\n", data->sysfs_path, data->sysfs_reset_value);
   }
-
 }
 
 #ifdef NOKIA
