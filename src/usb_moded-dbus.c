@@ -365,7 +365,7 @@ int usb_moded_send_signal(const char *state_ind)
  * Send regular usb_moded error signal
  *
  * @return 0 on success, 1 on failure
- * @param state_ind the signal name
+ * @param error the error to be signalled
  *
 */
 int usb_moded_send_error_signal(const char *error)
@@ -377,7 +377,7 @@ int usb_moded_send_error_signal(const char *error)
  * Send regular usb_moded mode list signal
  *
  * @return 0 on success, 1 on failure
- * @param state_ind the signal name
+ * @param supported_modes list of supported modes
  *
 */
 int usb_moded_send_supported_modes_signal(const char *supported_modes)
