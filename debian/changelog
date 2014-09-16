@@ -1,3 +1,9 @@
+usb-moded (0.80.7) unstable; urgency=low
+
+  * [dbus] Do assign fallback mode correctly to avoid corruption
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Tue, 16 Sep 2014 12:38:31 +0300
+
 usb-moded (0.80.6) unstable; urgency=low
 
   * Support newer autoconf versions correctly
