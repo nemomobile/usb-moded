@@ -297,6 +297,7 @@ install -m 644 -D config/mass-storage-jolla.ini %{buildroot}/%{_sysconfdir}/usb-
 rm %{buildroot}/etc/usb-moded/dyn-modes/sync_mode.ini
 
 touch %{buildroot}/%{_sysconfdir}/modprobe.d/g_ether.conf
+touch %{buildroot}/%{_sysconfdir}/udhcpd.conf
 #systemd stuff
 install -d $RPM_BUILD_ROOT/lib/systemd/system/basic.target.wants/
 install -m 644 -D systemd/%{name}.service %{buildroot}/lib/systemd/system/%{name}.service
@@ -322,6 +323,7 @@ systemctl daemon-reload || :
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/usb_moded.conf
 %config(noreplace) %{_sysconfdir}/modprobe.d/usb_moded.conf
 %ghost %config(noreplace) %{_sysconfdir}/modprobe.d/g_ether.conf
+%ghost %{_sysconfdir}/udhcpd.conf
 %{_sbindir}/usb_moded
 %{_sbindir}/usb_moded_util
 %{_mandir}/man1/usb-moded.1.gz
