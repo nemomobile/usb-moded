@@ -91,15 +91,18 @@ static char* get_interface(struct mode_list_elem *data)
   char *interface = NULL;
   int check = 0;
 
-  if(data)
+  /* check main configuration before using
+     the information from the specific mode */
+  interface = (char *)get_network_interface();
+  /* no interface override specified, let's use the one
+     from the mode config */
+  if(data && !interface)
   {
 	if(data->network_interface)
 	{	
 		interface = strdup(data->network_interface);
 	}
   }
-  else
-  	interface = (char *)get_network_interface();
 
   if(interface != NULL)
 	check = check_interface(interface);
@@ -108,6 +111,7 @@ static char* get_interface(struct mode_list_elem *data)
   {
 	if(interface != NULL)
 		free((char *)interface);
+	/* no known interface configured and existing, falling back to usb0 */
 	interface = malloc(sizeof(default_interface)*sizeof(char));
 	strncpy(interface, default_interface, sizeof(default_interface));
   }
