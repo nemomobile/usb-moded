@@ -913,6 +913,7 @@ int main(int argc, char* argv[])
                 }
         }
 
+	printf("usb_moded %s starting\n", VERSION);
 	/* silence system() calls */
 	if(log_type != LOG_TO_STDERR || log_level != LOG_DEBUG )	
 	{
@@ -926,7 +927,6 @@ int main(int argc, char* argv[])
 	g_thread_init(NULL);
 #endif
 	mainloop = g_main_loop_new(NULL, FALSE);
-	log_debug("usb_moded starting\n");
 
 	/* init daemon into a clean state first, then dbus and hw_abstraction last */
 	usb_moded_init();
