@@ -5,6 +5,7 @@ Wants=systemd-udev-settle.service
 Requires=dbus.socket
 After=local-fs.target dbus.socket systemd-udev-settle.service
 Conflicts=shutdown.target
+BusName=com.meego.usb_moded
 
 [Service]
 Type=notify
