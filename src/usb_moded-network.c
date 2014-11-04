@@ -408,24 +408,25 @@ static char * connman_parse_manager_reply(DBusMessage *reply, const char *req_se
 
 	  if(type == DBUS_TYPE_STRUCT)
 	  {
+		origiter = iter;
 		dbus_message_iter_recurse(&iter, &subiter);
 		type = dbus_message_iter_get_arg_type(&subiter);
-		iter = subiter;
 		if(type == DBUS_TYPE_OBJECT_PATH)
 		{
-			dbus_message_iter_get_basic(&iter, &service);
+			dbus_message_iter_get_basic(&subiter, &service);
 			log_debug("service = %s\n", service);
 			if(strstr(service, req_service))
 			{
 				log_debug("%s service found!\n", req_service);
 				return(strdup(service));
 			}
-			iter = origiter;
 		}
 	   }
-	dbus_message_iter_next(&iter);
-	type = dbus_message_iter_get_arg_type(&iter);
+	dbus_message_iter_next(&origiter);
+	type = dbus_message_iter_get_arg_type(&origiter);
+	iter = origiter;
   }
+  log_debug("end of list\n");
   return(0);
 }
 
@@ -791,21 +792,64 @@ end:
   return(ret);
 }
 
+#if CONNMAN_WORKS_BETTER
+static int append_variant(DBusMessageIter *iter, const char *property,
+		int type, const char *value)
+{
+	DBusMessageIter variant;
+	const char *type_str;
+
+	switch(type) {
+	case DBUS_TYPE_BOOLEAN:
+                type_str = DBUS_TYPE_BOOLEAN_AS_STRING;
+                break;
+        case DBUS_TYPE_BYTE:
+                type_str = DBUS_TYPE_BYTE_AS_STRING;
+                break;
+        case DBUS_TYPE_STRING:
+                type_str = DBUS_TYPE_STRING_AS_STRING;
+                break;
+	case DBUS_TYPE_INT32:
+		type_str = DBUS_TYPE_INT32_AS_STRING;
+		break;
+	default:
+		return -EOPNOTSUPP;
+	}
+
+	dbus_message_iter_append_basic(iter, DBUS_TYPE_STRING, &property);
+	dbus_message_iter_open_container(iter, DBUS_TYPE_VARIANT, type_str,
+			&variant);
+	dbus_message_iter_append_basic(&variant, type, value);
+	dbus_message_iter_close_container(iter, &variant);
+
+	return 0;
+}
+#endif /* CONNMAN */
+
 /**
  * Activate the network interface
  *
  */
 int usb_network_up(struct mode_list_elem *data)
 {
-  const char *ip, *interface, *gateway;
-  char command[128];
+  const char *ip = NULL, *gateway = NULL;
   int ret = -1;
 
-#if CONNMAN_IS_EVER_FIXED_FOR_USB
+#if CONNMAN_WORKS_BETTER
   DBusConnection *dbus_conn_connman = NULL;
   DBusMessage *msg = NULL, *reply = NULL;
+  DBusMessageIter iter, variant, dict;
+  DBusMessageIter msg_iter;
+  DBusMessageIter dict_entry;
   DBusError error;
+  const char *service = NULL;
 
+  /* make sure connman will recognize the gadget interface NEEDED? */
+  //system("/bin/dbus-send --print-reply --type=method_call --system --dest=net.connman /net/connman/technology/gadget net.connman.Technology.SetProperty string:Powered variant:boolean:true");
+  //system("/sbin/ifconfig rndis0 up");
+
+  log_debug("waiting for connman to pick up interface\n");
+  sleep(1);
   dbus_error_init(&error);
 
   if( (dbus_conn_connman = dbus_bus_get(DBUS_BUS_SYSTEM, &error)) == 0 )
@@ -813,20 +857,98 @@ int usb_network_up(struct mode_list_elem *data)
          log_err("Could not connect to dbus for connman\n");
   }
 
-  if ((msg = dbus_message_new_method_call("net.connman", "/", "net.connman.Service", connect)) != NULL)
+  /* get list of services so we can find out which one is the usb gadget */
+  if ((msg = dbus_message_new_method_call("net.connman", "/", "net.connman.Manager", "GetServices")) != NULL)
   {
         if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_connman, msg, -1, NULL)) != NULL)
         {
-            dbus_message_get_args(reply, NULL, DBUS_TYPE_INT32, &ret, DBUS_TYPE_INVALID);
+            service = connman_parse_manager_reply(reply, "gadget");
             dbus_message_unref(reply);
         }
         dbus_message_unref(msg);
   }
+
+  if(service == NULL)
+	return(1);
+  log_debug("gadget = %s\n", service);
+
+  /* now we need to configure the connection */
+  if ((msg = dbus_message_new_method_call("net.connman", service, "net.connman.Service", "SetProperty")) != NULL)
+  {
+	log_debug("iter init\n");
+	dbus_message_iter_init_append(msg, &msg_iter);
+	log_debug("iter append\n");
+	// TODO: crashes here, need to rework this whole bit, connman dbus is hell
+	dbus_message_iter_append_basic(&msg_iter, DBUS_TYPE_STRING, "IPv4.Configuration");
+	log_debug("iter open container\n");
+	dbus_message_iter_open_container(&msg_iter, DBUS_TYPE_VARIANT,
+			DBUS_TYPE_ARRAY_AS_STRING
+				DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
+					DBUS_TYPE_STRING_AS_STRING
+					DBUS_TYPE_VARIANT_AS_STRING
+				DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
+			&variant);
+
+	log_debug("iter open container 2\n");
+	dbus_message_iter_open_container(&variant, DBUS_TYPE_ARRAY,
+			DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
+				DBUS_TYPE_STRING_AS_STRING
+				DBUS_TYPE_VARIANT_AS_STRING
+			DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
+			&dict);
+
+	log_debug("Set Method\n");
+	dbus_message_iter_open_container(&dict, DBUS_TYPE_DICT_ENTRY, NULL, &dict_entry);
+	append_variant(&dict_entry, "Method", DBUS_TYPE_STRING, "manual");
+	dbus_message_iter_close_container(&dict, &dict_entry);
+
+	log_debug("Set ip\n");
+	ip = get_network_ip();
+	if(ip == NULL)
+		ip = strdup("192.168.2.15");
+	dbus_message_iter_open_container(&dict, DBUS_TYPE_DICT_ENTRY, NULL, &dict_entry);
+	append_variant(&dict_entry, "Address", DBUS_TYPE_STRING, ip);
+	dbus_message_iter_close_container(&dict, &dict_entry);
+
+	log_debug("Set netmask\n");
+	dbus_message_iter_open_container(&dict, DBUS_TYPE_DICT_ENTRY, NULL, &dict_entry);
+	append_variant(&dict_entry, "Netmask", DBUS_TYPE_STRING, "255.255.255.0");
+	dbus_message_iter_close_container(&dict, &dict_entry);
+
+	log_debug("set gateway\n");
+	gateway = get_network_gateway();
+	if(gateway)
+	{
+		dbus_message_iter_open_container(&dict, DBUS_TYPE_DICT_ENTRY, NULL, &dict_entry);
+		append_variant(&dict_entry, "Gateway", DBUS_TYPE_STRING, gateway);
+		dbus_message_iter_close_container(&dict, &dict_entry);
+	}
+	dbus_message_iter_close_container(&variant, &dict);
+	dbus_message_iter_close_container(&msg_iter, &variant);
+  }
+
+  log_debug("Connect gadget\n");
+  /* Finally we can bring it up */
+  if ((msg = dbus_message_new_method_call("net.connman", service, "net.connman.Service", "Connect")) != NULL)
+  {
+        /* we don't care for the reply, which is empty anyway if all goes well */
+        ret = !dbus_connection_send(dbus_conn_connman, msg, NULL);
+        /* make sure the message is sent before cleaning up and closing the connection */
+        dbus_connection_flush(dbus_conn_connman);
+        dbus_message_unref(msg);
+  }
   dbus_connection_unref(dbus_conn_connman);
   dbus_error_free(&error);
+  free((char *)service);
+  if(ip)
+	free((char *)ip);
+  if(gateway)
+	free((char *)gateway);
   return(ret);
 
 #else
+  char command[128];
+  const char *interface;
 
   interface = get_interface(data); 
   ip = get_network_ip();
@@ -868,7 +990,7 @@ clean:
   free((char *)ip);
 
   return(0);
-#endif /* CONNMAN_IS_EVER_FIXED_FOR_USB */
+#endif /* CONNMAN */
 }
 
 /**
@@ -877,7 +999,51 @@ clean:
  */
 int usb_network_down(struct mode_list_elem *data)
 {
-#if CONNMAN_IS_EVER_FIXED_FOR_USB
+#if CONNMAN_WORKS_BETTER
+  DBusConnection *dbus_conn_connman = NULL;
+  DBusMessage *msg = NULL, *reply = NULL;
+  DBusError error;
+  char *service = NULL;
+  int ret = -1;
+
+  dbus_error_init(&error);
+
+  if( (dbus_conn_connman = dbus_bus_get(DBUS_BUS_SYSTEM, &error)) == 0 )
+  {
+         log_err("Could not connect to dbus for connman\n");
+  }
+
+  /* get list of services so we can find out which one is the usb gadget */
+  if ((msg = dbus_message_new_method_call("net.connman", "/", "net.connman.Manager", "GetServices")) != NULL)
+  {
+        if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_connman, msg, -1, NULL)) != NULL)
+        {
+            service = connman_parse_manager_reply(reply, "gadget");
+            dbus_message_unref(reply);
+        }
+        dbus_message_unref(msg);
+  }
+
+  if(service == NULL)
+	return(1);
+
+  /* Finally we can shut it down */
+  if ((msg = dbus_message_new_method_call("net.connman", service, "net.connman.Service", "Disconnect")) != NULL)
+  {
+        /* we don't care for the reply, which is empty anyway if all goes well */
+        ret = !dbus_connection_send(dbus_conn_connman, msg, NULL);
+        /* make sure the message is sent before cleaning up and closing the connection */
+        dbus_connection_flush(dbus_conn_connman);
+        dbus_message_unref(msg);
+  }
+  free(service);
+
+  /* dhcp server shutdown happens on disconnect automatically */
+  if(data->nat)
+	clean_usb_ip_forward();
+  dbus_error_free(&error);
+
+  return(ret);
 #else
   const char *interface;
   char command[128];
