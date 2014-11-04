@@ -391,7 +391,7 @@ end:
 /**
  * Connman message handling
  */
-static const char * connman_parse_manager_reply(DBusMessage *reply, const char *req_service)
+static char * connman_parse_manager_reply(DBusMessage *reply, const char *req_service)
 {
   DBusMessageIter iter, subiter, origiter;
   int type;
@@ -550,7 +550,7 @@ static int connman_set_cellular_online(DBusConnection *dbus_conn_connman, const 
   DBusMessage *msg = NULL, *reply;
   DBusError error;
   int ret = 0;
-  const char *wifi = NULL;
+  char *wifi = NULL;
 
   dbus_error_init(&error);
 
@@ -588,6 +588,9 @@ static int connman_set_cellular_online(DBusConnection *dbus_conn_connman, const 
 	dbus_connection_flush(dbus_conn_connman);
         dbus_message_unref(msg);
   }
+
+  if(wifi)
+	free(wifi);
 
   return(ret);
 }
@@ -664,7 +667,7 @@ static int connman_get_connection_data(struct ipforward_data *ipforward)
   DBusConnection *dbus_conn_connman = NULL;
   DBusMessage *msg = NULL, *reply = NULL;
   DBusError error;
-  const char *service = NULL;
+  char *service = NULL;
   int online = 0, ret = 0;
 
   dbus_error_init(&error);
@@ -716,7 +719,7 @@ try_again:
   }
   dbus_connection_unref(dbus_conn_connman);
   dbus_error_free(&error);
-  free((char *)service);
+  free(service);
   return(ret);
 }
 
