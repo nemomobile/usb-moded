@@ -80,7 +80,7 @@ static int check_interface(char *interface)
   char command[32];
   int ret = 0;
 
-   snprintf(command, 32, "ifconfig %s\n", interface );
+   snprintf(command, 32, "ifconfig %s > /dev/null\n", interface );
    ret = system(command);
 
    return(ret);
