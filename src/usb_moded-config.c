@@ -85,12 +85,12 @@ const char * find_alt_mount(void)
   return(get_conf_string(ALT_MOUNT_ENTRY, ALT_MOUNT_KEY));
 }
 
-const char * find_udev_path(void)
+char * find_udev_path(void)
 {
   return(get_conf_string(UDEV_PATH_ENTRY, UDEV_PATH_KEY));
 }
 
-const char * find_udev_subsystem(void)
+char * find_udev_subsystem(void)
 {
   return(get_conf_string(UDEV_PATH_ENTRY, UDEV_SUBSYSTEM_KEY));
 }
@@ -333,9 +333,9 @@ static char * get_kcmdline_string(const char *entry)
   return(ret);
 }
 
-const char * get_mode_setting(void)
+char * get_mode_setting(void)
 {
-  const char * mode = get_kcmdline_string(MODE_SETTING_KEY);
+  char * mode = get_kcmdline_string(MODE_SETTING_KEY);
   if (mode != NULL)
     return(mode);
 
@@ -418,9 +418,9 @@ int set_network_setting(const char *config, const char *setting)
   return(!ret);
 }
 
-const char * get_network_setting(const char *config)
+char * get_network_setting(const char *config)
 {
-  const char * ret = 0;
+  char * ret = 0;
   struct mode_list_elem *data;
 
   if(!strcmp(config, NETWORK_IP_KEY))
@@ -457,12 +457,12 @@ int conf_file_merge(void)
 {
   GDir *confdir;
   struct stat fileinfo, dir;
-  const gchar *filename, *mode = 0, *ip = 0, *gateway = 0;
+  char *mode = 0, *ip = 0, *gateway = 0, *udev = 0;
   gchar *filename_full;
+  const gchar *filename;
   GString *keyfile_string = NULL;
   GKeyFile *settingsfile;
   int ret = 0, test = 0, conffile_created = 0;
-  const gchar *udev = 0;
 
   confdir = g_dir_open(CONFIG_FILE_DIR, 0, NULL);
   if(!confdir)
@@ -559,13 +559,13 @@ next:
 	ret = 1;
 cleanup:
   if(mode)
-  	free((void *)mode);
+	free(mode);
   if(udev)
-	free((void *)udev);
+	free(udev);
   if(ip)
-	free((void *)ip);
+	free(ip);
   if(gateway)
-	free((void *)gateway);
+	free(gateway);
 	
 end:
   g_dir_close(confdir);

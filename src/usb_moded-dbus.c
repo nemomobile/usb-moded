@@ -155,7 +155,7 @@ error_reply:
 	else if(!strcmp(member, USB_MODE_NETWORK_GET))
 	{
 		char *config = 0;
-		const char *setting = 0;
+		char *setting = 0;
 		DBusError   err = DBUS_ERROR_INIT;
 
 		if(!dbus_message_get_args(msg, &err, DBUS_TYPE_STRING, &config, DBUS_TYPE_INVALID))
@@ -177,11 +177,11 @@ error_reply:
 	}
 	else if(!strcmp(member, USB_MODE_CONFIG_GET))
 	{
-		const char *config = get_mode_setting();
+		char *config = get_mode_setting();
 		
       		if((reply = dbus_message_new_method_return(msg)))
         		dbus_message_append_args (reply, DBUS_TYPE_STRING, &config, DBUS_TYPE_INVALID);
-		free((void *)config);
+		free(config);
 	}
 	else if(!strcmp(member, USB_MODE_LIST))
 	{

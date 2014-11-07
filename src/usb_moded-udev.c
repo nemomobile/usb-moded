@@ -63,7 +63,7 @@ static void notify_issue (gpointer data)
 
 gboolean hwal_init(void)
 {
-  const gchar *udev_path = NULL, *udev_subsystem = NULL;
+  char *udev_path = NULL, *udev_subsystem = NULL;
   struct udev_device *dev;
   int ret = 0;
 

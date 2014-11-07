@@ -60,8 +60,8 @@ const char * find_mounts(void);
 int find_sync(void);
 const char * find_alt_mount(void);
 
-const char * find_udev_path(void);
-const char * find_udev_subsystem(void);
+char * find_udev_path(void);
+char * find_udev_subsystem(void);
 
 #ifdef NOKIA
 const char * find_cdrom_path(void);

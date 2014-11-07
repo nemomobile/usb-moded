@@ -23,7 +23,7 @@
 
 /*============================================================================= */
 
-const char * get_mode_setting(void);
+char * get_mode_setting(void);
 int set_mode_setting(const char *mode);
 int set_network_setting(const char *config, const char *setting);
-const char *get_network_setting(const char *config);
+char *get_network_setting(const char *config);
