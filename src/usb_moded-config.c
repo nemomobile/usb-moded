@@ -41,8 +41,8 @@
 #include "usb_moded-modes.h"
 
 static int get_conf_int(const gchar *entry, const gchar *key);
-static const char * get_conf_string(const gchar *entry, const gchar *key);
-static const char * get_kcmdline_string(const char *entry);
+static char * get_conf_string(const gchar *entry, const gchar *key);
+static char * get_kcmdline_string(const char *entry);
 
 static int validate_ip(const char *ipadd)
 {
@@ -132,9 +132,9 @@ const char * get_trigger_value(void)
   return(get_conf_string(TRIGGER_ENTRY, TRIGGER_PROPERTY_VALUE_KEY));
 }
 
-const char * get_network_ip(void)
+char * get_network_ip(void)
 {
-  const char * ip = get_kcmdline_string(NETWORK_IP_KEY);
+  char * ip = get_kcmdline_string(NETWORK_IP_KEY);
   if (ip != NULL)
     if(!validate_ip(ip))
 	return(ip);
@@ -142,21 +142,21 @@ const char * get_network_ip(void)
   return(get_conf_string(NETWORK_ENTRY, NETWORK_IP_KEY));
 }
 
-const char * get_network_interface(void)
+char * get_network_interface(void)
 {
   return(get_conf_string(NETWORK_ENTRY, NETWORK_INTERFACE_KEY));
 }
 
-const char * get_network_gateway(void)
+char * get_network_gateway(void)
 {
-  const char * gw = get_kcmdline_string(NETWORK_GATEWAY_KEY);
+  char * gw = get_kcmdline_string(NETWORK_GATEWAY_KEY);
   if (gw != NULL)
     return(gw);
 
   return(get_conf_string(NETWORK_ENTRY, NETWORK_GATEWAY_KEY));
 }
 
-const char * get_network_nat_interface(void)
+char * get_network_nat_interface(void)
 {
   return(get_conf_string(NETWORK_ENTRY, NETWORK_NAT_INTERFACE_KEY));
 }
@@ -225,7 +225,7 @@ static int get_conf_int(const gchar *entry, const gchar *key)
 
 }
 
-static const char * get_conf_string(const gchar *entry, const gchar *key)
+static char * get_conf_string(const gchar *entry, const gchar *key)
 {
   GKeyFile *settingsfile;
   gboolean test = FALSE;
@@ -262,11 +262,11 @@ end:
 
 }
 
-static const char * get_kcmdline_string(const char *entry)
+static char * get_kcmdline_string(const char *entry)
 {
   int fd;
   char cmdLine[1024];
-  const char *ret = NULL;
+  char *ret = NULL;
   int len;
   gint argc = 0;
   gchar **argv = NULL;

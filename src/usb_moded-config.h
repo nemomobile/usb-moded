@@ -74,10 +74,10 @@ const char * get_trigger_mode(void);
 const char * get_trigger_property(void);
 const char * get_trigger_value(void);
 
-const char * get_network_ip(void);
-const char * get_network_interface(void);
-const char * get_network_gateway(void);
-const char * get_network_nat_interface(void);
+char * get_network_ip(void);
+char * get_network_interface(void);
+char * get_network_gateway(void);
+char * get_network_nat_interface(void);
 
 const char * get_android_manufacturer(void);
 const char * get_android_vendor_id(void);

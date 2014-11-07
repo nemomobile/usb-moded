@@ -131,7 +131,7 @@ static char* get_interface(struct mode_list_elem *data)
  */
 static int set_usb_ip_forward(struct mode_list_elem *data, struct ipforward_data *ipforward)
 {
-  const char *interface, *nat_interface;
+  char *interface, *nat_interface;
   char command[128];
 
   interface = get_interface(data);
@@ -158,8 +158,8 @@ static int set_usb_ip_forward(struct mode_list_elem *data, struct ipforward_data
   snprintf(command, 128, "/sbin/iptables -A FORWARD -i %s -o %s -j ACCEPT", interface, nat_interface);
   system(command);
 
-  free((char *)interface);
-  free((char *)nat_interface);
+  free(interface);
+  free(nat_interface);
   log_debug("ipforwarding success!\n");
   return(0);
 }
@@ -301,7 +301,7 @@ end:
 static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_elem *data)
 {
   FILE *conffile;
-  const char *ip, *interface; 
+  char *ip, *interface;
   char *ipstart, *ipend;
   int dot = 0, i = 0, test;
   struct stat st;
@@ -361,8 +361,8 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
 
   free(ipstart);
   free(ipend);
-  free((char*)ip);
-  free((char*)interface);
+  free(ip);
+  free(interface);
   fclose(conffile);
   log_debug("/etc/udhcpd.conf written.\n");
 
@@ -832,7 +832,7 @@ static int append_variant(DBusMessageIter *iter, const char *property,
  */
 int usb_network_up(struct mode_list_elem *data)
 {
-  const char *ip = NULL, *gateway = NULL;
+  char *ip = NULL, *gateway = NULL;
   int ret = -1;
 
 #if CONNMAN_WORKS_BETTER
@@ -939,11 +939,11 @@ int usb_network_up(struct mode_list_elem *data)
   }
   dbus_connection_unref(dbus_conn_connman);
   dbus_error_free(&error);
-  free((char *)service);
+  free(service);
   if(ip)
-	free((char *)ip);
+	free(ip);
   if(gateway)
-	free((char *)gateway);
+	free(gateway);
   return(ret);
 
 #else
