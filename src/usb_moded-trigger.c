@@ -172,19 +172,20 @@ void trigger_stop(void)
 
 static void udev_parse(struct udev_device *dev)
 {
-  const char *tmp, *trigger = 0;
+  const char *tmp = 0;
+  char *trigger = 0;
  
   trigger = get_trigger_property();
   tmp = udev_device_get_property_value(dev, trigger);
   if(!tmp)
   {
     /* do nothing and return */
-    free((void *)trigger);
+    free(trigger);
     return;
   }
   else
   {
-    free((void *)trigger);
+    free(trigger);
     trigger = get_trigger_value();
     if(trigger)
     {
@@ -198,11 +199,11 @@ static void udev_parse(struct udev_device *dev)
 		usb_moded_mode_cleanup(get_usb_module());
       	   	set_usb_mode(get_trigger_mode());
 	   }
-	   free((void *)trigger);
+	   free(trigger);
 	}
 	else
 	{
-	   free((void *)trigger);
+	   free(trigger);
 	   return;
 	}
     }

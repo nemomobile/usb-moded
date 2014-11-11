@@ -210,8 +210,7 @@ void set_charger_connected(gboolean state)
  */
 void set_usb_connected_state(void)
 {	
-
-  const char *mode_to_set;  
+  char *mode_to_set;
 #ifdef MEEGOLOCK
   int export = 1; /* assume locked */
 #endif /* MEEGOLOCK */
@@ -283,7 +282,7 @@ void set_usb_connected_state(void)
 	set_usb_mode(MODE_CHARGING_FALLBACK);
   }
 end:
-  free((void *)mode_to_set); 
+  free(mode_to_set);
 }
 
 /** set the usb mode 
@@ -626,8 +625,8 @@ static void handle_exit(void)
 	g_main_loop_quit(mainloop);
 	g_main_loop_unref(mainloop);
   }
-  free((void *)current_mode.mode);
-  free((void *)current_mode.module);
+  free(current_mode.mode);
+  free(current_mode.module);
 
   log_debug("All resources freed. Exiting!\n");
 

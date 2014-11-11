@@ -107,27 +107,27 @@ int find_cdrom_timeout(void)
 }
 #endif /* NOKIA */
 
-const char * check_trigger(void)
+char * check_trigger(void)
 {
   return(get_conf_string(TRIGGER_ENTRY, TRIGGER_PATH_KEY));
 }
 
-const char * get_trigger_subsystem(void)
+char * get_trigger_subsystem(void)
 {
   return(get_conf_string(TRIGGER_ENTRY, TRIGGER_UDEV_SUBSYSTEM));
 }
 
-const char * get_trigger_mode(void)
+char * get_trigger_mode(void)
 {
   return(get_conf_string(TRIGGER_ENTRY, TRIGGER_MODE_KEY));
 }
 
-const char * get_trigger_property(void)
+char * get_trigger_property(void)
 {
   return(get_conf_string(TRIGGER_ENTRY, TRIGGER_PROPERTY_KEY));
 }
 
-const char * get_trigger_value(void)
+char * get_trigger_value(void)
 {
   return(get_conf_string(TRIGGER_ENTRY, TRIGGER_PROPERTY_VALUE_KEY));
 }
@@ -572,22 +572,22 @@ end:
   return(ret);
 }
 
-const char * get_android_manufacturer(void)
+char * get_android_manufacturer(void)
 {
   return(get_conf_string(ANDROID_ENTRY, ANDROID_MANUFACTURER_KEY));
 }
 
-const char * get_android_vendor_id(void)
+char * get_android_vendor_id(void)
 {
   return(get_conf_string(ANDROID_ENTRY, ANDROID_VENDOR_ID_KEY));
 }
 
-const char * get_android_product(void)
+char * get_android_product(void)
 {
   return(get_conf_string(ANDROID_ENTRY, ANDROID_PRODUCT_KEY));
 }
 
-const char * get_android_product_id(void)
+char * get_android_product_id(void)
 {
   return(get_conf_string(ANDROID_ENTRY, ANDROID_PRODUCT_ID_KEY));
 }

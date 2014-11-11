@@ -68,21 +68,21 @@ const char * find_cdrom_path(void);
 int find_cdrom_timeout(void);
 #endif
 
-const char * check_trigger(void);
-const char * get_trigger_subsystem(void);
-const char * get_trigger_mode(void);
-const char * get_trigger_property(void);
-const char * get_trigger_value(void);
+char * check_trigger(void);
+char * get_trigger_subsystem(void);
+char * get_trigger_mode(void);
+char * get_trigger_property(void);
+char * get_trigger_value(void);
 
 char * get_network_ip(void);
 char * get_network_interface(void);
 char * get_network_gateway(void);
 char * get_network_nat_interface(void);
 
-const char * get_android_manufacturer(void);
-const char * get_android_vendor_id(void);
-const char * get_android_product(void);
-const char * get_android_product_id(void);
+char * get_android_manufacturer(void);
+char * get_android_vendor_id(void);
+char * get_android_product(void);
+char * get_android_product_id(void);
 
 int check_android_section(void);
 

@@ -47,37 +47,37 @@ int android_settings(void)
  */
 void android_init_values(void)
 {
-  const char *text;
+  char *text;
 
   text = get_android_manufacturer();
   if(text)
   {
 	write_to_file("/sys/class/android_usb/android0/iManufacturer", text);
-	g_free((char *)text);
+	g_free(text);
   }
   text = get_android_vendor_id();
   if(text)
   {
 	write_to_file("/sys/class/android_usb/android0/idVendor", text);
-	g_free((char *)text);
+	g_free(text);
   }
   text = get_android_product();
   if(text)
   {
 	write_to_file("/sys/class/android_usb/android0/iProduct", text);
-	g_free((char *)text);
+	g_free(text);
   }
   text = get_android_product_id();
   if(text)
   {
 	write_to_file("/sys/class/android_usb/android0/idProduct", text);
-	g_free((char *)text);
+	g_free(text);
   }
   text = read_mac();
   if(text)
   {
 	write_to_file("/sys/class/android_usb/f_rndis/ethaddr", text);
-	g_free((char *)text);
+	g_free(text);
   }
   /* For rndis to be discovered correctly in M$ Windows (vista and later) */
   write_to_file("/sys/class/android_usb/f_rndis/wceis", "1");
