@@ -248,6 +248,20 @@ system bus.
 This package contains configuration to enable sharing over mass-storage
 with the android gadget driver.
 
+%package vfat-android-config
+Summary:  USB mode controller - vfat config with tojblockd
+Group:  Config
+Requires: tojblockd
+
+%description vfat-android-config
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains configuration to enable sharing over vfat
+emulation with tojblockd and nbd.
+
 %package systemd-rescue-mode
 Summary: USB mode controller - systemd rescue mode support
 Group:	Config
@@ -408,6 +422,11 @@ systemctl daemon-reload || :
 %defattr(-,root,root,-)
 %{_sysconfdir}/usb-moded/dyn-modes/mass_storage_android.ini
 %{_sysconfdir}/usb-moded/mass-storage-jolla.ini
+
+%files vfat-android-config
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/vfat_android.ini
+%{_sysconfdir}/usb-moded/run/vfat.ini
 
 %files host-mode-jolla
 %defattr(-,root,root,-)
