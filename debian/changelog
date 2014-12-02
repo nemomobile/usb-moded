@@ -1,3 +1,23 @@
+usb-moded (0.81.0) unstable; urgency=low
+
+  * [systemd] according to systemd manpage / is converted to - to make a valid filename
+  * [vfat_android] and new subpackage and configurations for tojblockd vfat emulation mode
+  * [clean-up] Remove still some more unneeded casting
+  * [security] Use -fPIE
+  * [security] Build with read-only relocation
+  * [clean-up] Remove more const stuff
+  * [clean-up] Remove some erronous uses of const
+  * [network] More work on getting connman to handle the usb gadget config
+  * [network] Remove erronous use of const, fix potential memory leak
+  * [network] Silence interface checks
+  * [systemd] Claim DBUS Busname. Contributes: JB#24120
+  * [usb-moded] When starting print version
+  * [network] main config file interface setting overrides dyn-mode setting
+  * [rpm] ghost the udhcpd.conf link Contributes: JB#22780
+  * Add build support for openembedded.
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Tue, 02 Dec 2014 14:34:56 +0200
+
 usb-moded (0.80.7) unstable; urgency=low
 
   * [dbus] Do assign fallback mode correctly to avoid corruption
