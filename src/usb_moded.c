@@ -192,16 +192,23 @@ if(!get_usb_connection_state())
  */
 void set_charger_connected(gboolean state)
 {
+  /* check if charger is already connected
+     to avoid spamming dbus */
+  if(current_mode.connected)
+                return;
+
   if(state)
   {
     usb_moded_send_signal(CHARGER_CONNECTED);
     set_usb_mode(MODE_CHARGER);
+    current_mode.connected = TRUE;
   }
   else
   {
     current_mode.connected = FALSE;
     usb_moded_send_signal(CHARGER_DISCONNECTED);
     set_usb_mode(MODE_UNDEFINED);
+    current_mode.connected = FALSE;
   }
 }
 
