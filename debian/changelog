@@ -1,3 +1,9 @@
+usb-moded (0.81.1) unstable; urgency=low
+
+  * [charger] Debounce charger connection info. Fixes: JB#24913
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Mon, 08 Dec 2014 12:20:33 +0200
+
 usb-moded (0.81.0) unstable; urgency=low
 
   * [systemd] according to systemd manpage / is converted to - to make a valid filename
