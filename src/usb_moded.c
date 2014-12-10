@@ -307,6 +307,8 @@ void set_usb_mode(const char *mode)
   int export = 1;
 #endif
 
+  log_debug("Setting %s\n", mode);
+
   /* CHARGING AND FALLBACK CHARGING are always ok to set, so this can be done
      before the optional second device lock check */
   if(!strcmp(mode, MODE_CHARGING) || !strcmp(mode, MODE_CHARGING_FALLBACK))
@@ -325,6 +327,13 @@ void set_usb_mode(const char *mode)
 	goto end;
   }
 
+  /* Dedicated charger mode needs nothing to be done and no user interaction */
+  if(!strcmp(mode, MODE_CHARGER))
+  {
+	ret = 0;
+	goto end;
+  }
+
 #ifdef MEEGOLOCK
   /* check if we are allowed to export system contents 0 is unlocked */
   /* In ACTDEAD export is always ok */
@@ -340,11 +349,9 @@ void set_usb_mode(const char *mode)
   }
 #endif /* MEEGOLOCK */
 
-  log_debug("Setting %s\n", mode);
-
-  /* nothing needs to be done for these modes, apart from the
-     signalling at the end */
-  if(!strcmp(mode, MODE_ASK) || !strcmp(mode, MODE_CHARGER))
+  /* nothing needs to be done for this mode but signalling.
+     Handled here to avoid issues with ask menu and devicelock */
+  if(!strcmp(mode, MODE_ASK))
   {
 	ret = 0;
 	goto end;
