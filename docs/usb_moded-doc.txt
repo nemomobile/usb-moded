@@ -56,10 +56,29 @@ And errors: sig_usb_state_error_ind
 
 More info and details in usb_moded-dbus.h
 
-There is also a configuration file and some configuration directories under /etc/usb-moded
-It should have some pre-filled fields for the default mass-storage profile
+Main configuration file
+------------------------
 
-The first one would be mountpoints, this defines which device/filesystem entry should be 
+There is also a configuration file and some configuration directories under /etc/usb-moded
+The main config file is /etc/usb-moded/usb-moded.ini . This file will be auto-generated if 
+it is not there (default profile will be developer_mode). Also it will be regenerated if some
+extra config file gets dropped into the /etc/usb-moded/ directory. This way you can easily 
+add extra hw/configuration dependent information in there.
+
+Most common use case would be passing the udev information for the power supply tracking entry,
+as in some cases it is not /sys/class/power_supply/usb
+
+This is also known as config file merging (see further)
+
+The most imporant entry is the power_supply, or iow the place in sysfs where usb_moded can
+read the cable connection status and type. For example on the N900 
+
+[udev]
+path = /sys/class/power_supply/isp1704
+
+Without this information usb_moded will not run and exit.
+
+There are the mountpoints, this defines which device/filesystem entry should be 
 exported over mass-storage (this ideally also has an entry in /etc/fstab). You can add more 
 filesystems to the mount option, by making it a comma-seperated list in case there are 
 several exports (like internal mmc and sd card for example)
@@ -88,10 +107,11 @@ mode = ask
 The other settings and config dirs will be handled later in the appsync and dynamic modes part.
 (This is optional and can be compiled out)
 
-There is also an optional network configuration. Certain parts of this config will override the settings
-set in the dynamic mode configuration, like for example interface. The default ip set for usb networking
-is 192.168.2.15 (for Meego/Nemo). However this can be configured by hand in the ini file also
-(optionally in a separate ini file which is possible due to config file merging).
+There is also an optional network configuration. 
+
+Certain parts of this config will override the settingsset in the dynamic mode configuration, like for example interface! 
+The default ip set for usb networking is 192.168.2.15 (for Meego/Nemo/SailfishOS). However this can be configured by 
+hand in the ini file also (optionally in a separate ini file which is possible due to config file merging).
 
 For example:
 
