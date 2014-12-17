@@ -45,6 +45,12 @@ static guint watch_id;
 static const char *dev_name;
 static int cleanup = 0;
 
+typedef struct power_device {
+        const char *syspath;
+        int score;
+} power_device;
+
+
 /* static function definitions */
 static gboolean monitor_udev(GIOChannel *iochannel G_GNUC_UNUSED, GIOCondition cond,
                              gpointer data G_GNUC_UNUSED);
@@ -61,10 +67,55 @@ static void notify_issue (gpointer data)
 	hwal_init();
 }
 
+static int check_device_is_usb_power_supply(const char *syspath)
+{
+  struct udev *udev;
+  struct udev_device *dev = 0;
+  const char *udev_name;
+  int score = 0;
+
+  udev = udev_new();
+  dev = udev_device_new_from_syspath(udev, syspath);
+  if(!dev)
+        return 0;
+  udev_name = udev_device_get_sysname(dev);
+
+  /* try to assign a weighed score */
+
+  /* check it is no battery */
+  if(strstr(udev_name, "battery") || strstr(udev_name, "BAT"))
+        return 0;
+  /* if it contains usb in the name it very likely is good */
+  if(strstr(udev_name, "usb"))
+        score = score + 10;
+  /* often charger is also mentioned in the name */
+  if(strstr(udev_name, "charger"))
+        score = score + 5;
+  /* present property is used to detect activity, however online is better */
+  if(udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT"))
+        score = score + 5;
+  if(udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE"))
+        score = score + 10;
+  /* type is used to detect if it is a cable or dedicated charger. 
+     Bonus points if it is there. */
+  if(udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE"))
+        score = score + 10;
+
+  /* clean up */
+  udev_device_unref(dev);
+  udev_unref(udev);
+
+  return(score);
+}
+
+
 gboolean hwal_init(void)
 {
   char *udev_path = NULL, *udev_subsystem = NULL;
   struct udev_device *dev;
+  struct udev_enumerate *list;
+  struct udev_list_entry *list_entry, *first_entry;
+  struct power_device power_dev;
   int ret = 0;
 
   cleanup = 0;
@@ -87,15 +138,43 @@ gboolean hwal_init(void)
   	dev = udev_device_new_from_syspath(udev, "/sys/class/power_supply/usb");
   if (!dev) 
   {
-    log_err("Unable to find $power_supply device.");
-    /* communicate failure, mainloop will exit and call appropriate clean-up */
-    return FALSE;
+    log_debug("Trying to guess $power_supply device.\n");
+
+    power_dev.score = 0;
+    power_dev.syspath = 0;
+
+    list = udev_enumerate_new(udev);
+    udev_enumerate_add_match_subsystem(list, "power_supply");
+    udev_enumerate_scan_devices(list);
+    first_entry = udev_enumerate_get_list_entry(list);
+    udev_list_entry_foreach(list_entry, first_entry)
+    {
+	udev_path =  (char *)udev_list_entry_get_name(list_entry);
+        ret = check_device_is_usb_power_supply(udev_path);
+        if(ret)
+        {
+		if(ret > power_dev.score)
+		{
+			power_dev.score = ret;
+			power_dev.syspath = udev_path;
+		}
+	}
+    }
+    /* check if we found anything with some kind of score */
+    if(power_dev.score > 0)
+    {
+  	dev = udev_device_new_from_syspath(udev, power_dev.syspath);
+    }
+    if(!dev)
+    {
+	log_err("Unable to find $power_supply device.");
+	/* communicate failure, mainloop will exit and call appropriate clean-up */
+	return FALSE;
+    }
   }
-  else
-  {
-    dev_name = strdup(udev_device_get_sysname(dev));
-    log_debug("device name = %s\n", dev_name);
-  } 
+
+  dev_name = strdup(udev_device_get_sysname(dev));
+  log_debug("device name = %s\n", dev_name);
   mon = udev_monitor_new_from_netlink (udev, "udev");
   if (!mon) 
   {
