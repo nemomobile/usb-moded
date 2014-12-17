@@ -27,24 +27,73 @@
   02110-1301 USA
 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <poll.h>
 
 #include <libudev.h>
 
+static int check_device_is_usb_power_supply(const char *syspath)
+{
+  struct udev *udev;
+  struct udev_device *dev = 0;
+  const char *udev_name, *property;
+  int score = 0;
+
+  udev = udev_new();
+  dev = udev_device_new_from_syspath(udev, syspath);
+  if(!dev)
+	return 0;
+  udev_name = udev_device_get_sysname(dev);
+  printf("device name = %s\n", udev_name);
+  /* check it is no battery */
+  if(strstr(udev_name, "battery") ||
+     strstr(udev_name, "BAT"))
+	return 0;
+  if(strstr(udev_name, "usb"))
+	score = score + 10;
+  if(strstr(udev_name, "charger"))
+	score = score + 5;
+  if(udev_device_get_property_value(dev, "POWER_SUPPLY_PRESENT"))
+  {
+	score = score + 5;
+	printf("present property found\n");
+  }
+  if(udev_device_get_property_value(dev, "POWER_SUPPLY_ONLINE"))
+  {
+	score = score + 10;
+	printf("online property found\n");
+  }
+  if(udev_device_get_property_value(dev, "POWER_SUPPLY_TYPE"))
+  {
+	score = score + 10;
+	printf("type property found\n");
+  }
+  
+  return(score);
+}
 
 void main (void)
 {
   struct udev *udev;
+  struct udev_device *dev;
   struct udev_enumerate *list;
   struct udev_list_entry *list_entry, *first_entry;
   const char *udev_name;
-  int ret = 0;
+  int ret = 0, score = 0;
+
+  typedef struct power_device {
+	const char *syspath;
+        int score;
+  } power_device;
+
+  struct power_device power_dev;
+
+  power_dev.score = 0;
 
   udev = udev_new();
   list = udev_enumerate_new(udev);
@@ -59,7 +108,19 @@ void main (void)
   udev_list_entry_foreach(list_entry, first_entry)
   {
     udev_name =  udev_list_entry_get_name(list_entry);
-    printf("power_supply device name = %s\n", udev_name);
+    score = check_device_is_usb_power_supply(udev_name);
+    printf("power_supply device name = %s score = %d\n", udev_name, score);
+    if(score)
+    {
+	if(score > power_dev.score)
+	{
+		power_dev.score = score;
+		power_dev.syspath = udev_name;
+        }
+    }
   }
+
+  printf("most likely power supply device = %s\n", power_dev.syspath);
+
   exit(0);
 }
