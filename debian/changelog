@@ -1,3 +1,14 @@
+usb-moded (0.81.2) unstable; urgency=low
+
+  * [udev] Try to do some $power_supply_path autodetection
+  * [udev-util] Add some more functionality to udev-search
+  * [udev] Add small utility to check for udev paths
+  * [documentation] Improve documentation
+  * [charger] do not let devicelock interfere with setting dedicated charger mode
+  * [security] Really enable PIE
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Thu, 18 Dec 2014 16:09:28 +0200
+
 usb-moded (0.81.1) unstable; urgency=low
 
   * [charger] Debounce charger connection info. Fixes: JB#24913
