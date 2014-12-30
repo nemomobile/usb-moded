@@ -334,7 +334,7 @@ int activate_sync_post(const char *mode)
 			continue;
 #ifdef APP_SYNC_DBUS
 		else
-			if(usb_moded_dbus_app_launch(data->launch != 0))
+			if(usb_moded_dbus_app_launch(data->launch) != 0)
 				goto error;
 #endif /* APP_SYNC_DBUS */
       }

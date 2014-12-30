@@ -425,7 +425,7 @@ cleanup:
 /**
  * Launch applications over dbus that need to be synchronized
  */
-int usb_moded_dbus_app_launch(const char *launch)
+int usb_moded_dbus_app_launch(char *launch)
 {
   int ret = -1; // assume failure
 
