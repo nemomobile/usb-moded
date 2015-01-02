@@ -504,8 +504,13 @@ int conf_file_merge(void)
   /* check each ini file and get contents */
   while((filename = g_dir_read_name(confdir)) != NULL)
   {
-	log_debug("filename = %s\n", filename);
+	if(!strstr(filename, ".ini"))
+	{
+		/* skip this file as it might be a dir or not an ini file */
+		continue;
+	}
 	filename_full = g_strconcat(CONFIG_FILE_DIR, "/", filename, NULL);
+	log_debug("filename = %s\n", filename_full);
 	if(!strcmp(filename_full, FS_MOUNT_CONFIG_FILE))
 	{
 		/* store mode info to add it later as we want to keep it */

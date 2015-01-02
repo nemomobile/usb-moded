@@ -374,9 +374,10 @@ The main config file for usb_moded is /etc/usb-moded/usb-moded.ini
 If this does not exist usb_moded will create one for you, which will default
 to setting up a default network with ip 192.168.2.15 and uses the g_ether module.
 
-The different sections of the config file can be split out in different ini files,
-however take into account usb_moded will need to be restarted to merge these in a 
-new usb-moded.ini file. As usb_moded will check if new files were added to the /etc/usb-moded
+The different sections of the config file can be split out in different ini files 
+(they thus need to end in .ini or they will not be considered as valid). However take into 
+account usb_moded will need to be restarted to merge these in a new usb-moded.ini file. 
+As usb_moded will only then check if new files were added to the /etc/usb-moded
 directory and refresh the main ini file as needed on start-up.
 
 diagnostic mode
