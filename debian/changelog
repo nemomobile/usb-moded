@@ -1,3 +1,11 @@
+usb-moded (0.81.3) unstable; urgency=low
+
+  * [debouncing] Improve debouncing to avoid missing signals. Fixes: JB#25557
+  * [config] skip non ini files on config file merging
+  * [appsync-dbus] Fix small error checking bug
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Mon, 12 Jan 2015 16:44:12 +0200
+
 usb-moded (0.81.2) unstable; urgency=low
 
   * [udev] Try to do some $power_supply_path autodetection
