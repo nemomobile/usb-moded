@@ -105,7 +105,7 @@ void set_usb_connected(gboolean connected)
            spurious load/unloads due to faulty signalling 
 	   NOKIA: careful with devicelock
 	*/
-	if(current_mode.connected)
+	if(current_mode.connected == connected)
 		return;
 
 #ifdef NOKIA
@@ -194,7 +194,7 @@ void set_charger_connected(gboolean state)
 {
   /* check if charger is already connected
      to avoid spamming dbus */
-  if(current_mode.connected)
+  if(current_mode.connected == state)
                 return;
 
   if(state)
