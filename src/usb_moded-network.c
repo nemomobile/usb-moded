@@ -294,6 +294,20 @@ end:
 }
 #endif
 
+static int checklink(void)
+{
+   char *dest = NULL;
+   readlink("/etc/udhcpd.conf", dest, 32);
+   if(dest != NULL)
+   {
+	strcpy(&dest[31], "\0");
+	return(strcmp(dest, "/var/run/usb-moded/udhcpd.conf"));
+   }
+   else
+	return 0;
+
+}
+
 /** 
   * Write udhcpd.conf
   * @ipforward : NULL if we want a simple config, otherwise include dns info etc...
@@ -306,8 +320,9 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   int dot = 0, i = 0, test;
   struct stat st;
 
-  /* /tmp is often tmpfs, so we avoid writing to flash */
-  conffile = fopen("/tmp/udhcpd.conf", "w");
+  /* /tmp and /var is often tmpfs, so we avoid writing to flash */
+  mkdir("/var/run/usb-moded", 0664);
+  conffile = fopen("/var/run/usb-moded/udhcpd.conf", "w");
   if(conffile == NULL)
   {
 	log_debug("Error creating /etc/udhcpd.conf!\n");
@@ -371,8 +386,8 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   /* if stat fails there is no file or link */
   if(test == -1)
 	goto link;
-  /* if it is not a link we remove it, else we expect the right link to be there */
-  if((st.st_mode & S_IFMT) != S_IFLNK)
+  /* if it is not a link, or points to the wrong place we remove it */
+  if(((st.st_mode & S_IFMT) != S_IFLNK) || !checklink())
   {
 	unlink("/etc/udhcpd.conf");
   }
@@ -380,7 +395,7 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
 	goto end;
 
 link:
-  symlink("/tmp/udhcpd.conf", "/etc/udhcpd.conf");
+  symlink("/var/run/usb-moded/udhcpd.conf", "/etc/udhcpd.conf");
 
 end:
 
