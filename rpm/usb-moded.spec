@@ -320,6 +320,7 @@ install -m 644 -D systemd/usb-moded-args.conf %{buildroot}/var/lib/environment/u
 install -m 755 -D systemd/turn-usb-rescue-mode-off %{buildroot}/%{_bindir}/turn-usb-rescue-mode-off
 install -m 644 -D systemd/usb-rescue-mode-off.service %{buildroot}/lib/systemd/system/usb-rescue-mode-off.service
 install -m 644 -D systemd/usb-rescue-mode-off.service %{buildroot}/lib/systemd/system/graphical.target.wants/usb-rescue-mode-off.service
+install -m 644 -D systemd/usb-moded.conf %{_sysconfig}/tmpfiles.d/usb-moded.conf
 
 
 %preun
@@ -343,6 +344,7 @@ systemctl daemon-reload || :
 %{_mandir}/man1/usb-moded.1.gz
 /lib/systemd/system/%{name}.service
 /lib/systemd/system/basic.target.wants/%{name}.service
+%config %{_sysconfdir}/tmpfiles.d/usb-moded.conf
 
 %files devel
 %defattr(-,root,root,-)
