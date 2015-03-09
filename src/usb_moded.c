@@ -950,15 +950,12 @@ int main(int argc, char* argv[])
 	}
 	if( !hwal_init() )
 	{
-		log_crit("hwal init failed\n");
-		if(hw_fallback)
+		/* if hw_fallback is active we can live with a failed hwal_init */
+		if(!hw_fallback)
 		{
-			log_warning("Forcing USB state to connected always. ASK mode non functional!\n");
-			/* Since there will be no disconnect signals coming from hw the state should not change */
-			set_usb_connected(TRUE);			
-		}
-		else
+			log_crit("hwal init failed\n");
 			goto EXIT;
+		}
 	}
 #ifdef MEEGOLOCK
 	start_devicelock_listener();
@@ -981,6 +978,13 @@ int main(int argc, char* argv[])
 #endif /* SYSTEMD */
 
         send_supported_modes_signal();
+
+	if(hw_fallback)
+	{
+		log_warning("Forcing USB state to connected always. ASK mode non functional!\n");
+		/* Since there will be no disconnect signals coming from hw the state should not change */
+		set_usb_connected(TRUE);
+	}
 
 	/* init succesful, run main loop */
 	result = EXIT_SUCCESS;  
