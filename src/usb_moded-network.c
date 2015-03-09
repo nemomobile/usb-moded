@@ -48,6 +48,9 @@
 #include <dbus/dbus-glib-lowlevel.h>
 #endif
 
+#define UDHCP_CONFIG_PATH	"/run/usb-moded/udhcpd.conf"
+#define UDHCP_CONFIG_DIR	"/run/usb-moded"
+
 const char default_interface[] = "usb0";
 typedef struct ipforward_data
 {
@@ -301,7 +304,7 @@ static int checklink(void)
    if(dest != NULL)
    {
 	strcpy(&dest[31], "\0");
-	return(strcmp(dest, "/var/run/usb-moded/udhcpd.conf"));
+	return(strcmp(dest, "UDHCP_CONFIG_PATH"));
    }
    else
 	return 0;
@@ -321,8 +324,8 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   struct stat st;
 
   /* /tmp and /var is often tmpfs, so we avoid writing to flash */
-  mkdir("/var/run/usb-moded", 0664);
-  conffile = fopen("/var/run/usb-moded/udhcpd.conf", "w");
+  mkdir(UDHCP_CONFIG_DIR, 0664);
+  conffile = fopen("UDHCP_CONFIG_PATH", "w");
   if(conffile == NULL)
   {
 	log_debug("Error creating /etc/udhcpd.conf!\n");
@@ -395,7 +398,7 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
 	goto end;
 
 link:
-  symlink("/var/run/usb-moded/udhcpd.conf", "/etc/udhcpd.conf");
+  symlink("UDHCP_CONFIG_PATH", "/etc/udhcpd.conf");
 
 end:
 
