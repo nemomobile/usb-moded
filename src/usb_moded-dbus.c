@@ -33,6 +33,7 @@
 #include "usb_moded-dbus-private.h"
 #include "usb_moded.h"
 #include "usb_moded-modes.h"
+#include "usb_moded-modesetting.h"
 #include "usb_moded-config-private.h"
 #include "usb_moded-network.h"
 #include "usb_moded-log.h"
@@ -102,7 +103,10 @@ static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessa
 					goto error_reply;
 				/* do not change mode if the mode requested is the one already set */
 				if(strcmp(use, get_usb_mode()) != 0)
+				{
+					usb_moded_mode_cleanup(get_usb_module());
 					set_usb_mode(use);
+				}
       				if((reply = dbus_message_new_method_return(msg)))
 			        	dbus_message_append_args (reply, DBUS_TYPE_STRING, &use, DBUS_TYPE_INVALID);
 				else
