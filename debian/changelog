@@ -1,3 +1,11 @@
+usb-moded (0.81.4) unstable; urgency=low
+
+  * [usb-moded] Put udhcpd conf file in /var Fixes:JB#25911
+  * [usb-moded] Make sure hw fallback mode always works
+  * [usb-moded] clean-up mode if one is set before switching
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Mon, 09 Mar 2015 16:21:01 +0200
+
 usb-moded (0.81.3) unstable; urgency=low
 
   * [debouncing] Improve debouncing to avoid missing signals. Fixes: JB#25557
