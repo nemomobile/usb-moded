@@ -1,3 +1,10 @@
+usb-moded (0.81.5) unstable; urgency=low
+
+  * [systemd] Add systemd tmpfiles.d hack
+  * [/run] Actually use /run, not /var/run. Fixes: JB#25911
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Wed, 11 Mar 2015 16:24:54 +0200
+
 usb-moded (0.81.4) unstable; urgency=low
 
   * [usb-moded] Put udhcpd conf file in /var Fixes:JB#25911
