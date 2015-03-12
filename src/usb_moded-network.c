@@ -299,16 +299,18 @@ end:
 
 static int checklink(void)
 {
-   char *dest = NULL;
+   char *dest = malloc( 32 * sizeof(char)) ;
+   int ret = 0;
+
    readlink("/etc/udhcpd.conf", dest, 32);
    if(dest != NULL)
    {
 	strcpy(&dest[31], "\0");
-	return(strcmp(dest, "UDHCP_CONFIG_PATH"));
+	ret = (strcmp(dest, UDHCP_CONFIG_PATH));
    }
-   else
-	return 0;
+   free(dest);
 
+   return(ret);
 }
 
 /** 
@@ -323,7 +325,7 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   int dot = 0, i = 0, test;
   struct stat st;
 
-  /* /tmp and /var is often tmpfs, so we avoid writing to flash */
+  /* /tmp and /run is often tmpfs, so we avoid writing to flash */
   mkdir(UDHCP_CONFIG_DIR, 0664);
   conffile = fopen("UDHCP_CONFIG_PATH", "w");
   if(conffile == NULL)
@@ -390,7 +392,7 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   if(test == -1)
 	goto link;
   /* if it is not a link, or points to the wrong place we remove it */
-  if(((st.st_mode & S_IFMT) != S_IFLNK) || !checklink())
+  if(((st.st_mode & S_IFMT) != S_IFLNK) || checklink())
   {
 	unlink("/etc/udhcpd.conf");
   }
