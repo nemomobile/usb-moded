@@ -1,5 +1,11 @@
 usb-moded (0.81.5) unstable; urgency=low
 
+  * [udhcpd-migration] Fix issue with link replacement
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Thu, 12 Mar 2015 19:32:02 +0200
+
+usb-moded (0.81.5) unstable; urgency=low
+
   * [systemd] Add systemd tmpfiles.d hack
   * [/run] Actually use /run, not /var/run. Fixes: JB#25911
 
