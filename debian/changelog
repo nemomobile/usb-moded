@@ -1,4 +1,10 @@
-usb-moded (0.81.5) unstable; urgency=low
+usb-moded (0.81.7) unstable; urgency=low
+
+  * [network] Fix defines switch fall-out
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Thu, 12 Mar 2015 19:32:02 +0200
+
+usb-moded (0.81.6) unstable; urgency=low
 
   * [udhcpd-migration] Fix issue with link replacement
 
