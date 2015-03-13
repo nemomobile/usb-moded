@@ -327,7 +327,7 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
 
   /* /tmp and /run is often tmpfs, so we avoid writing to flash */
   mkdir(UDHCP_CONFIG_DIR, 0664);
-  conffile = fopen("UDHCP_CONFIG_PATH", "w");
+  conffile = fopen(UDHCP_CONFIG_PATH, "w");
   if(conffile == NULL)
   {
 	log_debug("Error creating /etc/udhcpd.conf!\n");
@@ -400,7 +400,7 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
 	goto end;
 
 link:
-  symlink("UDHCP_CONFIG_PATH", "/etc/udhcpd.conf");
+  symlink(UDHCP_CONFIG_PATH, "/etc/udhcpd.conf");
 
 end:
 
