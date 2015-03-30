@@ -387,7 +387,7 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   log_debug("/etc/udhcpd.conf written.\n");
 
   /* check if it is a symlink, if not remove and link, create the link if missing */
-  test = stat("/etc/udhcpd.conf", &st);
+  test = lstat("/etc/udhcpd.conf", &st);
   /* if stat fails there is no file or link */
   if(test == -1)
 	goto link;
