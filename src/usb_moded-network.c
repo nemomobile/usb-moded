@@ -50,6 +50,7 @@
 
 #define UDHCP_CONFIG_PATH	"/run/usb-moded/udhcpd.conf"
 #define UDHCP_CONFIG_DIR	"/run/usb-moded"
+#define UDHCP_CONFIG_LINK	"/etc/udhcpd.conf"
 
 const char default_interface[] = "usb0";
 typedef struct ipforward_data
@@ -299,18 +300,15 @@ end:
 
 static int checklink(void)
 {
-   char *dest = malloc( 32 * sizeof(char)) ;
-   int ret = 0;
-
-   readlink("/etc/udhcpd.conf", dest, 32);
-   if(dest != NULL)
-   {
-	strcpy(&dest[31], "\0");
-	ret = (strcmp(dest, UDHCP_CONFIG_PATH));
-   }
-   free(dest);
-
-   return(ret);
+  int ret = -1;
+  char dest[sizeof(UDHCP_CONFIG_PATH)+1];
+  size_t len = readlink(UDHCP_CONFIG_LINK, dest, sizeof(dest)-1);
+  if (len > 0)
+  {
+	dest[len] = 0;
+	ret = strcmp(dest, UDHCP_CONFIG_PATH);
+  }
+  return(ret);
 }
 
 /** 
@@ -330,7 +328,7 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   conffile = fopen(UDHCP_CONFIG_PATH, "w");
   if(conffile == NULL)
   {
-	log_debug("Error creating /etc/udhcpd.conf!\n");
+	log_debug("Error creating "UDHCP_CONFIG_PATH"!\n");
 	return(1);
   }
 
@@ -384,26 +382,30 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   free(ip);
   free(interface);
   fclose(conffile);
-  log_debug("/etc/udhcpd.conf written.\n");
 
   /* check if it is a symlink, if not remove and link, create the link if missing */
-  test = lstat("/etc/udhcpd.conf", &st);
+  test = lstat(UDHCP_CONFIG_LINK, &st);
   /* if stat fails there is no file or link */
   if(test == -1)
 	goto link;
   /* if it is not a link, or points to the wrong place we remove it */
   if(((st.st_mode & S_IFMT) != S_IFLNK) || checklink())
   {
-	unlink("/etc/udhcpd.conf");
+	unlink(UDHCP_CONFIG_LINK);
   }
   else
 	goto end;
 
 link:
-  symlink(UDHCP_CONFIG_PATH, "/etc/udhcpd.conf");
+  if (symlink(UDHCP_CONFIG_PATH, UDHCP_CONFIG_LINK) == -1)
+  {
+	log_debug("Error creating link "UDHCP_CONFIG_LINK" -> "UDHCP_CONFIG_PATH": %s\n", strerror(errno));
+	unlink(UDHCP_CONFIG_PATH);
+	return(1);
+  }
 
 end:
-
+  log_debug(UDHCP_CONFIG_LINK" created\n");
   return(0);
 }
 
