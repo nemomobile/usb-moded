@@ -87,6 +87,7 @@ int systemd_control_service(const char *name, const char *method)
 	reply = dbus_connection_send_with_reply_and_block(bus, msg, -1, &error);
 	if(reply)
  	{
+		dbus_message_unref(reply);
 		ret = 0;
 	}
         dbus_message_unref(msg);	
