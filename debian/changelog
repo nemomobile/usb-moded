@@ -1,3 +1,10 @@
+usb-moded (0.81.8) unstable; urgency=low
+
+  * [usb-moded] Fixed memory leak in systemd_control_service() 
+  * re-write of the link checking (again)
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Wed, 01 Apr 2015 10:45:30 +0300
+
 usb-moded (0.81.7) unstable; urgency=low
 
   * [network] Fix defines switch fall-out

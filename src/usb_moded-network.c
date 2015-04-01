@@ -303,6 +303,7 @@ static int checklink(void)
   int ret = -1;
   char dest[sizeof(UDHCP_CONFIG_PATH)+1];
   size_t len = readlink(UDHCP_CONFIG_LINK, dest, sizeof(dest)-1);
+
   if (len > 0)
   {
 	dest[len] = 0;
