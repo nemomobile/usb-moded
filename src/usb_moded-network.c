@@ -411,6 +411,100 @@ end:
 }
 
 #ifdef CONNMAN
+
+#define CONNMAN_SERVICE                "net.connman"
+#define CONNMAN_TECH_INTERFACE         "net.connman.Technology"
+#define CONNMAN_ERROR_INTERFACE        CONNMAN_SERVICE ".Error"
+#define CONNMAN_ERROR_ALREADY_ENABLED  CONNMAN_ERROR_INTERFACE ".AlreadyEnabled"
+#define CONNMAN_ERROR_ALREADY_DISABLED CONNMAN_ERROR_INTERFACE ".AlreadyDisabled"
+
+/*
+ * Configures tethering for the specified connman technology.
+ */
+static gboolean connman_try_set_tethering(DBusConnection *connection, const char *path, gboolean on)
+{
+  gboolean ok = FALSE;
+  DBusMessage *message = dbus_message_new_method_call(CONNMAN_SERVICE, path, CONNMAN_TECH_INTERFACE, "SetProperty");
+  if (message)
+  {
+	DBusMessage *reply;
+	DBusMessageIter iter;
+	DBusMessageIter iter2;
+	DBusError error;
+
+	const char* key = "Tethering";
+	dbus_bool_t value = (on != FALSE);
+
+	dbus_message_iter_init_append(message, &iter);
+	dbus_message_iter_append_basic(&iter, DBUS_TYPE_STRING, &key);
+	dbus_message_iter_open_container(&iter, DBUS_TYPE_VARIANT, DBUS_TYPE_BOOLEAN_AS_STRING, &iter2);
+	dbus_message_iter_append_basic(&iter2, DBUS_TYPE_BOOLEAN, &value);
+	dbus_message_iter_close_container(&iter, &iter2);
+
+	dbus_error_init(&error);
+	reply = dbus_connection_send_with_reply_and_block(connection, message,  DBUS_TIMEOUT_USE_DEFAULT, &error);
+	dbus_message_unref(message);
+	if (reply)
+	{
+		log_debug("%s tethering %s", path, on ? "on" : "off");
+		dbus_message_unref(reply);
+		ok = TRUE;
+	}
+	else
+	{
+		if ((on && !g_strcmp0(error.name, CONNMAN_ERROR_ALREADY_ENABLED)) ||
+		    (!on && (!g_strcmp0(error.name, CONNMAN_ERROR_ALREADY_DISABLED) ||
+			     !g_strcmp0(error.name, DBUS_ERROR_UNKNOWN_OBJECT))))
+		{
+			ok = TRUE;
+		}
+		else
+		{
+			log_err("%s\n", error.message);
+		}
+		dbus_error_free(&error);
+	}
+  }
+  return ok;
+}
+
+gboolean connman_set_tethering(const char *path, gboolean on)
+{
+  gboolean ok = FALSE;
+  DBusError error;
+  DBusConnection *connection;
+
+  dbus_error_init(&error);
+  connection = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
+  if (connection)
+  {
+	int i;
+	for (i=0; i<10; i++)
+	{
+		if (i>0)
+		{
+			struct timespec tv;
+			tv.tv_sec = 0;
+			tv.tv_nsec = 200000000;
+			nanosleep(&tv, NULL);
+		}
+		if (connman_try_set_tethering(connection, path, on))
+		{
+			ok = TRUE;
+			break;
+		}
+	}
+	dbus_connection_unref(connection);
+  }
+  else
+  {
+	log_err("%s\n", error.message);
+	dbus_error_free (&error);
+  }
+
+  return ok;
+}
+
 /**
  * Connman message handling
  */

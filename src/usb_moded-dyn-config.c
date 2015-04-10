@@ -51,6 +51,9 @@ void list_item_free(mode_list_elem *list_item)
   free(list_item->android_extra_sysfs_path2);
   free(list_item->android_extra_sysfs_value2);
   free(list_item->idProduct);
+#ifdef CONNMAN
+  free(list_item->connman_tethering);
+#endif
   free(list_item);
 }
 
@@ -146,6 +149,9 @@ static struct mode_list_elem *read_mode_file(const gchar *filename)
   list_item->idProduct = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_IDPRODUCT, NULL);
   list_item->nat = g_key_file_get_integer(settingsfile, MODE_OPTIONS_ENTRY, MODE_HAS_NAT, NULL);
   list_item->dhcp_server = g_key_file_get_integer(settingsfile, MODE_OPTIONS_ENTRY, MODE_HAS_DHCP_SERVER, NULL);
+#ifdef CONNMAN
+  list_item->connman_tethering = g_key_file_get_string(settingsfile, MODE_OPTIONS_ENTRY, MODE_CONNMAN_TETHERING, NULL);
+#endif
 
   g_key_file_free(settingsfile);
   if(list_item->mode_name == NULL || list_item->mode_module == NULL)

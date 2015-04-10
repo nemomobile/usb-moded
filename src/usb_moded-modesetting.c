@@ -449,6 +449,11 @@ int set_dynamic_mode(void)
   if(data->appsync && !ret)
 	activate_sync_post(data->mode_name);
 
+#ifdef CONNMAN
+  if(data->connman_tethering)
+	connman_set_tethering(data->connman_tethering, TRUE);
+#endif
+
   if(ret)
 	usb_moded_send_error_signal(MODE_SETTING_FAILED);
   return(ret);
@@ -470,6 +475,11 @@ void unset_dynamic_mode(void)
 	unset_mass_storage_mode(data);
 	return;
   }
+
+#ifdef CONNMAN
+  if(data->connman_tethering)
+	connman_set_tethering(data->connman_tethering, FALSE);
+#endif
 
   if(data->network)
   {

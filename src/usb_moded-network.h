@@ -20,7 +20,8 @@
   usb-moded_network : (De)activates network depending on the network setting system.
 */
 
-/*============================================================================= */
+#ifndef USB_MODED_NETWORK_H_
+#define USB_MODED_NETWORK_H_
 
 #include "usb_moded-dyn-config.h"
 
@@ -28,3 +29,9 @@ int usb_network_up(struct mode_list_elem *data);
 int usb_network_down(struct mode_list_elem *data);
 int usb_network_update(void);
 int usb_network_set_up_dhcpd(struct mode_list_elem *data);
+
+#ifdef CONNMAN
+gboolean connman_set_tethering(const char *path, gboolean on);
+#endif
+
+#endif /* USB_MODED_NETWORK_H_ */
