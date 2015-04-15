@@ -235,6 +235,19 @@ system bus.
 This package contains configuration to enable sharing the cellular data
 connection over the USB with the android gadget driver.
 
+%package connection-sharing-android-connman-config
+Summary:  USB mode controller - USB/cellular data connection sharing config
+Group:  Config
+
+%description connection-sharing-android-connman-config
+Usb_moded is a daemon to control the USB states. For this
+it loads unloads the relevant usb gadget modules, keeps track
+of the filesystem(s) and notifies about changes on the DBUS
+system bus.
+
+This package contains configuration to enable sharing the cellular data
+connection over the USB with the connman gadget driver.
+
 %package mass-storage-android-config
 Summary:  USB mode controller - mass-storage config with android gadget
 Group:  Config
@@ -419,6 +432,10 @@ systemctl daemon-reload || :
 %defattr(-,root,root,-)
 %{_sysconfdir}/usb-moded/dyn-modes/connection_sharing.ini
 %{_sysconfdir}/usb-moded/run/udhcpd-connection-sharing.ini
+
+%files connection-sharing-android-connman-config
+%defattr(-,root,root,-)
+%{_sysconfdir}/usb-moded/dyn-modes/connection_sharing-android-connman.ini
 
 %files mass-storage-android-config
 %defattr(-,root,root,-)
