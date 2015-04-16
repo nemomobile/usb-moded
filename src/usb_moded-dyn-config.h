@@ -51,6 +51,9 @@ android engineers prefered to have sysfs entries... go figure... */
 #define MODE_IDPRODUCT			"idProduct"
 #define MODE_HAS_NAT			"nat"
 #define MODE_HAS_DHCP_SERVER		"dhcp_server"
+#ifdef CONNMAN
+#define MODE_CONNMAN_TETHERING		"connman_tethering"
+#endif
 
 /**
  * Struct keeping all the data needed for the definition of a dynamic mode
@@ -77,7 +80,10 @@ typedef struct mode_list_elem
   char *idProduct;			/* product id to assign to a specific profile */
   int nat;				/* If NAT should be set up in this mode or not */
   int dhcp_server;			/* if a DHCP server needs to be configured and started or not */
-  /*@} */
+#ifdef CONNMAN
+  char* connman_tethering;		/* connman's tethering technology path */
+#endif
+ /*@} */
 }mode_list_elem;
 
 /* diag is used to select a secondary configuration location for diagnostic purposes */
