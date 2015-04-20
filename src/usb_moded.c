@@ -70,6 +70,8 @@ gboolean rescue_mode = FALSE;
 gboolean diag_mode = FALSE;
 gboolean hw_fallback = FALSE;
 gboolean android_broken_usb = FALSE;
+gboolean android_ignore_udev_events = FALSE;
+gboolean android_ignore_next_udev_disconnect_event = FALSE;
 #ifdef SYSTEMD
 static gboolean systemd_notify = FALSE;
 #endif
@@ -130,6 +132,10 @@ void set_usb_connected(gboolean connected)
   {
 	if(current_mode.connected == FALSE)
 		return;
+	if(android_ignore_next_udev_disconnect_event) {
+		android_ignore_next_udev_disconnect_event = FALSE;
+		return;
+	}
 	current_mode.connected = FALSE;
 	set_disconnected(NULL);
 	/* Some android kernels check for an active gadget to enable charging and
@@ -321,6 +327,9 @@ void set_usb_mode(const char *mode)
 	/* if charging mode setting did not succeed we might be dealing with android */
 	if(ret)
 	{
+	  if (android_ignore_udev_events) {
+	    android_ignore_next_udev_disconnect_event = TRUE;
+	  }
 	  set_usb_module(MODULE_NONE);
 	  ret = set_android_charging_mode();
 	}
@@ -375,8 +384,12 @@ void set_usb_mode(const char *mode)
 	   as they will use the get_usb_mode_data function */
 	set_usb_mode_data(data);
 	/* check if modules are ok before continuing */
-	if(!ret)
+	if(!ret) {
+		if (android_ignore_udev_events) {
+		  android_ignore_next_udev_disconnect_event = TRUE;
+		}
 		ret = set_dynamic_mode();
+	}
       }
     }
   }
@@ -677,6 +690,7 @@ static void usage(void)
                   "USB mode daemon\n"
                   "\n"
 		  "  -a,  --android_usb_broken \tkeep gadget active on broken android kernels\n"
+		  "  -i,  --android_usb_broken_udev_events \tignore incorrect disconnect events after mode setting\n"
 		  "  -f,  --fallback	  \tassume always connected\n"
                   "  -s,  --force-syslog  \t\tlog to syslog\n"
                   "  -T,  --force-stderr  \t\tlog to stderr\n"
@@ -863,6 +877,7 @@ int main(int argc, char* argv[])
 
 	struct option const options[] = {
                 { "android_usb_broken", no_argument, 0, 'a' },
+                { "android_usb_broken_udev_events", no_argument, 0, 'i' },
                 { "fallback", no_argument, 0, 'd' },
                 { "force-syslog", no_argument, 0, 's' },
                 { "force-stderr", no_argument, 0, 'T' },
@@ -878,12 +893,15 @@ int main(int argc, char* argv[])
 	log_name = basename(*argv);
 
 	 /* Parse the command-line options */
-        while ((opt = getopt_long(argc, argv, "afsTDdhrnv", options, &opt_idx)) != -1)
+        while ((opt = getopt_long(argc, argv, "aifsTDdhrnv", options, &opt_idx)) != -1)
 	{
                 switch (opt) 
 		{
 			case 'a':
 				android_broken_usb = TRUE;
+				break;
+			case 'i':
+				android_ignore_udev_events = TRUE;
 				break;
 			case 'f':
 				hw_fallback = TRUE;
