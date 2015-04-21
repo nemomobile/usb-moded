@@ -2,7 +2,7 @@
   @file	usb_moded-dbus.c
 
   Copyright (C) 2010 Nokia Corporation. All rights reserved.
-  Copyright (C) 2012 Jolla. All rights reserved.
+  Copyright (C) 2012-2015 Jolla. All rights reserved.
 
   @author: Philippe De Swert <philippe.de-swert@nokia.com>
   @author: Philippe De Swert <philippe.deswert@jollamobile.com>
@@ -50,20 +50,54 @@ static DBusHandlerResult msg_handler(DBusConnection *const connection, DBusMessa
   const char         *object    = dbus_message_get_path(msg);
   int                 type      = dbus_message_get_type(msg);
   const char *xml = 	"<!DOCTYPE node PUBLIC \"-//freedesktop//DTD D-BUS Object Introspection 1.0//EN\" "
-    		    	"\"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd\">\n"
-    		    	"<node name=\"/com/meego/usb_moded\">\n"
-    		    	"  <interface name=\"com.meego.usb_moded\">\n"
-    		    	"    <method name=\"mode_request\">\n"
-    	            	"      <arg name=\"mode\" type=\"s\" direction=\"out\"/>\n"
-    	            	"    </method>\n"
-    	            	"    <method name=\"set_mode\">\n"
-    		    	"      <arg name=\"mode\" type=\"s\" direction=\"in\"/>\n"
-    		    	"    </method>\n"
-    		    	"    <signal name=\"sig_usb_state_ind\">\n"
-    			"      <arg name=\"mode\" type=\"s\"/>\n"
-    			"    </signal>\n"
-    			"  </interface>\n"
-    			"	</node>\n";
+			"\"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd\">\n"
+			"<node name=\"" USB_MODE_OBJECT "\">\n"
+			"  <interface name=\"org.freedesktop.DBus.Introspectable\">\n"
+			"    <method name=\"Introspect\">\n"
+			"      <arg name=\"xml\" type=\"s\" direction=\"out\"/>\n"
+			"    </method>\n"
+			"  </interface>\n"
+			"  <interface name=\"" USB_MODE_INTERFACE "\">\n"
+			"    <method name=\"" USB_MODE_STATE_REQUEST "\">\n"
+			"      <arg name=\"mode\" type=\"s\" direction=\"out\"/>\n"
+			"    </method>\n"
+			"    <method name=\"" USB_MODE_STATE_SET "\">\n"
+			"      <arg name=\"mode\" type=\"s\" direction=\"in\"/>\n"
+			"      <arg name=\"mode\" type=\"s\" direction=\"out\"/>\n"
+			"    </method>\n"
+			"    <method name=\"" USB_MODE_CONFIG_SET "\">\n"
+			"      <arg name=\"config\" type=\"s\" direction=\"in\"/>\n"
+			"      <arg name=\"config\" type=\"s\" direction=\"out\"/>\n"
+			"    </method>\n"
+			"    <method name=\"" USB_MODE_NETWORK_SET "\">\n"
+			"      <arg name=\"key\" type=\"s\" direction=\"in\"/>\n"
+			"      <arg name=\"value\" type=\"s\" direction=\"in\"/>\n"
+			"      <arg name=\"key\" type=\"s\" direction=\"out\"/>\n"
+			"      <arg name=\"value\" type=\"s\" direction=\"out\"/>\n"
+			"    </method>\n"
+			"    <method name=\"" USB_MODE_NETWORK_GET "\">\n"
+			"      <arg name=\"key\" type=\"s\" direction=\"in\"/>\n"
+			"      <arg name=\"key\" type=\"s\" direction=\"out\"/>\n"
+			"      <arg name=\"value\" type=\"s\" direction=\"out\"/>\n"
+			"    </method>\n"
+			"    <method name=\"" USB_MODE_CONFIG_GET "\">\n"
+			"      <arg name=\"mode\" type=\"s\" direction=\"out\"/>\n"
+			"    </method>\n"
+			"    <method name=\"" USB_MODE_LIST "\">\n"
+			"      <arg name=\"modes\" type=\"s\" direction=\"out\"/>\n"
+			"    </method>\n"
+			"    <method name=\"" USB_MODE_RESCUE_OFF "\"/>\n"
+			"    <signal name=\"" USB_MODE_SIGNAL_NAME "\">\n"
+			"      <arg name=\"mode\" type=\"s\"/>\n"
+			"    </signal>\n"
+			"    <signal name=\"" USB_MODE_ERROR_SIGNAL_NAME "\">\n"
+			"      <arg name=\"error\" type=\"s\"/>\n"
+			"    </signal>\n"
+			"    <signal name=\"" USB_MODE_SUPPORTED_MODES_SIGNAL_NAME "\">\n"
+			"      <arg name=\"modes\" type=\"s\"/>\n"
+			"    </signal>\n"
+			"  </interface>\n"
+			"</node>\n";
 
   (void)user_data;
 
