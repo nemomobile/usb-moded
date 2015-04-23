@@ -33,3 +33,4 @@
 #define MODE_HOST		"host_mode"
 #define MODE_CONNECTION_SHARING "connection_sharing"
 #define MODE_DIAG		"qa_diag_mode"
+#define MODE_ADB		"adb_mode"
