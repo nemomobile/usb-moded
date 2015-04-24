@@ -56,14 +56,6 @@ AC_ARG_ENABLE([app_sync_dbus], AS_HELP_STRING([--enable-app-sync-dbus], [Enable 
    esac],[app_sync_dbus=false])
 AM_CONDITIONAL([APP_SYNC_DBUS], [test x$app_sync_dbus = xtrue])
 
-AC_ARG_ENABLE([upstart], AS_HELP_STRING([--enable-upstart], [Enable upstart interface for appsync @<:@default=false@:>@]),
-  [case "${enableval}" in
-   yes) upstart=true ; CFLAGS="-DUPSTART $CFLAGS" ;;
-   no)  upstart=false ;;
-   *) AC_MSG_ERROR([bad value ${enableval} for --enable-upstart]) ;;
-   esac],[upstart=false])
-AM_CONDITIONAL([UPSTART], [test x$upstart = xtrue])
-
 AC_ARG_ENABLE([connman], AS_HELP_STRING([--enable-connman], [Enable connman support for usb tethering @<:@default=false@:>@]),
   [case "${enableval}" in
    yes) connman=true ; CFLAGS="-DCONNMAN $CFLAGS" ;;
