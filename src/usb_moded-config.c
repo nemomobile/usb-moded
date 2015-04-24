@@ -95,18 +95,6 @@ char * find_udev_subsystem(void)
   return(get_conf_string(UDEV_PATH_ENTRY, UDEV_SUBSYSTEM_KEY));
 }
 
-#ifdef NOKIA
-const char * find_cdrom_path(void)
-{
-  return(get_conf_string(CDROM_ENTRY, CDROM_PATH_KEY));
-}
-
-int find_cdrom_timeout(void)
-{
-  return(get_conf_int(CDROM_ENTRY, CDROM_TIMEOUT_KEY));
-}
-#endif /* NOKIA */
-
 char * check_trigger(void)
 {
   return(get_conf_string(TRIGGER_ENTRY, TRIGGER_PATH_KEY));
