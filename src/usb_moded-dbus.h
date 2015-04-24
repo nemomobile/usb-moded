@@ -25,12 +25,20 @@
 #define USB_MODE_SERVICE		"com.meego.usb_moded"
 #define USB_MODE_INTERFACE		"com.meego.usb_moded"
 #define USB_MODE_OBJECT			"/com/meego/usb_moded"
+
+/**
+ * sig_usb_state_ind: Notify interested parties of state and mode changes
+ *
+ * This signals both the transient states listed below as well as the "real"
+ * states listed in usb_moded-modes.h.
+ **/
 #define USB_MODE_SIGNAL_NAME		"sig_usb_state_ind"
+
 #define USB_MODE_ERROR_SIGNAL_NAME	"sig_usb_state_error_ind"
 #define USB_MODE_SUPPORTED_MODES_SIGNAL_NAME "sig_usb_supported_modes_ind"
 
 /* supported methods */
-#define USB_MODE_STATE_REQUEST	"mode_request"
+#define USB_MODE_STATE_REQUEST	"mode_request"  /* returns the current mode */
 #define USB_MODE_RESCUE_OFF	"rescue_off"
 #define USB_MODE_CONFIG_GET	"get_config"	/* returns the mode set in the config */
 #define USB_MODE_LIST		"get_modes"	/* returns a comma-separated list of supported modes for ui's */
@@ -43,7 +51,10 @@
 #define USB_MODE_NETWORK_SET	"net_config"    /* set the network config in the config file */
 #define USB_MODE_NETWORK_GET	"get_net_config"    /* get the network config from the config file */
 
-/* state definitions for signals and method parameters */
+/**
+ * (Transient) states reported by "sig_usb_state_ind" that are not modes.
+ * These are only reported by the signal, and never returned by e.g. "mode_request".
+ **/
 #define USB_CONNECTED			"USB connected"
 #define USB_DISCONNECTED		"USB disconnected"
 #define USB_REALLY_DISCONNECT		"USB mode change in progress"
