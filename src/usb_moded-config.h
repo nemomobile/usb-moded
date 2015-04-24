@@ -63,11 +63,6 @@ const char * find_alt_mount(void);
 char * find_udev_path(void);
 char * find_udev_subsystem(void);
 
-#ifdef NOKIA
-const char * find_cdrom_path(void);
-int find_cdrom_timeout(void);
-#endif
-
 char * check_trigger(void);
 char * get_trigger_subsystem(void);
 char * get_trigger_mode(void);

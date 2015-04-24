@@ -19,12 +19,8 @@
 */
 
 /* module name definitions */
-#define MODULE_NETWORK          "g_nokia" 
-#ifdef NOKIA
-#define MODULE_NETWORK_MTP      "g_nokia devmode=0" 
-#else
-#define MODULE_NETWORK_MTP      "g_nokia" 
-#endif /* NOKIA */
+#define MODULE_NETWORK          "g_nokia"
+#define MODULE_NETWORK_MTP      "g_nokia"
 #define MODULE_MASS_STORAGE     "g_mass_storage"
 #define MODULE_FILE_STORAGE	"g_file_storage"
 #define MODULE_CHARGING		"g_mass_storage luns=1 stall=0 removable=1"
@@ -56,8 +52,3 @@ int usb_moded_module_switch_prepare(int force);
 
 /* check if the correct module is loaded or not  and switch if not */
 void check_module_state(const char *module_name);
-
-#ifdef NOKIA
-/* handler for a cleanup after a timeout */
-gboolean usb_cleanup_timeout(gpointer data);
-#endif /* NOKIA */
