@@ -320,9 +320,6 @@ install -m 644 -D config/run/* %{buildroot}/%{_sysconfdir}/usb-moded/run/
 install -m 644 -D config/run-diag/* %{buildroot}/%{_sysconfdir}/usb-moded/run-diag/
 install -m 644 -D config/mass-storage-jolla.ini %{buildroot}/%{_sysconfdir}/usb-moded/
 
-# Sync mode not packaged for now.
-rm %{buildroot}/etc/usb-moded/dyn-modes/sync_mode.ini
-
 touch %{buildroot}/%{_sysconfdir}/modprobe.d/g_ether.conf
 touch %{buildroot}/%{_sysconfdir}/udhcpd.conf
 #systemd stuff
@@ -361,13 +358,13 @@ systemctl daemon-reload || :
 
 %files devel
 %defattr(-,root,root,-)
-%doc debian/copyright
+%doc Copyright
 %{_includedir}/%{name}/*
 %{_libdir}/pkgconfig/usb_moded.pc
 
 %files doc
 %defattr(-,root,root,-)
-%doc debian/changelog debian/copyright LICENSE
+%doc ChangeLog Copyright LICENSE
 %{_docdir}/%{name}/*
 %{_docdir}/%{name}/html/*
 
