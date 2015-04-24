@@ -22,7 +22,6 @@
    the others being internal only.
  */
 #define MODE_MASS_STORAGE       "mass_storage"
-#define MODE_OVI_SUITE          "ovi_suite"
 #define MODE_CHARGING           "charging_only"
 #define MODE_CHARGING_FALLBACK  "charging_only_fallback"
 #define MODE_UNDEFINED		"undefined"
