@@ -1,3 +1,14 @@
+usb-moded (0.81.9) unstable; urgency=low
+  
+  * [modes.h] Add MODE_ADB named constant (contributes to JB#12048)
+  * [usb-moded] Fix D-Bus introspection data
+  * [usb-moded] Fix for broken usb drivers when setting mode
+  * [usb-moded] Configuration files for connman tethering
+  * [usb-moded] Connman tethering support
+  * [usb-moded] Fixed couple of errors in checklink()
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Fri, 24 Apr 2015 10:45:52 +0300
+
 usb-moded (0.81.8) unstable; urgency=low
 
   * [usb-moded] Fixed memory leak in systemd_control_service() 
