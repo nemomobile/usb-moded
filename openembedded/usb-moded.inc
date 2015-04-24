@@ -24,9 +24,9 @@ do_install_append() {
 	install -m 644 -D usb_moded.pc ${D}/${libdir}/pkgconfig/usb_moded.pc
 	install -d ${D}/${docdir}/usb-moded
 	install -m 644 docs/usb_moded-doc.txt ${D}/${docdir}/usb-moded/
-	install -m 644 -D debian/manpage.1 ${D}/${mandir}/man1/usb-moded.1
-	install -m 644 -D debian/usb_moded.conf ${D}/${sysconfdir}/dbus-1/system.d/usb_moded.conf
-	install -m 644 -D ${S}/debian/usb_moded.conf ${D}/${sysconfdir}/modprobe.d/usb_moded.conf
+	install -m 644 -D docs/usb-moded.1 ${D}/${mandir}/man1/usb-moded.1
+	install -m 644 -D usb_moded.conf ${D}/${sysconfdir}/dbus-1/system.d/usb_moded.conf
+	install -m 644 -D ${S}/usb_moded.conf ${D}/${sysconfdir}/modprobe.d/usb_moded.conf
 	install -d ${D}/${sysconfdir}/usb-moded
 	install -d ${D}/${sysconfdir}/usb-moded/run
 	install -d ${D}/${sysconfdir}/usb-moded/run-diag

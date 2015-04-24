@@ -306,8 +306,8 @@ install -m 644 -D usb_moded.pc %{buildroot}/%{_libdir}/pkgconfig/usb_moded.pc
 install -d %{buildroot}/%{_docdir}/%{name}/html/
 install -m 644 docs/html/* %{buildroot}/%{_docdir}/%{name}/html/
 install -m 644 docs/usb_moded-doc.txt %{buildroot}/%{_docdir}/%{name}/
-install -m 644 -D debian/manpage.1 %{buildroot}/%{_mandir}/man1/usb-moded.1
-install -m 644 -D debian/usb_moded.conf %{buildroot}/%{_sysconfdir}/dbus-1/system.d/usb_moded.conf
+install -m 644 -D docs/usb-moded.1 %{buildroot}/%{_mandir}/man1/usb-moded.1
+install -m 644 -D usb_moded.conf %{buildroot}/%{_sysconfdir}/dbus-1/system.d/usb_moded.conf
 install -m 644 -D %{SOURCE1} %{buildroot}/%{_sysconfdir}/modprobe.d/usb_moded.conf
 install -d %{buildroot}/%{_sysconfdir}/usb-moded
 install -d %{buildroot}/%{_sysconfdir}/usb-moded/run
@@ -344,7 +344,7 @@ systemctl daemon-reload || :
 
 %files
 %defattr(-,root,root,-)
-%doc debian/copyright
+%doc Copyright
 %dir %{_sysconfdir}/usb-moded
 %dir %{_sysconfdir}/usb-moded/dyn-modes
 %dir %{_sysconfdir}/usb-moded/run

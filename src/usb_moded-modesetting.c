@@ -391,15 +391,8 @@ int set_dynamic_mode(void)
   /* functionality should be enabled, so we can enable the network now */
   if(data->network)
   {
-#ifdef DEBIAN
-  	char command[256];
-
-	g_snprintf(command, 256, "ifdown %s ; ifup %s", data->network_interface, data->network_interface);
-        system(command);
-#else
 	usb_network_down(data);
 	usb_network_up(data);
-#endif /* DEBIAN */
   }
 
   /* Needs to be called before application post synching so
