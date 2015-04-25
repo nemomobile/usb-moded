@@ -324,104 +324,6 @@ void usb_moded_appsync_cleanup(void)
   // NOP
 }
 
-#if 0
-static void startservicebyname_cb(DBusPendingCall *pc, void *data)
-{
-  const char  *name = data;
-  DBusMessage *rsp  = dbus_pending_call_steal_reply(pc);
-  int          res  = -1;
-  DBusError    err  = DBUS_ERROR_INIT;
-  const char  *tag  = "FAILED";
-
-  if( rsp != 0 )
-  {
-    dbus_uint32_t dta = 0;
-    if( dbus_message_get_args(rsp, &err,
-			      DBUS_TYPE_UINT32, &dta,
-			      DBUS_TYPE_INVALID) )
-    {
-      res = (int)dta;
-    }
-    dbus_message_unref(rsp);
-  }
-
-  if( dbus_error_is_set(&err) )
-  {
-    log_err("ERR: %s: %s @ %s()\n", err.name, err.message, __FUNCTION__);
-    dbus_error_free(&err);
-  }
-
-  switch( res )
-  {
-  case DBUS_START_REPLY_SUCCESS: tag = "STARTED"; break;
-  case DBUS_START_REPLY_ALREADY_RUNNING: tag = "RUNNING"; break;
-  }
-
-  log_debug("%s: app=%s, res=%s (%d)", __FUNCTION__, name, tag, res);
-}
-
-static gboolean startservicebyname(const char *name)
-{
-  gboolean         res = FALSE;
-  dbus_uint32_t    flg = 0;
-  DBusMessage     *req = 0;
-  DBusPendingCall *pc = 0;
-
-  if( !dbus_connection_ses )
-  {
-    log_warning("%s: %s", __FUNCTION__, "no session bus connection");
-    goto cleanup;
-  }
-
-  if( !(req = dbus_message_new_method_call(DBUS_SERVICE_DBUS,
-					   DBUS_PATH_DBUS,
-					   DBUS_INTERFACE_DBUS,
-					   "StartServiceByName")) )
-  {
-    log_warning("%s: %s", __FUNCTION__, "method call alloc failed");
-    goto cleanup;
-  }
-
-  if( !dbus_message_append_args(req,
-				DBUS_TYPE_STRING, &name,
-				DBUS_TYPE_UINT32, &flg,
-				DBUS_TYPE_INVALID) )
-  {
-    log_warning("%s: %s", __FUNCTION__, "method call add args failed");
-    goto cleanup;
-  }
-
-  if( !dbus_connection_send_with_reply(dbus_connection_ses, req, &pc, -1) )
-  {
-    log_warning("%s: %s", __FUNCTION__, "send with reply failed");
-    goto cleanup;
-  }
-
-  if( pc == 0 )
-  {
-    log_warning("%s: %s", __FUNCTION__, "no pending call handle");
-    goto cleanup;
-  }
-
-  if( !dbus_pending_call_set_notify(pc, startservicebyname_cb,
-				    strdup(name), free) )
-  {
-    log_warning("%s: %s", __FUNCTION__, "pending call notify failed");
-    goto cleanup;
-  }
-
-  /* we have succesfully started the asynchronous request */
-  res = TRUE;
-
-cleanup:
-
-  if( pc ) dbus_pending_call_unref(pc);
-  if( req ) dbus_message_unref(req);
-
-  return res;
-}
-#endif
-
 /**
  * Launch applications over dbus that need to be synchronized
  */
@@ -435,13 +337,6 @@ int usb_moded_dbus_app_launch(char *launch)
   }
   else
   {
-#if 0
-    if( startservicebyname(launch) )
-    {
-      // started request, actual results from startservicebyname_cb()
-      ret = 0;
-    }
-#else
     DBusError error = DBUS_ERROR_INIT;
     if( !dbus_bus_start_service_by_name(dbus_connection_ses, launch, 0, NULL, &error) )
     {
@@ -452,7 +347,6 @@ int usb_moded_dbus_app_launch(char *launch)
     {
       ret = 0; // success
     }
-#endif
   }
   return ret;
 }

@@ -198,11 +198,6 @@ static int handle_network(char *network)
   printf("Setting = %s\n", setting);
   value =  strtok(NULL, ",");
   printf("Value = %s\n", value);
-#if 0
-  if(!strtok(NULL, ","))
-	/* too many arguments! */
-	return 1;
-#endif
   if(operation == NULL || setting == NULL )
   {
 	printf("Argument list is wrong. Please use get:$setting or set:$setting,$value\n");
