@@ -44,27 +44,6 @@
 
 static void report_mass_storage_blocker(const char *mountpoint, int try);
 
-#ifdef MAYBE_NEEDED
-int find_number_of_mounts(void)
-{
-  const char *mount;
-  gchar **mounts;
-  int mountpoints = 0, i = 0;
-	
-  mount = find_mounts();
-  if(mount)
-  {
-  	mounts = g_strsplit(mount, ",", 0);
-        /* check amount of mountpoints */
-        for(i=0 ; mounts[i] != NULL; i++)
-        {
-        	mountpoints++;
-        }
-  }
-  return(mountpoints);
-}
-#endif /* MAYBE_NEEDED */
-
 int write_to_file(const char *path, const char *text)
 {
   int err = -1;
