@@ -69,26 +69,6 @@ int usb_moded_load_module(const char *module)
 {
 	int ret = 0;
 
-#ifdef NO_KMOD
-	gchar *command; 
-	
-	if(!strcmp(module, MODULE_NONE))
-		return 0;
-	
-	command = g_strconcat("modprobe ", module, NULL);
-	ret = system(command);
-	if(!strcmp(module, MODULE_MASS_STORAGE) && (ret != 0))
-	{
-	  command = g_strconcat("modprobe ", MODULE_FILE_STORAGE, NULL);
-	  ret = system(command);
-	}
-	if(!strcmp(module, MODULE_CHARGING) && (ret != 0))
-	{
-	  command = g_strconcat("modprobe ", MODULE_CHARGE_FALLBACK, NULL);
-	  ret = system(command);
-	}
-	g_free(command);
-#else
 	const int probe_flags = KMOD_PROBE_APPLY_BLACKLIST;
 	struct kmod_module *mod;
 	char *charging_args = NULL;
@@ -136,7 +116,6 @@ int usb_moded_load_module(const char *module)
 	}
 	kmod_module_unref(mod);
 	free(load);
-#endif /* NO_KMOD */
 
 	if( ret == 0)
 		log_info("Module %s loaded successfully\n", module);
@@ -155,17 +134,6 @@ int usb_moded_unload_module(const char *module)
 {
 	int ret = 0;
 
-
-#ifdef NO_KMOD
-	gchar *command;
-
-	if(!strcmp(module, MODULE_NONE))
-		return 0;
-
-	command = g_strconcat("rmmod ", module, NULL);
-	ret = system(command);
-	g_free(command);
-#else
 	struct kmod_module *mod;
 
 	if(!strcmp(module, MODULE_NONE))
@@ -174,8 +142,6 @@ int usb_moded_unload_module(const char *module)
 	kmod_module_new_from_name(ctx, module, &mod);
 	ret = kmod_module_remove_module(mod, KMOD_REMOVE_NOWAIT);
 	kmod_module_unref(mod);
-
-#endif /* NO_KMOD */
 
 	return(ret);
 }
@@ -204,63 +170,7 @@ static int module_state_check(const char *module)
  */
 const char * usb_moded_find_module(void)
 {
-#ifdef NO_KMOD
-  FILE *stream = 0;
-  const char *result = 0;
-  
-  if( (stream = popen("lsmod", "r")) )
-  {
-    char *text = 0;
-    size_t size = 0;
-    
-    while( getline(&text, &size, stream) >= 0 )
-    {
-      if( strstr(text, "g_nokia") )
-      {
-	result = MODULE_NETWORK;
-	break;
-      }
-      if( strstr(text, "g_file_storage") )
-      {
-	result = MODULE_FILE_STORAGE;
-	break;
-      }
-      if( strstr(text, "g_mass_storage") )
-      {
-	result = MODULE_MASS_STORAGE;
-	break;
-      }
-     if( strstr(text, "g_ether") )
-      {
-	result = MODULE_WINDOWS_NET;
-	break;
-      }
-      if( strstr(text, "g_ncm") )
-      {
-	result = "g_ncm";
-	break;
-      }
-      if( strstr(text, "g_ffs") )
-      {
-	result = MODULE_MTP;
-	break;
-      }
-      /* if switching without disconnect we might have some dynamic module loaded */
-      if(strstr(text, get_usb_module()))
-      {
-	result = get_usb_module();
-	break;
-      }	
-    }
-    pclose(stream);
-  }
-
-return result;
-#endif /* NO_KMOD */
-  
-  if(module_state_check("g_nokia"))
-	return(MODULE_NETWORK);
-  else if(module_state_check("g_ether"))
+  if(module_state_check("g_ether"))
 	return(MODULE_DEVELOPER); 
   else if(module_state_check("g_ncm"))
 	return("g_ncm");
@@ -325,50 +235,6 @@ int usb_moded_module_cleanup(const char *module)
 		if(retry == 2)
 			break;
 	}
-	if(!strcmp(module, MODULE_NETWORK))
-	{
-		if(retry >= 2)
-		{	
-			/* we exited the loop due to max retry's. Module is not unloaded yet
-			   lets go for more extreme measures
-			   lsof, then various options of kill
-			*/
-			log_info("Oh noes the platform is on fire!\n");
-kill:		
-			/* DIRTY DESPERATE WORKAROUND */
-			/*system("for i in `lsof -t /dev/ttyGS*`; do cat /proc/$i/cmdline | sed 's/|//g' | sed "s/\x00/ /g" | awk '{ print $1 }' | xargs kill; done");
-			system("for i in `ps ax | grep phonet-at | grep -v grep | awk '{ print $1 }'`; do kill -9 $i ; done");*/
-			/* kill anything that still claims the usb tty's */
-			system("for i in `lsof -t /dev/ttyGS*`; do kill -s SIGTERM $i ; done");
-			system("for i in `lsof -t /dev/gc*`; do kill -s SIGTERM $i ; done");
-			system("for i in `lsof -t /dev/mtp*`; do kill -s SIGTERM $i ; done");
-			system("kill -s SIGTERM $(lsof -t /dev/usbacm");
-		        // SP: three passes and for loops in sh?
-		        // SP: system("kill -s SIGTERM $(lsof -t /dev/ttyGS* /dev/gc* /dev/mtp*") ?
-			// SP: or popen + kill loop?
-			/* try to unload again and give up if it did not work yet */
-			failure = usb_moded_unload_module(module);
-			if(failure && retry < 10)
-			{
-				retry++;
-			  // SP: NOTE: we have a root process in busyloop sending kill signals to
-			  // user processes? should we give them a chance to react?
-				goto kill;
-			  // SP: IMHO backwards goto is bad - a loop perhaps?
-			}
-			if(failure && retry == 10)
-			{
-				system("for i in `lsof -t /dev/ttyGS*`; do kill -9 $i ; done");
-				system("for i in `lsof -t /dev/gc*`; do kill -9 $i ; done");
-				system("for i in `lsof -t /dev/mtp*`; do kill -9 $i ; done");
-				/* try again since there seem to be hard to kill processes there */
-				system("killall -9 obexd");
-				system("killall -9 msycnd");
-				failure = usb_moded_unload_module(module);
-			}
-
-		}
-	}
 	if(!failure)
 		log_info("Module %s unloaded successfully\n", module);
 	else
@@ -427,16 +293,4 @@ void check_module_state(const char *module_name)
   }
 }
 
-
-#ifdef NOKIA
-gboolean usb_cleanup_timeout(gpointer data)
-{
- 	/* signal usb disconnected */
-        usb_moded_send_signal(USB_DISCONNECTED);
-	usb_moded_mode_cleanup(get_usb_module());
-	usb_moded_module_cleanup(get_usb_module());
-	set_usb_mode(MODE_UNDEFINED);
-	return FALSE;
-}
-#endif /* NOKIA */
 

@@ -29,9 +29,6 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <signal.h>
-#ifdef NOKIA
-#include <string.h>
-#endif
 
 #include <libkmod.h>
 #ifdef SYSTEMD
@@ -78,9 +75,6 @@ static gboolean systemd_notify = FALSE;
 
 struct usb_mode current_mode;
 guint charging_timeout = 0;
-#ifdef NOKIA
-guint timeout_source = 0;
-#endif /* NOKIA */
 static GList *modelist;
 
 /* static helper functions */
@@ -110,13 +104,6 @@ void set_usb_connected(gboolean connected)
 	if(current_mode.connected == connected)
 		return;
 
-#ifdef NOKIA
-	if(timeout_source)
-	{
-		g_source_remove(timeout_source);
-		timeout_source = 0;
-	}
-#endif /* NOKIA */	
 	if(charging_timeout)
 	{
 		g_source_remove(charging_timeout);
@@ -156,10 +143,6 @@ static gboolean set_disconnected(gpointer data)
   if(!get_usb_connection_state())
 	{
 		log_debug("usb disconnected\n");
-#ifdef NOKIA
-		/* delayed clean-up of state */
-		timeout_source = g_timeout_add_seconds(3, usb_cleanup_timeout, NULL);
-#else
   		/* signal usb disconnected */
 		usb_moded_send_signal(USB_DISCONNECTED);
 		/* unload modules and general cleanup if not charging */
@@ -169,7 +152,6 @@ static gboolean set_disconnected(gpointer data)
 		/* Nothing else as we do not need to do anything for cleaning up charging mode */
 		usb_moded_module_cleanup(get_usb_module());
 		set_usb_mode(MODE_UNDEFINED);
-#endif /* NOKIA */
 	
 	}
   return FALSE;
@@ -263,13 +245,6 @@ void set_usb_connected_state(void)
 	a mode is set will not interrupt it */
 	if(!strcmp(mode_to_set, current_mode.mode))
 		goto end;
-
-#ifdef NOKIA
-	/* If we switch to another mode than the one that is still set before the 
-	   clean-up timeout expired we need to clean up */
-	if(strcmp(mode_to_set, get_usb_mode()))
-		 usb_moded_mode_cleanup(get_usb_module());
-#endif /* NOKIA */
 
 	if(!strcmp(MODE_ASK, mode_to_set))
 	{

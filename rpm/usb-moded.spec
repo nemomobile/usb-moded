@@ -294,7 +294,7 @@ when the UI fails.
 
 %build
 %autogen
-%configure --enable-app-sync --enable-udev --enable-n900 --enable-meegodevlock --enable-debug --enable-connman --enable-systemd
+%configure --enable-app-sync --enable-udev --enable-meegodevlock --enable-debug --enable-connman --enable-systemd
 make all doc %{?_smp_mflags}
 
 %install
@@ -306,8 +306,8 @@ install -m 644 -D usb_moded.pc %{buildroot}/%{_libdir}/pkgconfig/usb_moded.pc
 install -d %{buildroot}/%{_docdir}/%{name}/html/
 install -m 644 docs/html/* %{buildroot}/%{_docdir}/%{name}/html/
 install -m 644 docs/usb_moded-doc.txt %{buildroot}/%{_docdir}/%{name}/
-install -m 644 -D debian/manpage.1 %{buildroot}/%{_mandir}/man1/usb-moded.1
-install -m 644 -D debian/usb_moded.conf %{buildroot}/%{_sysconfdir}/dbus-1/system.d/usb_moded.conf
+install -m 644 -D docs/usb-moded.1 %{buildroot}/%{_mandir}/man1/usb-moded.1
+install -m 644 -D usb_moded.conf %{buildroot}/%{_sysconfdir}/dbus-1/system.d/usb_moded.conf
 install -m 644 -D %{SOURCE1} %{buildroot}/%{_sysconfdir}/modprobe.d/usb_moded.conf
 install -d %{buildroot}/%{_sysconfdir}/usb-moded
 install -d %{buildroot}/%{_sysconfdir}/usb-moded/run
@@ -319,9 +319,6 @@ install -m 644 -D config/diag/* %{buildroot}/%{_sysconfdir}/usb-moded/diag/
 install -m 644 -D config/run/* %{buildroot}/%{_sysconfdir}/usb-moded/run/
 install -m 644 -D config/run-diag/* %{buildroot}/%{_sysconfdir}/usb-moded/run-diag/
 install -m 644 -D config/mass-storage-jolla.ini %{buildroot}/%{_sysconfdir}/usb-moded/
-
-# Sync mode not packaged for now.
-rm %{buildroot}/etc/usb-moded/dyn-modes/sync_mode.ini
 
 touch %{buildroot}/%{_sysconfdir}/modprobe.d/g_ether.conf
 touch %{buildroot}/%{_sysconfdir}/udhcpd.conf
@@ -344,7 +341,7 @@ systemctl daemon-reload || :
 
 %files
 %defattr(-,root,root,-)
-%doc debian/copyright
+%doc Copyright
 %dir %{_sysconfdir}/usb-moded
 %dir %{_sysconfdir}/usb-moded/dyn-modes
 %dir %{_sysconfdir}/usb-moded/run
@@ -361,13 +358,13 @@ systemctl daemon-reload || :
 
 %files devel
 %defattr(-,root,root,-)
-%doc debian/copyright
+%doc Copyright
 %{_includedir}/%{name}/*
 %{_libdir}/pkgconfig/usb_moded.pc
 
 %files doc
 %defattr(-,root,root,-)
-%doc debian/changelog debian/copyright LICENSE
+%doc ChangeLog Copyright LICENSE
 %{_docdir}/%{name}/*
 %{_docdir}/%{name}/html/*
 

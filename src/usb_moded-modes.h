@@ -21,8 +21,8 @@
 /* possible values for the mode, however only the first three can be set through the method call
    the others being internal only.
  */
+
 #define MODE_MASS_STORAGE       "mass_storage"
-#define MODE_OVI_SUITE          "ovi_suite"
 #define MODE_CHARGING           "charging_only"
 #define MODE_CHARGING_FALLBACK  "charging_only_fallback"
 #define MODE_UNDEFINED		"undefined"
@@ -34,3 +34,7 @@
 #define MODE_CONNECTION_SHARING "connection_sharing"
 #define MODE_DIAG		"qa_diag_mode"
 #define MODE_ADB		"adb_mode"
+
+/**
+ * FIXME: What's the difference between MODE_CHARGING, MODE_CHARGING_FALLBACK and MODE_CHARGER?
+ **/

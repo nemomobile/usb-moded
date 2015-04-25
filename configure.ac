@@ -32,14 +32,6 @@ AC_ARG_ENABLE([debug], AS_HELP_STRING([--enable-debug],[Enable debug @<:@default
    esac],[debug=false])
 AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
 
-AC_ARG_ENABLE([nokia], AS_HELP_STRING([--enable-nokia], [Enable Nokia extra's @<:@default=false@:>@]),
-  [case "${enableval}" in
-   yes) nokia=true ; CFLAGS="-DNOKIA -DN900 $CFLAGS" ;;
-   no)  nokia=false ;;
-   *) AC_MSG_ERROR([bad value ${enableval} for --enable-nokia]) ;;
-   esac],[nokia=false])
-AM_CONDITIONAL([NOKIA], [test x$nokia = xtrue])
-
 AC_ARG_ENABLE([meegodevlock], AS_HELP_STRING([--enable-meegodevlock], [Enable Meego devicelock @<:@default=false@:>@]),
   [case "${enableval}" in
    yes) meegodevlock=true ; CFLAGS="-DMEEGOLOCK $CFLAGS" ;;
@@ -47,14 +39,6 @@ AC_ARG_ENABLE([meegodevlock], AS_HELP_STRING([--enable-meegodevlock], [Enable Me
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-meegodevlock]) ;;
    esac],[meegodevlock=false])
 AM_CONDITIONAL([MEEGOLOCK], [test x$meegodevlock = xtrue])
-
-AC_ARG_ENABLE([n900], AS_HELP_STRING([--enable-n900], [Enable N900 extra's @<:@default=false@:>@]),
-  [case "${enableval}" in
-   yes) n900=true ; CFLAGS="-DN900 $CFLAGS" ;;
-   no)  n900=false ;;
-   *) AC_MSG_ERROR([bad value ${enableval} for --enable-n900]) ;;
-   esac],[n900=false])
-AM_CONDITIONAL([N900], [test x$n900 = xtrue])
 
 AC_ARG_ENABLE([app_sync], AS_HELP_STRING([--enable-app-sync], [Enable application syncing @<:@default=true@:>@]),
   [case "${enableval}" in
@@ -71,14 +55,6 @@ AC_ARG_ENABLE([app_sync_dbus], AS_HELP_STRING([--enable-app-sync-dbus], [Enable 
    *) AC_MSG_ERROR([bad value ${enableval} for --enable-app-sync-dbus]) ;;
    esac],[app_sync_dbus=false])
 AM_CONDITIONAL([APP_SYNC_DBUS], [test x$app_sync_dbus = xtrue])
-
-AC_ARG_ENABLE([upstart], AS_HELP_STRING([--enable-upstart], [Enable upstart interface for appsync @<:@default=false@:>@]),
-  [case "${enableval}" in
-   yes) upstart=true ; CFLAGS="-DUPSTART $CFLAGS" ;;
-   no)  upstart=false ;;
-   *) AC_MSG_ERROR([bad value ${enableval} for --enable-upstart]) ;;
-   esac],[upstart=false])
-AM_CONDITIONAL([UPSTART], [test x$upstart = xtrue])
 
 AC_ARG_ENABLE([connman], AS_HELP_STRING([--enable-connman], [Enable connman support for usb tethering @<:@default=false@:>@]),
   [case "${enableval}" in

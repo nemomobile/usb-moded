@@ -22,17 +22,9 @@
 
 #include "usb_moded-dyn-config.h"
 
-#ifdef MAYBE_NEEDED
-int find_number_of_mounts(void);
-#endif
 int write_to_file(const char *path, const char *text);
-int set_ovi_suite_mode(void);
 int set_mtp_mode(void);
 int set_dynamic_mode(void);
 void unset_dynamic_mode(void);
 /* clean up for the mode changes on disconnect */
 int usb_moded_mode_cleanup(const char *module);
-#ifdef NOKIA
-gboolean export_cdrom (gpointer data);
-#endif
-

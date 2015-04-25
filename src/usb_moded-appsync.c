@@ -38,7 +38,6 @@
 #include "usb_moded-appsync-dbus-private.h"
 #include "usb_moded-modesetting.h"
 #include "usb_moded-log.h"
-#include "usb_moded-upstart.h"
 #include "usb_moded-systemd.h"
 
 static struct list_elem *read_file(const gchar *filename, int diag);
@@ -152,8 +151,6 @@ static struct list_elem *read_file(const gchar *filename, int diag)
   log_debug("Launch = %s\n", list_item->launch);
   list_item->mode = g_key_file_get_string(settingsfile, APP_INFO_ENTRY, APP_INFO_MODE_KEY, NULL);
   log_debug("Launch mode = %s\n", list_item->mode);
-  list_item->upstart = g_key_file_get_integer(settingsfile, APP_INFO_ENTRY, APP_INFO_UPSTART_KEY, NULL);
-  log_debug("Upstart control = %d\n", list_item->upstart);
   list_item->systemd = g_key_file_get_integer(settingsfile, APP_INFO_ENTRY, APP_INFO_SYSTEMD_KEY, NULL);
   log_debug("Systemd control = %d\n", list_item->systemd);
   list_item->post = g_key_file_get_integer(settingsfile, APP_INFO_ENTRY, APP_INFO_POST, NULL);
@@ -250,15 +247,6 @@ int activate_sync(const char *mode)
 	else
 		goto error;
       }
-#ifdef UPSTART
-      else if(data->upstart)
-      {
-	if(!upstart_control_job(data->name, UPSTART_START))	
-		mark_active(data->name);
-	else
-		goto error;
-      }
-#endif /* UPSTART */
       else if(data->launch)
       {
 		/* skipping if dbus session bus is not available,
@@ -319,13 +307,6 @@ int activate_sync_post(const char *mode)
         if(systemd_control_service(data->name, SYSTEMD_START))
 		goto error;
       }
-#ifdef UPSTART
-      else if(data->upstart)
-      {
-	if(upstart_control_job(data->name, UPSTART_START))	
-		goto error;
-      }
-#endif /* UPSTART */
       else if(data->launch)
       {
 		/* skipping if dbus session bus is not available,
@@ -403,12 +384,6 @@ static gboolean enumerate_usb(gpointer data)
   else
   {
 
-#ifdef NOKIA
-    /* activate usb connection/enumeration */
-    write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "1");
-    log_debug("Softconnect enumeration done\n");
-#endif
-
     enum_tag = sync_tag;
 
     /* Debug: how long it took from sync start to get here */
@@ -438,14 +413,6 @@ int appsync_stop(void)
         if(!systemd_control_service(data->name, SYSTEMD_STOP))
 		log_debug("Failed to stop %s\n", data->name);
     }
-#ifdef UPSTART
-    else if(data->upstart)
-    {
-      log_debug("Stopping %s\n", data->launch);
-      if(upstart_control_job(data->name, UPSTART_STOP))
-	log_debug("Failed to stop %s\n", data->name);
-    }
-#endif /* UPSTART */
   }
 
   return(0);

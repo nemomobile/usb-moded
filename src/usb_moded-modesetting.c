@@ -40,31 +40,9 @@
 #include "usb_moded-config.h"
 #include "usb_moded-modesetting.h"
 #include "usb_moded-network.h"
-#include "usb_moded-upstart.h"
 #include "usb_moded-android.h"
 
 static void report_mass_storage_blocker(const char *mountpoint, int try);
-
-#ifdef MAYBE_NEEDED
-int find_number_of_mounts(void)
-{
-  const char *mount;
-  gchar **mounts;
-  int mountpoints = 0, i = 0;
-	
-  mount = find_mounts();
-  if(mount)
-  {
-  	mounts = g_strsplit(mount, ",", 0);
-        /* check amount of mountpoints */
-        for(i=0 ; mounts[i] != NULL; i++)
-        {
-        	mountpoints++;
-        }
-  }
-  return(mountpoints);
-}
-#endif /* MAYBE_NEEDED */
 
 int write_to_file(const char *path, const char *text)
 {
@@ -179,11 +157,7 @@ umount:                 command = g_strconcat("mount | grep ", mountpath, NULL);
 					{
                                 		log_err("Unmounting %s failed\n", mount);
 						report_mass_storage_blocker(mount, 2);
-#ifdef NOKIA
-                                        	usb_moded_send_error_signal("qtn_usb_filessystem_inuse");
-#else
                                         	usb_moded_send_error_signal(UMOUNT_ERROR);
-#endif
      	                                   	return(ret);
 					}
                                 }
@@ -339,39 +313,6 @@ static void report_mass_storage_blocker(const char *mountpoint, int try)
 
 }
 
-#ifdef N900
-int set_ovi_suite_mode(void)
-{
-#ifdef NOKIA
-   int timeout = 1;
-#endif /* NOKIA */
-
-  
-#ifdef APP_SYNC
-  activate_sync(MODE_OVI_SUITE);
-#else
-  write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "1");
-#endif /* APP_SYNC */
-  /* bring network interface up in case no other network is up */
-#ifdef DEBIAN
-  system("ifdown usb0 ; ifup usb0");
-#else
-  usb_network_down(NULL);
-  usb_network_up(NULL);
-#endif /* DEBIAN */
-
-#ifdef NOKIA
-  /* timeout for exporting CDROM image */
-  timeout = find_cdrom_timeout();
-  if(timeout == 0)
-	timeout = 1;
-  g_timeout_add_seconds(timeout, export_cdrom, NULL);
-#endif /* NOKIA */
-
-  return(0);
-}
-#endif /* N900 */
-
 int set_dynamic_mode(void)
 {
 
@@ -429,15 +370,8 @@ int set_dynamic_mode(void)
   /* functionality should be enabled, so we can enable the network now */
   if(data->network)
   {
-#ifdef DEBIAN
-  	char command[256];
-
-	g_snprintf(command, 256, "ifdown %s ; ifup %s", data->network_interface, data->network_interface);
-        system(command);
-#else
 	usb_network_down(data);
 	usb_network_up(data);
-#endif /* DEBIAN */
   }
 
   /* Needs to be called before application post synching so
@@ -498,31 +432,6 @@ void unset_dynamic_mode(void)
   }
 }
 
-#ifdef NOKIA
-gboolean export_cdrom(gpointer data)
-{
-  const char *path = NULL;
-
-  path = find_cdrom_path();
-
-  if(path == NULL)
-  {
-	log_debug("No cdrom path specified => not exporting.\n");
-	return(FALSE);
-  }
-  if(access(path, F_OK) == 0)
-  {
-        write_to_file("/sys/devices/platform/musb_hdrc/gadget/lun0/file", path);
-  }
-  else
-	log_debug("Cdrom image file does not exist => no export.\n");
-  g_free((gpointer *)path);
-
-  return(FALSE);
-}
-
-#endif /* NOKIA */
-
 /** clean up mode changes or extra actions to perform after a mode change 
  * @param module Name of module currently in use
  * @return 0 on success, non-zero on failure
@@ -551,20 +460,6 @@ int usb_moded_mode_cleanup(const char *module)
 		  return 0;	
 		unset_mass_storage_mode(NULL);
         }
-#ifdef N900
-        else if(!strcmp(module, MODULE_NETWORK))
-        {
-                /* preventive sync in case of bad quality mtp clients */
-                sync();
-                /* bring network down immediately */
-                /*system("ifdown usb0"); */
-		usb_network_down(NULL);
-                /* do soft disconnect 
-  		write_to_file("/sys/devices/platform/musb_hdrc/gadget/softconnect", "0"); */
-		/* DIRTY WORKAROUND: acm/phonet does not work as it should, remove when it does */
-		system("killall -SIGTERM acm");
-        }
-#endif /* N900 */
 
 	else if(get_usb_mode_data())
 		unset_dynamic_mode();
