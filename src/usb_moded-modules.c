@@ -69,26 +69,6 @@ int usb_moded_load_module(const char *module)
 {
 	int ret = 0;
 
-#ifdef NO_KMOD
-	gchar *command; 
-	
-	if(!strcmp(module, MODULE_NONE))
-		return 0;
-	
-	command = g_strconcat("modprobe ", module, NULL);
-	ret = system(command);
-	if(!strcmp(module, MODULE_MASS_STORAGE) && (ret != 0))
-	{
-	  command = g_strconcat("modprobe ", MODULE_FILE_STORAGE, NULL);
-	  ret = system(command);
-	}
-	if(!strcmp(module, MODULE_CHARGING) && (ret != 0))
-	{
-	  command = g_strconcat("modprobe ", MODULE_CHARGE_FALLBACK, NULL);
-	  ret = system(command);
-	}
-	g_free(command);
-#else
 	const int probe_flags = KMOD_PROBE_APPLY_BLACKLIST;
 	struct kmod_module *mod;
 	char *charging_args = NULL;
@@ -136,7 +116,6 @@ int usb_moded_load_module(const char *module)
 	}
 	kmod_module_unref(mod);
 	free(load);
-#endif /* NO_KMOD */
 
 	if( ret == 0)
 		log_info("Module %s loaded successfully\n", module);
@@ -155,17 +134,6 @@ int usb_moded_unload_module(const char *module)
 {
 	int ret = 0;
 
-
-#ifdef NO_KMOD
-	gchar *command;
-
-	if(!strcmp(module, MODULE_NONE))
-		return 0;
-
-	command = g_strconcat("rmmod ", module, NULL);
-	ret = system(command);
-	g_free(command);
-#else
 	struct kmod_module *mod;
 
 	if(!strcmp(module, MODULE_NONE))
@@ -174,8 +142,6 @@ int usb_moded_unload_module(const char *module)
 	kmod_module_new_from_name(ctx, module, &mod);
 	ret = kmod_module_remove_module(mod, KMOD_REMOVE_NOWAIT);
 	kmod_module_unref(mod);
-
-#endif /* NO_KMOD */
 
 	return(ret);
 }
@@ -204,55 +170,6 @@ static int module_state_check(const char *module)
  */
 const char * usb_moded_find_module(void)
 {
-#ifdef NO_KMOD
-  FILE *stream = 0;
-  const char *result = 0;
-  
-  if( (stream = popen("lsmod", "r")) )
-  {
-    char *text = 0;
-    size_t size = 0;
-    
-    while( getline(&text, &size, stream) >= 0 )
-    {
-      if( strstr(text, "g_file_storage") )
-      {
-	result = MODULE_FILE_STORAGE;
-	break;
-      }
-      if( strstr(text, "g_mass_storage") )
-      {
-	result = MODULE_MASS_STORAGE;
-	break;
-      }
-     if( strstr(text, "g_ether") )
-      {
-	result = MODULE_WINDOWS_NET;
-	break;
-      }
-      if( strstr(text, "g_ncm") )
-      {
-	result = "g_ncm";
-	break;
-      }
-      if( strstr(text, "g_ffs") )
-      {
-	result = MODULE_MTP;
-	break;
-      }
-      /* if switching without disconnect we might have some dynamic module loaded */
-      if(strstr(text, get_usb_module()))
-      {
-	result = get_usb_module();
-	break;
-      }	
-    }
-    pclose(stream);
-  }
-
-return result;
-#endif /* NO_KMOD */
-  
   if(module_state_check("g_ether"))
 	return(MODULE_DEVELOPER); 
   else if(module_state_check("g_ncm"))
