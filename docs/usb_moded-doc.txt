@@ -209,7 +209,7 @@ Only condition is that it can be activated by dbus and that (preferably) it will
 notify usb_moded that it is ready by ready_method call on the session bus.
 This ready method call is just calling the regular usb_moded interface, but now
 on the session bus, with as argument the program name as defined in the config file.
-Systemd and upstart are also supported.
+Systemd is also supported.
 
 To achieve this you need to have a config file in /etc/usb-moded/run.
 Best practice would be giving it a descriptive name followed by .ini
@@ -230,14 +230,6 @@ mode = foo_mode
 systemd = 1
 
 The name here is the service name used when launching it for example with systemctl
-
-For upstart:
-[info]
-name = foo
-mode = foo_mode
-upstart = 1
-
-Here the name is service name used by upstart.
 
 Those files will be read on start and usb_moded will keep a list of apps to launch 
 for a certain mode. This also means that if you change the files or add/remove some

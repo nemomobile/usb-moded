@@ -40,7 +40,6 @@
 #include "usb_moded-config.h"
 #include "usb_moded-modesetting.h"
 #include "usb_moded-network.h"
-#include "usb_moded-upstart.h"
 #include "usb_moded-android.h"
 
 static void report_mass_storage_blocker(const char *mountpoint, int try);

@@ -61,12 +61,6 @@ usb_moded_SOURCES += \
 	usb_moded-appsync-dbus-private.h 
 endif
 
-if UPSTART
-usb_moded_SOURCES += \
-	usb_moded-upstart.h \
-	usb_moded-upstart.c
-endif
-
 usb_moded_util_CPPFLAGS = \
         $(USB_MODED_CFLAGS)
 
