@@ -215,11 +215,6 @@ const char * usb_moded_find_module(void)
     
     while( getline(&text, &size, stream) >= 0 )
     {
-      if( strstr(text, "g_nokia") )
-      {
-	result = MODULE_NETWORK;
-	break;
-      }
       if( strstr(text, "g_file_storage") )
       {
 	result = MODULE_FILE_STORAGE;
@@ -258,9 +253,7 @@ const char * usb_moded_find_module(void)
 return result;
 #endif /* NO_KMOD */
   
-  if(module_state_check("g_nokia"))
-	return(MODULE_NETWORK);
-  else if(module_state_check("g_ether"))
+  if(module_state_check("g_ether"))
 	return(MODULE_DEVELOPER); 
   else if(module_state_check("g_ncm"))
 	return("g_ncm");
@@ -324,50 +317,6 @@ int usb_moded_module_cleanup(const char *module)
 		retry++;
 		if(retry == 2)
 			break;
-	}
-	if(!strcmp(module, MODULE_NETWORK))
-	{
-		if(retry >= 2)
-		{	
-			/* we exited the loop due to max retry's. Module is not unloaded yet
-			   lets go for more extreme measures
-			   lsof, then various options of kill
-			*/
-			log_info("Oh noes the platform is on fire!\n");
-kill:		
-			/* DIRTY DESPERATE WORKAROUND */
-			/*system("for i in `lsof -t /dev/ttyGS*`; do cat /proc/$i/cmdline | sed 's/|//g' | sed "s/\x00/ /g" | awk '{ print $1 }' | xargs kill; done");
-			system("for i in `ps ax | grep phonet-at | grep -v grep | awk '{ print $1 }'`; do kill -9 $i ; done");*/
-			/* kill anything that still claims the usb tty's */
-			system("for i in `lsof -t /dev/ttyGS*`; do kill -s SIGTERM $i ; done");
-			system("for i in `lsof -t /dev/gc*`; do kill -s SIGTERM $i ; done");
-			system("for i in `lsof -t /dev/mtp*`; do kill -s SIGTERM $i ; done");
-			system("kill -s SIGTERM $(lsof -t /dev/usbacm");
-		        // SP: three passes and for loops in sh?
-		        // SP: system("kill -s SIGTERM $(lsof -t /dev/ttyGS* /dev/gc* /dev/mtp*") ?
-			// SP: or popen + kill loop?
-			/* try to unload again and give up if it did not work yet */
-			failure = usb_moded_unload_module(module);
-			if(failure && retry < 10)
-			{
-				retry++;
-			  // SP: NOTE: we have a root process in busyloop sending kill signals to
-			  // user processes? should we give them a chance to react?
-				goto kill;
-			  // SP: IMHO backwards goto is bad - a loop perhaps?
-			}
-			if(failure && retry == 10)
-			{
-				system("for i in `lsof -t /dev/ttyGS*`; do kill -9 $i ; done");
-				system("for i in `lsof -t /dev/gc*`; do kill -9 $i ; done");
-				system("for i in `lsof -t /dev/mtp*`; do kill -9 $i ; done");
-				/* try again since there seem to be hard to kill processes there */
-				system("killall -9 obexd");
-				system("killall -9 msycnd");
-				failure = usb_moded_unload_module(module);
-			}
-
-		}
 	}
 	if(!failure)
 		log_info("Module %s unloaded successfully\n", module);
