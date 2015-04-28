@@ -22,9 +22,6 @@
 
 #include "usb_moded-dyn-config.h"
 
-#ifdef MAYBE_NEEDED
-int find_number_of_mounts(void);
-#endif
 int write_to_file(const char *path, const char *text);
 int set_mtp_mode(void);
 int set_dynamic_mode(void);
