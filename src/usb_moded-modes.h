@@ -18,22 +18,21 @@
   02110-1301 USA
 */
 
-/* possible values for the mode, however only the first three can be set through the method call
-   the others being internal only.
+/* possible values for the mode
+   the first two are internal only.
  */
 
-#define MODE_MASS_STORAGE       "mass_storage"
-#define MODE_CHARGING           "charging_only"
-#define MODE_CHARGING_FALLBACK  "charging_only_fallback"
 #define MODE_UNDEFINED		"undefined"
 #define MODE_ASK		"ask"
+#define MODE_MASS_STORAGE       "mass_storage"
 #define MODE_DEVELOPER		"developer_mode"
 #define MODE_MTP		"mtp_mode"
-#define MODE_CHARGER		"dedicated_charger"
 #define MODE_HOST		"host_mode"
 #define MODE_CONNECTION_SHARING "connection_sharing"
 #define MODE_DIAG		"qa_diag_mode"
 #define MODE_ADB		"adb_mode"
+#define MODE_PC_SUITE		"pc_suite"
+#define MODE_CHARGING           "charging_only"
 
 /**
  *
@@ -41,4 +40,7 @@
  * MODE_CHARGING_FALLBACK : mode selection is not done by the user so we fallback to a charging mode to get some power
  * MODE_CHARGER : there is a dedicated charger connected to the USB port
  *
+ * the two last ones cannot be set and are not full modes
  **/
+#define MODE_CHARGING_FALLBACK  "charging_only_fallback"
+#define MODE_CHARGER		"dedicated_charger"
