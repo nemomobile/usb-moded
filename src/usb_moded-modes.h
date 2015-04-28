@@ -21,6 +21,7 @@
 /* possible values for the mode, however only the first three can be set through the method call
    the others being internal only.
  */
+
 #define MODE_MASS_STORAGE       "mass_storage"
 #define MODE_CHARGING           "charging_only"
 #define MODE_CHARGING_FALLBACK  "charging_only_fallback"
@@ -33,3 +34,11 @@
 #define MODE_CONNECTION_SHARING "connection_sharing"
 #define MODE_DIAG		"qa_diag_mode"
 #define MODE_ADB		"adb_mode"
+
+/**
+ *
+ * MODE_CHARGING : user manually selected charging mode
+ * MODE_CHARGING_FALLBACK : mode selection is not done by the user so we fallback to a charging mode to get some power
+ * MODE_CHARGER : there is a dedicated charger connected to the USB port
+ *
+ **/
