@@ -1,3 +1,21 @@
+usb-moded (0.82) unstable; urgency=low
+
+  * [rpm] Fix build, do not attempt to remove nonexistent file
+  * [pc-suite] Add a define for the pc-suite
+  * [cleanup] Remove code that's never compiled (#if 0)
+  * [cleanup] Remove MAYBE_NEEDED sections
+  * [cleanup] Remove the obsolete NO_KMOD code parts
+  * [config] Remove N900-specific .ini files
+  * [cleanup] Move some reference .txt files from root to docs/
+  * [upstart] Remove upstart appsync support
+  * [headers] Improve some mode related comments
+  * [spec] Don't use --enable-n900 anymore
+  * [cleanup] Remove now unused ovi-suite support
+  * [cleanup] Remove g_nokia code and the app killer
+  * [cleanup] Remove NOKIA and N900 defines
+
+ -- Philippe De Swert <philippe.deswert@jolla.com>  Tue, 28 Apr 2015 12:47:23 +0300
+
 usb-moded (0.81.9) unstable; urgency=low
   
   * [modes.h] Add MODE_ADB named constant (contributes to JB#12048)
