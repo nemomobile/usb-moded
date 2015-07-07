@@ -81,11 +81,11 @@ static void free_ipforward_data (struct ipforward_data *ipforward)
 /* This function checks if the configured interface exists */
 static int check_interface(char *interface)
 {
-  char command[32];
+  char path[25];
   int ret = 0;
 
-   snprintf(command, 32, "ifconfig %s > /dev/null\n", interface );
-   ret = system(command);
+   snprintf(path, 25, "/sys/class/net/%s", interface );
+   ret = access(path, F_OK);
 
    return(ret);
 }
@@ -337,6 +337,10 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
 	return(1);
   }
 
+  interface = get_interface(data);
+  if(interface == NULL)
+	return(1);
+
   /* generate start and end ip based on the setting */
   ip = get_network_ip();
   if(ip == NULL)
@@ -365,9 +369,6 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   strcat(ipstart,"1");
   strcat(ipend, "10");
 
-  interface = get_interface(data);
-  if(interface == NULL)
-	return(1);
   /* print all data in the file */
   fprintf(conffile, "start\t%s\n", ipstart);
   fprintf(conffile, "end\t%s\n", ipend);
