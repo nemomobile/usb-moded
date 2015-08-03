@@ -121,7 +121,7 @@ char * get_trigger_value(void)
   return(get_conf_string(TRIGGER_ENTRY, TRIGGER_PROPERTY_VALUE_KEY));
 }
 
-char * get_network_ip(void)
+static char * get_network_ip(void)
 {
   char * ip = get_kcmdline_string(NETWORK_IP_KEY);
   if (ip != NULL)
@@ -131,12 +131,12 @@ char * get_network_ip(void)
   return(get_conf_string(NETWORK_ENTRY, NETWORK_IP_KEY));
 }
 
-char * get_network_interface(void)
+static char * get_network_interface(void)
 {
   return(get_conf_string(NETWORK_ENTRY, NETWORK_INTERFACE_KEY));
 }
 
-char * get_network_gateway(void)
+static char * get_network_gateway(void)
 {
   char * gw = get_kcmdline_string(NETWORK_GATEWAY_KEY);
   if (gw != NULL)
@@ -145,7 +145,16 @@ char * get_network_gateway(void)
   return(get_conf_string(NETWORK_ENTRY, NETWORK_GATEWAY_KEY));
 }
 
-char * get_network_nat_interface(void)
+static char * get_network_netmask(void)
+{
+  char * netmask = get_kcmdline_string(NETWORK_NETMASK_KEY);
+  if (netmask != NULL)
+    return(netmask);
+
+  return(get_conf_string(NETWORK_ENTRY, NETWORK_NETMASK_KEY));
+}
+
+static char * get_network_nat_interface(void)
 {
   return(get_conf_string(NETWORK_ENTRY, NETWORK_NAT_INTERFACE_KEY));
 }
@@ -312,6 +321,11 @@ static char * get_kcmdline_string(const char *entry)
 		  log_debug("Command line gateway = %s\n", ret);
 		}
 	}
+	if(!strcmp(entry, NETWORK_NETMASK_KEY))
+	{
+		ret = g_strdup(network_tokens[3]);
+		log_debug("Command line netmask = %s\n", ret);
+	}
       } 
     }
     g_strfreev(arg_tokens);
@@ -460,6 +474,15 @@ char * get_network_setting(const char *config)
   }
   else if(!strcmp(config, NETWORK_INTERFACE_KEY))
   {
+
+	/* check main configuration before using
+	the information from the specific mode */
+	ret = get_network_interface();
+
+	if(ret)
+		goto end;
+	/* no interface override specified, let's use the one
+	from the mode config */
 	data = get_usb_mode_data();
 	if(data)
 	{
@@ -469,12 +492,18 @@ char * get_network_setting(const char *config)
 			goto end;
 		}
 	}
-	ret = get_network_interface();
-	if(!ret)
-		ret = strdup("usb0");
+	ret = strdup("usb0");
   }
   else if(!strcmp(config, NETWORK_GATEWAY_KEY))
 	return(get_network_gateway());
+  else if(!strcmp(config, NETWORK_NETMASK_KEY))
+  {
+	ret = get_network_netmask();
+	if(!ret)
+		ret = strdup("255.255.255.0");
+  }
+  else if(!strcmp(config, NETWORK_NAT_INTERFACE_KEY))
+	return(get_network_nat_interface());
   else
 	/* no matching keys, return error */
 	return(NULL);

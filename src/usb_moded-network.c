@@ -95,26 +95,13 @@ static char* get_interface(struct mode_list_elem *data)
   char *interface = NULL;
   int check = 0;
 
-  /* check main configuration before using
-     the information from the specific mode */
-  interface = (char *)get_network_interface();
-  /* no interface override specified, let's use the one
-     from the mode config */
-  if(data && !interface)
-  {
-	if(data->network_interface)
-	{	
-		interface = strdup(data->network_interface);
-	}
-  }
+  interface = get_network_setting(NETWORK_INTERFACE_KEY);
+  check = check_interface(interface);
 
-  if(interface != NULL)
-	check = check_interface(interface);
-
-  if(interface == NULL || check != 0)
+  if(check != 0)
   {
 	if(interface != NULL)
-		free((char *)interface);
+		free(interface);
 	/* no known interface configured and existing, falling back to usb0 */
 	interface = malloc(sizeof(default_interface)*sizeof(char));
 	strncpy(interface, default_interface, sizeof(default_interface));
@@ -124,6 +111,7 @@ static char* get_interface(struct mode_list_elem *data)
   if(check)
   {
 	log_warning("Configured interface is incorrect, nor does usb0 exists. Check your config!\n");
+	free(interface);
 	return(0);
   }
 
@@ -143,7 +131,7 @@ static int set_usb_ip_forward(struct mode_list_elem *data, struct ipforward_data
   interface = get_interface(data);
   if(interface == NULL)
 	return(1);
-  nat_interface = get_network_nat_interface();
+  nat_interface = get_network_setting(NETWORK_NAT_INTERFACE_KEY);
   if((nat_interface == NULL) && (ipforward->nat_interface != NULL))
 	nat_interface = strdup(ipforward->nat_interface);
   else
@@ -153,7 +141,8 @@ static int set_usb_ip_forward(struct mode_list_elem *data, struct ipforward_data
 	/* in case the cellular did not come up we want to make sure wifi gets restored */
 	connman_reset_state();
 #endif
-	free((char *)interface);
+	free(interface);
+	free(nat_interface);
 	return(1);
   }
   write_to_file("/proc/sys/net/ipv4/ip_forward", "1");
@@ -323,7 +312,7 @@ static int checklink(void)
 static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_elem *data)
 {
   FILE *conffile;
-  char *ip, *interface;
+  char *ip, *interface, *netmask;
   char *ipstart, *ipend;
   int dot = 0, i = 0, test;
   struct stat st;
@@ -339,14 +328,12 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
 
   interface = get_interface(data);
   if(interface == NULL)
-	return(1);
-
-  /* generate start and end ip based on the setting */
-  ip = get_network_ip();
-  if(ip == NULL)
   {
-	ip = strdup("192.168.2.15");
+	fclose(conffile);
+	return(1);
   }
+  /* generate start and end ip based on the setting */
+  ip = get_network_setting(NETWORK_IP_KEY);
   ipstart = malloc(sizeof(char)*15);
   ipend = malloc(sizeof(char)*15);
   while(i < 15)
@@ -369,11 +356,13 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   strcat(ipstart,"1");
   strcat(ipend, "15");
 
+  netmask = get_network_setting(NETWORK_NETMASK_KEY);
+
   /* print all data in the file */
   fprintf(conffile, "start\t%s\n", ipstart);
   fprintf(conffile, "end\t%s\n", ipend);
   fprintf(conffile, "interface\t%s\n", interface);
-  fprintf(conffile, "option\tsubnet\t255.255.255.0\n");
+  fprintf(conffile, "option\tsubnet\t%s\n", netmask);
   fprintf(conffile, "option\tlease\t3600\n");
 
   if(ipforward != NULL)
@@ -391,6 +380,7 @@ static int write_udhcpd_conf(struct ipforward_data *ipforward, struct mode_list_
   free(ipend);
   free(ip);
   free(interface);
+  free(netmask);
   fclose(conffile);
 
   /* check if it is a symlink, if not remove and link, create the link if missing */
@@ -1029,9 +1019,7 @@ int usb_network_up(struct mode_list_elem *data)
 	dbus_message_iter_close_container(&dict, &dict_entry);
 
 	log_debug("Set ip\n");
-	ip = get_network_ip();
-	if(ip == NULL)
-		ip = strdup("192.168.2.15");
+	ip = get_network_settings(NETWORK_IP_KEY);
 	dbus_message_iter_open_container(&dict, DBUS_TYPE_DICT_ENTRY, NULL, &dict_entry);
 	append_variant(&dict_entry, "Address", DBUS_TYPE_STRING, ip);
 	dbus_message_iter_close_container(&dict, &dict_entry);
@@ -1042,7 +1030,7 @@ int usb_network_up(struct mode_list_elem *data)
 	dbus_message_iter_close_container(&dict, &dict_entry);
 
 	log_debug("set gateway\n");
-	gateway = get_network_gateway();
+	gateway = get_network_setting(NETWORK_GATEWAY_KEY);
 	if(gateway)
 	{
 		dbus_message_iter_open_container(&dict, DBUS_TYPE_DICT_ENTRY, NULL, &dict_entry);
@@ -1074,22 +1062,20 @@ int usb_network_up(struct mode_list_elem *data)
 
 #else
   char command[128];
-  const char *interface;
+  char *interface;
+  char *netmask;
 
   interface = get_interface(data); 
-  ip = get_network_ip();
-  gateway = get_network_gateway();
 
   if(interface == NULL)
 	return(1);
 
-  if(ip == NULL)
-  {
-	sprintf(command,"ifconfig %s 192.168.2.15", interface);
-	system(command);
-	goto clean;
-  }
-  else if(!strcmp(ip, "dhcp"))
+  /* interface found, so we can get all the rest */
+  ip = get_network_setting(NETWORK_IP_KEY);
+  gateway = get_network_setting(NETWORK_GATEWAY_KEY);
+  netmask = get_network_setting(NETWORK_NETMASK_KEY);
+
+  if(!strcmp(ip, "dhcp"))
   {
 	sprintf(command, "dhclient -d %s\n", interface);
 	ret = system(command);
@@ -1102,7 +1088,7 @@ int usb_network_up(struct mode_list_elem *data)
   }
   else
   {
-	sprintf(command, "ifconfig %s %s\n", interface, ip);
+	sprintf(command, "ifconfig %s %s %s\n", interface, ip, netmask);
 	system(command);
   }
 
@@ -1113,10 +1099,10 @@ int usb_network_up(struct mode_list_elem *data)
         system(command);
   }
 
-clean:
-  free((char *)interface);
-  free((char *)gateway);
-  free((char *)ip);
+  free(interface);
+  free(gateway);
+  free(ip);
+  free(netmask);
 
   return(0);
 #endif /* CONNMAN */
@@ -1174,7 +1160,7 @@ int usb_network_down(struct mode_list_elem *data)
 
   return(ret);
 #else
-  const char *interface;
+  char *interface;
   char command[128];
 
   interface = get_interface(data);
@@ -1188,7 +1174,7 @@ int usb_network_down(struct mode_list_elem *data)
   if(data->nat)
 	clean_usb_ip_forward();
 
-  free((char *)interface);
+  free(interface);
   
   return(0);
 #endif /* CONNMAN_IS_EVER_FIXED_FOR_USB */
