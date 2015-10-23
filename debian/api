@@ -1,6 +1,0 @@
-interface: usb_moded
-type: dbus
-scope: Internal
-state: unstable
-dev-pkg: usb-moded-dev
-
